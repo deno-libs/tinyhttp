@@ -7,7 +7,7 @@ Deno port of [tinyhttp](https://github.com/talentlessguy/tinyhttp), 0-legacy, ti
 ## Example
 
 ```ts
-import { App } from 'https://deno.land/x/tinyhttp@v0.0.1'
+import { App } from 'https://deno.land/x/tinyhttp@v0.0.1/app.ts'
 
 const app = new App()
 
