@@ -7,4 +7,7 @@ export interface Request extends ServerRequest {
   originalUrl: string
   app: App
   params: Record<string, any>
+  get: (header: string) => string | string[] | null
+  fresh?: boolean
+  stale?: boolean
 }

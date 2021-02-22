@@ -1,21 +1,22 @@
 // deno-lint-ignore-file
-import { NextFunction, Router, Handler, Middleware, UseMethodParams } from 'https://esm.sh/@tinyhttp/router'
+import { NextFunction, Router, Handler, Middleware, UseMethodParams } from 'https://esm.sh/@tinyhttp/router@1.2.1'
 import { onErrorHandler, ErrorHandler } from './onError.ts'
 import 'https://deno.land/std@0.87.0/node/global.ts'
 import rg from 'https://esm.sh/regexparam'
 import { Request } from './request.ts'
-import { getURLParams } from 'https://cdn.esm.sh/v15/@tinyhttp/url@1.1.2/esnext/url.js'
+import { Response } from './response.ts'
+import { getURLParams } from 'https://cdn.esm.sh/v15/@tinyhttp/url@1.2.0/esnext/url.js'
 import { extendMiddleware } from './extend.ts'
 import { serve, Server } from 'https://deno.land/std@0.87.0/http/server.ts'
 import { parse } from './parseUrl.ts'
 
 const lead = (x: string) => (x.charCodeAt(0) === 47 ? x : '/' + x)
 
-export const applyHandler = <Req>(h: Handler<Req>) => async (req: Req, next: NextFunction) => {
+export const applyHandler = <Req, Res>(h: Handler<Req, Res>) => async (req: Req, res: Res, next: NextFunction) => {
   try {
     if (h.constructor.name === 'AsyncFunction') {
-      await h(req, next)
-    } else h(req, next)
+      await h(req, res, next)
+    } else h(req, res, next)
   } catch (e) {
     next(e)
   }
@@ -47,21 +48,25 @@ export type TemplateEngineOptions<O = any> = Partial<{
   _locals: Record<string, any>
 }>
 
-export class App<RenderOptions = any, Req extends Request = Request> extends Router<App, Req> {
+export class App<RenderOptions = any, Req extends Request = Request, Res extends Response = Response> extends Router<
+  App,
+  Req,
+  Res
+> {
   middleware: Middleware<Req>[] = []
   locals: Record<string, string> = {}
   noMatchHandler: Handler
   onError: ErrorHandler
   settings: AppSettings
   engines: Record<string, TemplateFunc<RenderOptions>> = {}
-  applyExtensions?: (req: Request, next: NextFunction) => void
+  applyExtensions?: (req: Req, res: Res, next: NextFunction) => void
 
   constructor(
     options: Partial<{
       noMatchHandler: Handler<Req>
       onError: ErrorHandler
       settings: AppSettings
-      applyExtensions: (req: Request, next: NextFunction) => void
+      applyExtensions: (req: Req, res: Res, next: NextFunction) => void
     }> = {}
   ) {
     super()
@@ -79,7 +84,7 @@ export class App<RenderOptions = any, Req extends Request = Request> extends Rou
     return app
   }
 
-  use(...args: UseMethodParams<Req, any, App>) {
+  use(...args: UseMethodParams<Req, Res, App>) {
     const base = args[0]
 
     const fns: any[] = args.slice(1)
@@ -128,13 +133,17 @@ export class App<RenderOptions = any, Req extends Request = Request> extends Rou
     const { xPoweredBy } = this.settings
     if (xPoweredBy) req.headers.set('X-Powered-By', typeof xPoweredBy === 'string' ? xPoweredBy : 'tinyhttp')
 
-    const exts = this.applyExtensions || extendMiddleware<RenderOptions>(this as any)
+    let res = {
+      headers: new Headers({})
+    }
+
+    const exts = this.applyExtensions || extendMiddleware<RenderOptions, Req, Res>(this as any)
 
     req.originalUrl = req.url || req.originalUrl
 
     const { pathname } = parse(req.originalUrl)
 
-    const mw: Middleware[] = [
+    const mw: Middleware<Req, Res>[] = [
       {
         handler: exts,
         type: 'mw',
@@ -148,7 +157,7 @@ export class App<RenderOptions = any, Req extends Request = Request> extends Rou
       }
     ]
 
-    const handle = (mw: Middleware) => async (req: Req, next: NextFunction) => {
+    const handle = (mw: Middleware<Req, Res>) => async (req: Req, res: Res, next: NextFunction) => {
       const { path = '/', handler, type, regex = rg('/') } = mw
 
       req.url = lead(req.url.substring(path.length)) || '/'
@@ -157,14 +166,14 @@ export class App<RenderOptions = any, Req extends Request = Request> extends Rou
 
       if (type === 'route') req.params = getURLParams(regex, pathname)
 
-      await applyHandler<Req>((handler as unknown) as Handler<Req>)(req, next)
+      await applyHandler<Req, Res>((handler as unknown) as Handler<Req, Res>)(req, res, next)
     }
 
     let idx = 0
 
-    next = next || ((err) => (err ? this.onError(err, req) : loop()))
+    next = next || ((err: any) => (err ? this.onError(err, req) : loop()))
 
-    const loop = () => idx < mw.length && handle(mw[idx++])(req, next as NextFunction)
+    const loop = () => idx < mw.length && handle(mw[idx++])(req, (res as unknown) as Res, next as NextFunction)
 
     loop()
   }
