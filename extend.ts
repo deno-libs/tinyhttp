@@ -3,7 +3,11 @@ import { App } from './app.ts'
 import { Request } from './request.ts'
 import { getRequestHeader, getFreshOrStale } from './extensions/req/headers.ts'
 import { send } from './extensions/res/send.ts'
+import { json } from './extensions/res/json.ts'
+import { end } from './extensions/res/end.ts'
+import { sendStatus } from './extensions/res/sendStatus.ts'
 import { Response } from './response.ts'
+import { setHeader, setLocationHeader } from './extensions/res/headers.ts'
 
 export const extendMiddleware = <
   RenderOptions = unknown,
@@ -26,7 +30,15 @@ export const extendMiddleware = <
     req.stale = !req.fresh
   }
 
-  res.send = send(req, res)
+  res.end = end(req, res)
+  res.send = send<Req, Res>(req, res)
+  res.sendStatus = sendStatus(req, res)
+  res.json = json<Res>(res)
+
+  res.setHeader = setHeader<Res>(res)
+  res.set = setHeader<Res>(res)
+
+  res.location = setLocationHeader<Req, Res>(req, res)
 
   next?.()
 }

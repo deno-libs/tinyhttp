@@ -1,15 +1,29 @@
-import * as qs from 'https://deno.land/std@0.88.0/node/querystring.ts'
+import { parse } from 'https://deno.land/std@0.88.0/node/querystring.ts'
 
-export const pathname = (u: string) => {
+type Regex = {
+  keys: string[]
+  pattern: RegExp
+}
+
+export const getURLParams = (r: Regex, reqUrl = '/'): URLParams => {
+  const { pattern, keys } = r
+  const matches = pattern.exec(reqUrl)
+
+  const params: Record<string, any> = {}
+
+  if (matches) for (let i = 0; i < keys.length; i++) params[keys[i]] = matches[i + 1]
+
+  return params
+}
+
+export type URLParams = {
+  [key: string]: string
+}
+
+export const getPathname = (u: string) => {
   const end = u.indexOf('?')
 
   return u.slice(0, end === -1 ? u.length : end)
 }
 
-export const parse = (url: string) => {
-  const path = pathname(url)
-
-  const query = qs.parse(url.slice(url.indexOf('?')))
-
-  return { pathname: path, query }
-}
+export const getQueryParams = (url = '/') => parse(url.slice(url.indexOf('?') + 1))

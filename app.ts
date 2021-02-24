@@ -1,14 +1,13 @@
 // deno-lint-ignore-file
-import { NextFunction, Router, Handler, Middleware, UseMethodParams } from 'https://esm.sh/@tinyhttp/router@1.2.1'
+import { NextFunction, Router, Handler, Middleware, UseMethodParams } from 'https://esm.sh/@tinyhttp/router'
 import { onErrorHandler, ErrorHandler } from './onError.ts'
-import 'https://deno.land/std@0.87.0/node/global.ts'
+// import { setImmediate } from 'https://deno.land/std@0.88.0/node/timers.ts'
 import rg from 'https://esm.sh/regexparam'
 import { Request } from './request.ts'
 import { Response } from './response.ts'
-import { getURLParams } from 'https://cdn.esm.sh/v15/@tinyhttp/url@1.2.0/esnext/url.js'
+import { getURLParams, getPathname } from './parseUrl.ts'
 import { extendMiddleware } from './extend.ts'
 import { serve, Server } from 'https://deno.land/std@0.87.0/http/server.ts'
-import { parse } from './parseUrl.ts'
 
 const lead = (x: string) => (x.charCodeAt(0) === 47 ? x : '/' + x)
 
@@ -141,7 +140,7 @@ export class App<RenderOptions = any, Req extends Request = Request, Res extends
 
     req.originalUrl = req.url || req.originalUrl
 
-    const { pathname } = parse(req.originalUrl)
+    const pathname = getPathname(req.originalUrl)
 
     const mw: Middleware<Req, Res>[] = [
       {
@@ -162,7 +161,7 @@ export class App<RenderOptions = any, Req extends Request = Request, Res extends
 
       req.url = lead(req.url.substring(path.length)) || '/'
 
-      req.path = parse(req.url).pathname
+      req.path = getPathname(req.url)
 
       if (type === 'route') req.params = getURLParams(regex, pathname)
 

@@ -2,7 +2,6 @@ import { ServerRequest } from 'https://deno.land/std@0.87.0/http/server.ts'
 import { NextFunction } from 'https://esm.sh/@tinyhttp/router'
 import { ALL as STATUS_CODES } from 'https://deno.land/x/status@0.1.0/codes.ts'
 import { status } from 'https://deno.land/x/status@0.1.0/status.ts'
-import { Buffer } from 'https://deno.land/std@0.77.0/node/buffer.ts'
 
 export type ServerError = Partial<{
   code: number
@@ -18,7 +17,7 @@ export const onErrorHandler: ErrorHandler = async (err: ServerError, req: Server
   if (err.code && err.code in STATUS_CODES) code = err.code
   else if (err.status) code = err.status
 
-  if (typeof err === 'string' || Buffer.isBuffer(err)) {
+  if (typeof err === 'string') {
     await req.respond({
       body: err,
       status: 500
