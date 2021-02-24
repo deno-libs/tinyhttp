@@ -1,8 +1,11 @@
-# tinyhttp
+<p align="center">
+  <img src="logo.svg"  />
+  <h1 align="center">tinyhttp</h1>
+</p>
 
 [![nest badge](https://nest.land/badge.svg)](https://nest.land/package/tinyhttp) ![GitHub release (latest by date)](https://img.shields.io/github/v/release/talentlessguy/tinyhttp-deno?style=flat-square)
 
-Deno port of [tinyhttp](https://github.com/talentlessguy/tinyhttp), 0-legacy, tiny &amp; fast web framework as a replacement of Express.
+This is a [Deno](https://deno.land) port of [tinyhttp](https://github.com/talentlessguy/tinyhttp), 0-legacy, tiny &amp; fast web framework as a replacement of Express.
 
 > **WARNING!** This port is very unstable and lacks features. It also doesn't have all of the tinyhttp's original extensions. Wait for the v2 release of tinyhttp for a better version (see [talentlessguy/tinyhttp#198](https://github.com/talentlessguy/tinyhttp/issues/198))
 
