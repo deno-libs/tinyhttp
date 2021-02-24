@@ -1,6 +1,6 @@
 # tinyhttp
 
-[![nest badge](https://nest.land/badge.svg)](https://nest.land/package/tinyhttp)
+[![nest badge](https://nest.land/badge.svg)](https://nest.land/package/tinyhttp) ![GitHub release (latest by date)](https://img.shields.io/github/v/release/talentlessguy/tinyhttp-deno?style=flat-square)
 
 Deno port of [tinyhttp](https://github.com/talentlessguy/tinyhttp), 0-legacy, tiny &amp; fast web framework as a replacement of Express.
 
@@ -9,7 +9,7 @@ Deno port of [tinyhttp](https://github.com/talentlessguy/tinyhttp), 0-legacy, ti
 ## Example
 
 ```ts
-import { App } from 'https://deno.land/x/tinyhttp@v0.0.4/app.ts'
+import { App } from 'https://deno.land/x/tinyhttp@v0.0.5/app.ts'
 
 const app = new App()
 
