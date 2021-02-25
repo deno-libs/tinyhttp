@@ -12,7 +12,7 @@ This is a [Deno](https://deno.land) port of [tinyhttp](https://github.com/talent
 ## Example
 
 ```ts
-import { App } from 'https://deno.land/x/tinyhttp@v0.0.5/app.ts'
+import { App } from 'https://deno.land/x/tinyhttp/app.ts'
 
 const app = new App()
 
