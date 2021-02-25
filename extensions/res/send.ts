@@ -5,7 +5,7 @@ import { createETag, setCharset } from './utils.ts'
 import { end } from './end.ts'
 
 export const send = <Request extends Req = Req, Response extends Res = Res>(req: Request, res: Response) => (
-  body: unknown
+  body: any
 ) => {
   let bodyToSend = body
 
@@ -38,7 +38,7 @@ export const send = <Request extends Req = Req, Response extends Res = Res>(req:
   }
 
   if (req.method === 'HEAD') {
-    end(req, res)('')
+    end(req, res)(body)
     return res
   }
 
@@ -46,14 +46,19 @@ export const send = <Request extends Req = Req, Response extends Res = Res>(req:
     if (body == null) {
       end(req, res)('')
       return res
-    } /* else if (Buffer.isBuffer(body)) {
-      if (!res.headers.get('Content-Type')) res.headers.set('content-type', 'application/octet-stream')
-    } */ else
+    } else if (typeof body?.read !== 'undefined') {
+      console.log('here')
+
+      if (!res.headers.get('Content-Type')) req.headers.set('content-type', 'application/octet-stream')
+
+      end(req, res)(body)
+    } else {
       json(res)(bodyToSend)
+    }
   } else {
     if (typeof bodyToSend !== 'string') bodyToSend = (bodyToSend as string).toString()
 
-    end(req, res)(bodyToSend)
+    end(req, res)(body)
   }
 
   return res

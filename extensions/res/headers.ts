@@ -35,6 +35,12 @@ export const setHeader = <Response extends Res = Res>(res: Response) => (
   return res
 }
 
+export const getResponseHeader = <Response extends Res = Res>(res: Response) => (
+  field: string
+): string | number | string[] | null => {
+  return res.headers.get(field)
+}
+
 export const setLocationHeader = <Request extends Req = Req, Response extends Res = Res>(
   req: Request,
   res: Response

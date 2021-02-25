@@ -2,12 +2,19 @@ import { NextFunction } from 'https://esm.sh/@tinyhttp/router'
 import { App } from './app.ts'
 import { Request } from './request.ts'
 import { getRequestHeader, getFreshOrStale } from './extensions/req/headers.ts'
-import { send } from './extensions/res/send.ts'
-import { json } from './extensions/res/json.ts'
-import { end } from './extensions/res/end.ts'
-import { sendStatus } from './extensions/res/sendStatus.ts'
+import {
+  send,
+  json,
+  sendStatus,
+  setHeader,
+  setLocationHeader,
+  end,
+  sendFile,
+  getResponseHeader,
+  append
+} from './extensions/res/mod.ts'
+
 import { Response } from './response.ts'
-import { setHeader, setLocationHeader } from './extensions/res/headers.ts'
 
 export const extendMiddleware = <
   RenderOptions = unknown,
@@ -32,6 +39,7 @@ export const extendMiddleware = <
 
   res.end = end(req, res)
   res.send = send<Req, Res>(req, res)
+  res.sendFile = sendFile<Res>(res)
   res.sendStatus = sendStatus(req, res)
   res.json = json<Res>(res)
 
@@ -39,6 +47,10 @@ export const extendMiddleware = <
   res.set = setHeader<Res>(res)
 
   res.location = setLocationHeader<Req, Res>(req, res)
+
+  res.get = getResponseHeader<Res>(res)
+
+  res.append = append<Res>(res)
 
   next?.()
 }
