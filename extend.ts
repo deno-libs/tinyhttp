@@ -1,7 +1,15 @@
 import { NextFunction } from 'https://esm.sh/@tinyhttp/router'
 import { App } from './app.ts'
 import { Request } from './request.ts'
-import { getRequestHeader, getFreshOrStale } from './extensions/req/headers.ts'
+import {
+  getRequestHeader,
+  getFreshOrStale,
+  getAccepts,
+  getAcceptsCharsets,
+  getAcceptsEncodings,
+  getAcceptsLanguages,
+  getRangeFromHeader
+} from './extensions/req/mod.ts'
 import {
   send,
   json,
@@ -11,10 +19,12 @@ import {
   end,
   sendFile,
   getResponseHeader,
-  append
+  append,
+  setLinksHeader,
+  setContentType
 } from './extensions/res/mod.ts'
 
-import { Response } from './response.ts'
+import { Response, renderTemplate } from './response.ts'
 
 export const extendMiddleware = <
   RenderOptions = unknown,
@@ -37,6 +47,15 @@ export const extendMiddleware = <
     req.stale = !req.fresh
   }
 
+  req.accepts = getAccepts(req)
+  req.acceptsCharsets = getAcceptsCharsets(req)
+  req.acceptsEncodings = getAcceptsEncodings(req)
+  req.acceptsLanguages = getAcceptsLanguages(req)
+
+  req.range = getRangeFromHeader(req)
+
+  // Response extensions
+
   res.end = end(req, res)
   res.send = send<Req, Res>(req, res)
   res.sendFile = sendFile<Res>(res)
@@ -51,6 +70,12 @@ export const extendMiddleware = <
   res.get = getResponseHeader<Res>(res)
 
   res.append = append<Res>(res)
+
+  res.render = renderTemplate<RenderOptions, Res>(res, app)
+
+  res.links = setLinksHeader<Res>(res)
+
+  res.type = setContentType<Res>(res)
 
   next?.()
 }

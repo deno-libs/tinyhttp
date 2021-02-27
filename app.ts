@@ -8,9 +8,14 @@ import { Response } from './response.ts'
 import { getURLParams, getPathname } from './parseUrl.ts'
 import { extendMiddleware } from './extend.ts'
 import { serve, Server } from 'https://deno.land/std/http/server.ts'
+import * as path from 'https://deno.land/std/path/mod.ts'
 
 const lead = (x: string) => (x.charCodeAt(0) === 47 ? x : '/' + x)
 
+/**
+ * Execute handler with passed `req` and `res`. Catches errors and resolves async handlers.
+ * @param h
+ */
 export const applyHandler = <Req, Res>(h: Handler<Req, Res>) => async (req: Req, res: Res, next: NextFunction) => {
   try {
     if (h.constructor.name === 'AsyncFunction') {
@@ -36,7 +41,7 @@ export type TemplateFunc<O> = (
   path: string,
   locals: Record<string, any>,
   opts: TemplateEngineOptions<O>,
-  cb: (err: Error, html: unknown) => void
+  cb: (err: Error | null, html: unknown) => void
 ) => void
 
 export type TemplateEngineOptions<O = any> = Partial<{
@@ -47,11 +52,33 @@ export type TemplateEngineOptions<O = any> = Partial<{
   _locals: Record<string, any>
 }>
 
-export class App<RenderOptions = any, Req extends Request = Request, Res extends Response = Response> extends Router<
-  App,
-  Req,
-  Res
-> {
+/**
+ * `App` class - the starting point of tinyhttp app.
+ *
+ * With the `App` you can:
+ * * use routing methods and `.use(...)`
+ * * set no match (404) and error (500) handlers
+ * * configure template engines
+ * * store data in locals
+ * * listen the http server on a specified port
+ *
+ * In case you use TypeScript, you can pass custom Request and Response interfaces as generic parameters.
+ *
+ * Example:
+ *
+ * ```ts
+ * interface CoolReq extends Request {
+ *  genericsAreDope: boolean
+ * }
+ *
+ * const app = App<any, CoolReq, Response>()
+ * ```
+ */
+export class App<
+  RenderOptions = any,
+  Req extends Request = Request,
+  Res extends Response<RenderOptions> = Response<RenderOptions>
+> extends Router<App, Req, Res> {
   middleware: Middleware<Req>[] = []
   locals: Record<string, string> = {}
   noMatchHandler: Handler
@@ -73,6 +100,46 @@ export class App<RenderOptions = any, Req extends Request = Request, Res extends
     this.noMatchHandler = options?.noMatchHandler || this.onError.bind(null, { code: 404 })
     this.settings = options.settings || { xPoweredBy: true }
     this.applyExtensions = options?.applyExtensions
+  }
+
+  /**
+   * Register a template engine with extension
+   */
+  engine(ext: string, fn: TemplateFunc<RenderOptions>) {
+    this.engines[ext] = fn
+
+    return this
+  }
+
+  /**
+   * Render a template
+   * @param file What to render
+   * @param data data that is passed to a template
+   * @param options Template engine options
+   * @param cb Callback that consumes error and html
+   */
+  render(
+    file: string,
+    data: Record<string, any> = {},
+    cb: (err: unknown, html: unknown) => void,
+    options: TemplateEngineOptions<RenderOptions> = {}
+  ) {
+    options.viewsFolder = options.viewsFolder || `${Deno.cwd()}/views`
+    options.ext = options.ext || file.slice(file.lastIndexOf('.') + 1) || 'ejs'
+
+    options._locals = options._locals || {}
+
+    let locals = { ...data, ...this.locals }
+
+    if (options._locals) locals = { ...locals, ...options._locals }
+
+    if (!file.endsWith(`.${options.ext}`)) file = `${file}.${options.ext}`
+
+    const dest = options.viewsFolder ? path.join(options.viewsFolder, file) : file
+
+    this.engines[options.ext](dest, locals, options.renderOptions || {}, cb)
+
+    return this
   }
 
   route(path: string): App {

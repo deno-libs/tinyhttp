@@ -54,3 +54,27 @@ export const setLocationHeader = <Request extends Req = Req, Response extends Re
   res.headers.set('Location', encodeUrl(loc))
   return res
 }
+
+export const setLinksHeader = <Response extends Res = Res>(res: Response) => (links: {
+  [key: string]: string
+}): Response => {
+  let link = res.headers.get('Link') || ''
+  if (link) link += ', '
+  res.setHeader(
+    'Link',
+    link +
+      Object.keys(links)
+        .map((rel) => '<' + links[rel] + '>; rel="' + rel + '"')
+        .join(', ')
+  )
+
+  return res
+}
+
+export const setContentType = <Response extends Res = Res>(res: Response) => (type: string): Response => {
+  const ct = type.indexOf('/') === -1 ? mime.lookup(type) : type
+
+  setHeader(res)('Content-Type', ct)
+
+  return res
+}

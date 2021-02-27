@@ -1,6 +1,29 @@
+// deno-lint-ignore-file
+
 import { Response as ServerResponse } from 'https://deno.land/std@0.87.0/http/server.ts'
 import type { SendFileOptions } from './extensions/res/sendFile.ts'
-export interface Response extends ServerResponse {
+import type { TemplateEngineOptions, App } from './app.ts'
+
+export const renderTemplate = <O = any, Res extends Response = Response>(res: Res, app: App) => (
+  file: string,
+  data?: Record<string, any>,
+  options?: TemplateEngineOptions<O>
+): Response => {
+  app.render(
+    file,
+    data,
+    (err: unknown, html: unknown) => {
+      if (err) throw err
+
+      res.send(html)
+    },
+    options
+  )
+
+  return res
+}
+
+export interface Response<O = any> extends ServerResponse {
   headers: Headers
   send(body: unknown): Response
   sendFile(path: string, options?: SendFileOptions, cb?: (err?: any) => void): Response
@@ -16,4 +39,7 @@ export interface Response extends ServerResponse {
   status: number
   get(field: string): string | number | string[] | null
   append(field: string, value: any): Response
+  render(file: string, data?: Record<string, any>, options?: TemplateEngineOptions<O>): Response
+  links(links: { [key: string]: string }): Response
+  type(type: string): Response
 }

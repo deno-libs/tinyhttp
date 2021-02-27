@@ -1,8 +1,9 @@
-import { ServerRequest, Response } from 'https://deno.land/std@0.87.0/http/server.ts'
+import { Request } from '../../request.ts'
+import { Response } from '../../response.ts'
 import parseRange, { Options } from 'https://esm.sh/range-parser'
 import fresh from 'https://deno.land/x/fresh/mod.ts'
 
-export const getRequestHeader = (req: ServerRequest) => (header: string): string | string[] | null => {
+export const getRequestHeader = (req: Request) => (header: string): string | string[] | null => {
   const lc = header.toLowerCase()
 
   switch (lc) {
@@ -13,7 +14,7 @@ export const getRequestHeader = (req: ServerRequest) => (header: string): string
       return req.headers.get(lc)
   }
 }
-export const getRangeFromHeader = (req: ServerRequest) => (size: number, options?: Options) => {
+export const getRangeFromHeader = (req: Request) => (size: number, options?: Options) => {
   const range = getRequestHeader(req)('Range') as string
 
   if (!range) return
@@ -21,7 +22,7 @@ export const getRangeFromHeader = (req: ServerRequest) => (size: number, options
   return parseRange(size, range, options)
 }
 
-export const getFreshOrStale = (req: ServerRequest, res: Response) => {
+export const getFreshOrStale = (req: Request, res: Response) => {
   const method = req.method
   const status = res.status || 200
 
