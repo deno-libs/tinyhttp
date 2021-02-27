@@ -25,6 +25,7 @@ export const renderTemplate = <O = any, Res extends Response = Response>(res: Re
 
 export interface Response<O = any> extends ServerResponse {
   headers: Headers
+  app: App
   send(body: unknown): Response
   sendFile(path: string, options?: SendFileOptions, cb?: (err?: any) => void): Response
   end(body: unknown): Response

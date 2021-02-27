@@ -38,6 +38,7 @@ export const extendMiddleware = <
   // Request extensions
   if (settings?.bindAppToReqRes) {
     req.app = app
+    res.app = app
   }
 
   req.get = getRequestHeader(req)
