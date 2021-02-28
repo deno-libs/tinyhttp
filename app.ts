@@ -5,7 +5,7 @@ import { onErrorHandler, ErrorHandler } from './onError.ts'
 import rg from 'https://esm.sh/regexparam'
 import { Request, getRouteFromApp } from './request.ts'
 import { Response } from './response.ts'
-import { getURLParams, getPathname } from './parseUrl.ts'
+import { getURLParams, getPathname } from './utils/parseUrl.ts'
 import { extendMiddleware } from './extend.ts'
 import { serve, Server } from 'https://deno.land/std/http/server.ts'
 import * as path from 'https://deno.land/std/path/mod.ts'
@@ -83,7 +83,7 @@ export class App<
   locals: Record<string, string> = {}
   noMatchHandler: Handler
   onError: ErrorHandler
-  settings: AppSettings
+  settings: AppSettings & Record<string, any>
   engines: Record<string, TemplateFunc<RenderOptions>> = {}
   applyExtensions?: (req: Req, res: Res, next: NextFunction) => void
 
@@ -100,6 +100,18 @@ export class App<
     this.noMatchHandler = options?.noMatchHandler || this.onError.bind(null, { code: 404 })
     this.settings = options.settings || { xPoweredBy: true }
     this.applyExtensions = options?.applyExtensions
+  }
+
+  set(setting: string, value: any) {
+    this.settings[setting] = value
+  }
+
+  enable(setting: string) {
+    this.settings[setting] = true
+  }
+
+  disable(setting: string) {
+    this.settings[setting] = false
   }
 
   /**
@@ -153,15 +165,11 @@ export class App<
   use(...args: UseMethodParams<Req, Res, App>) {
     const base = args[0]
 
-    const fns: any[] = args.slice(1)
+    const fns: any[] = args.slice(1).flat()
 
     if (base === '/') {
       for (const fn of fns) {
-        if (Array.isArray(fn)) {
-          super.use(base, fn)
-        } else {
-          super.use(base, fns)
-        }
+        super.use(base, fn)
       }
     } else if (typeof base === 'function' || base instanceof App) {
       super.use('/', [base, ...fns])

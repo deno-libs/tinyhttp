@@ -3,6 +3,7 @@ import { ServerRequest } from 'https://deno.land/std@0.87.0/http/server.ts'
 import { Ranges } from 'https://esm.sh/range-parser'
 import { App } from './app.ts'
 import { Handler, Middleware } from 'https://esm.sh/@tinyhttp/router'
+import { QueryParams } from './utils/parseUrl.ts'
 
 export const getRouteFromApp = ({ middleware }: App, h: Handler) =>
   middleware.find(({ handler }) => typeof handler === 'function' && handler.name === h.name)
@@ -14,6 +15,8 @@ export type Protocol = 'http' | 'https'
 export interface Request extends ServerRequest {
   path: string
   originalUrl: string
+  query: QueryParams
+
   app: App
   params: Record<string, any>
   get: (header: string) => string | string[] | null
@@ -34,4 +37,7 @@ export interface Request extends ServerRequest {
   protocol?: Protocol
   subdomains?: string[]
   secure?: boolean
+
+  cookies?: any
+  signedCookies?: any
 }

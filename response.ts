@@ -4,6 +4,8 @@ import { Response as ServerResponse } from 'https://deno.land/std@0.87.0/http/se
 import type { SendFileOptions } from './extensions/res/sendFile.ts'
 import type { TemplateEngineOptions, App } from './app.ts'
 import type { FormatProps } from './extensions/format.ts'
+import type { DownloadOptions } from './extensions/download.ts'
+import { SerializeOptions } from 'https://esm.sh/@tinyhttp/cookie'
 
 export const renderTemplate = <O = any, Res extends Response = Response>(res: Res, app: App) => (
   file: string,
@@ -46,4 +48,15 @@ export interface Response<O = any> extends ServerResponse {
   type(type: string): Response
   format(obj: FormatProps): Response
   vary(field: string): Response
+  locals?: Record<string, any>
+  download(path: string, filename: string, options?: DownloadOptions, cb?: (err?: any) => void): Response
+  attachment(filename?: string): Response
+
+  cookie(
+    name: string,
+    value: string | Record<string, unknown>,
+    options?: SerializeOptions & Partial<{ signed: boolean }>
+  ): Response
+  clearCookie(name: string, options?: SerializeOptions): Response
+  jsonp(obj: any): Response
 }

@@ -30,9 +30,13 @@ import {
   setLinksHeader,
   setContentType,
   formatResponse,
-  setVaryHeader
+  setVaryHeader,
+  attachment,
+  download,
+  clearCookie,
+  setCookie
 } from './extensions/res/mod.ts'
-
+import { getQueryParams } from './utils/parseUrl.ts'
 import { Response, renderTemplate } from './response.ts'
 
 export const extendMiddleware = <
@@ -49,6 +53,8 @@ export const extendMiddleware = <
     req.app = app
     res.app = app
   }
+
+  req.query = getQueryParams(req.url)
 
   req.get = getRequestHeader(req)
 
@@ -82,7 +88,7 @@ export const extendMiddleware = <
 
   res.end = end(req, res)
   res.send = send<Req, Res>(req, res)
-  res.sendFile = sendFile<Res>(res)
+  res.sendFile = sendFile<Req, Res>(req, res)
   res.sendStatus = sendStatus(req, res)
   res.json = json<Res>(res)
   res.setHeader = setHeader<Res>(res)
@@ -93,8 +99,13 @@ export const extendMiddleware = <
   res.render = renderTemplate<RenderOptions, Res>(res, app)
   res.links = setLinksHeader<Res>(res)
   res.type = setContentType<Res>(res)
-  res.format = formatResponse(req, res, next)
-  res.vary = setVaryHeader(res)
+  res.format = formatResponse<Req, Res>(req, res, next)
+  res.vary = setVaryHeader<Res>(res)
+  res.download = download<Req, Res>(req, res)
+  res.attachment = attachment<Res>(res)
+
+  res.cookie = setCookie<Req, Res>(req, res)
+  res.clearCookie = clearCookie<Req, Res>(req, res)
 
   next?.()
 }
