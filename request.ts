@@ -40,4 +40,8 @@ export interface Request extends ServerRequest {
 
   cookies?: any
   signedCookies?: any
+
+  connection: {
+    remoteAddress: string
+  }
 }

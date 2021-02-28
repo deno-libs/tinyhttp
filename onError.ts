@@ -1,4 +1,4 @@
-import { ServerRequest } from 'https://deno.land/std@0.87.0/http/server.ts'
+import { Request } from './request.ts'
 import { NextFunction } from 'https://esm.sh/@tinyhttp/router'
 import { ALL as STATUS_CODES } from 'https://deno.land/x/status@0.1.0/codes.ts'
 import { status } from 'https://deno.land/x/status@0.1.0/status.ts'
@@ -9,9 +9,9 @@ export type ServerError = Partial<{
   message: string
 }>
 
-export type ErrorHandler = (err: ServerError, req: ServerRequest, next?: NextFunction) => void
+export type ErrorHandler = (err: ServerError, req: Request, next?: NextFunction) => void
 
-export const onErrorHandler: ErrorHandler = async (err: ServerError, req: ServerRequest) => {
+export const onErrorHandler: ErrorHandler = async (err: ServerError, req: Request) => {
   let code = 500
 
   if (err.code && err.code in STATUS_CODES) code = err.code

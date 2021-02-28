@@ -56,6 +56,10 @@ export const extendMiddleware = <
 
   req.query = getQueryParams(req.url)
 
+  req.connection = {
+    remoteAddress: (req.conn.remoteAddr as Deno.NetAddr).hostname
+  }
+
   req.get = getRequestHeader(req)
 
   if (settings?.freshnessTesting) {
@@ -71,9 +75,6 @@ export const extendMiddleware = <
   req.range = getRangeFromHeader(req)
   req.xhr = checkIfXMLHttpRequest(req)
   req.is = reqIs(req)
-
-  req.ip = getIP(req)
-  req.ips = getIPs(req)
 
   if (settings?.networkExtensions) {
     req.protocol = getProtocol(req)

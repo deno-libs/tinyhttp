@@ -45,7 +45,7 @@ export const getHostname = (req: Request): string | undefined => {
 
   return index !== -1 ? host.substring(0, index) : host
 }
-export const getIP = (req: Request): string | undefined => proxyaddr(req, trustRemoteAddress(req)).replace(/^.*:/, '') // striping the redundant prefix addeded by OS to IPv4 address
+export const getIP = (req: Request): string | undefined => proxyaddr(req, trustRemoteAddress(req))?.replace(/^.*:/, '') // striping the redundant prefix addeded by OS to IPv4 address
 
 export const getIPs = (req: Request): string[] | undefined => all(req, trustRemoteAddress(req))
 
