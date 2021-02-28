@@ -2,6 +2,7 @@ import { Request } from '../../request.ts'
 import { Response } from '../../response.ts'
 import parseRange, { Options } from 'https://esm.sh/range-parser'
 import fresh from 'https://deno.land/x/fresh/mod.ts'
+import { is } from 'https://deno.land/x/type_is/mod.ts'
 
 export const getRequestHeader = (req: Request) => (header: string): string | string[] | null => {
   const lc = header.toLowerCase()
@@ -42,3 +43,7 @@ export const getFreshOrStale = (req: Request, res: Response) => {
 
   return false
 }
+
+export const checkIfXMLHttpRequest = (req: Request) => req.headers.get('X-Requested-With') === 'XMLHttpRequest'
+
+export const reqIs = (req: Request) => (...types: string[]) => is(req.headers.get('content-type') as string, types)

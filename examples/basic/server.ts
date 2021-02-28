@@ -2,7 +2,7 @@ import { App } from '../../app.ts'
 
 const app = new App()
 
-app.get('/:name/', (req, res) => {
+app.get('/', (req, res) => {
   res.send(`Hello on ${req.url} from Deno v${Deno.version.deno} and tinyhttp! 🦕`)
 })
 

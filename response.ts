@@ -3,6 +3,7 @@
 import { Response as ServerResponse } from 'https://deno.land/std@0.87.0/http/server.ts'
 import type { SendFileOptions } from './extensions/res/sendFile.ts'
 import type { TemplateEngineOptions, App } from './app.ts'
+import type { FormatProps } from './extensions/format.ts'
 
 export const renderTemplate = <O = any, Res extends Response = Response>(res: Res, app: App) => (
   file: string,
@@ -28,7 +29,7 @@ export interface Response<O = any> extends ServerResponse {
   app: App
   send(body: unknown): Response
   sendFile(path: string, options?: SendFileOptions, cb?: (err?: any) => void): Response
-  end(body: unknown): Response
+  end(body?: unknown): Response
   json(body: unknown): Response
   sendStatus(status: number): Response
   setHeader(
@@ -43,4 +44,6 @@ export interface Response<O = any> extends ServerResponse {
   render(file: string, data?: Record<string, any>, options?: TemplateEngineOptions<O>): Response
   links(links: { [key: string]: string }): Response
   type(type: string): Response
+  format(obj: FormatProps): Response
+  vary(field: string): Response
 }

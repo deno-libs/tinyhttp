@@ -2,14 +2,22 @@
 import { ServerRequest } from 'https://deno.land/std@0.87.0/http/server.ts'
 import { Ranges } from 'https://esm.sh/range-parser'
 import { App } from './app.ts'
+import { Handler, Middleware } from 'https://esm.sh/@tinyhttp/router'
+
+export const getRouteFromApp = ({ middleware }: App, h: Handler) =>
+  middleware.find(({ handler }) => typeof handler === 'function' && handler.name === h.name)
 
 type AcceptsReturns = string | false | string[]
+
+export type Protocol = 'http' | 'https'
+
 export interface Request extends ServerRequest {
   path: string
   originalUrl: string
   app: App
   params: Record<string, any>
   get: (header: string) => string | string[] | null
+  xhr: boolean
   fresh?: boolean
   stale?: boolean
   accepts: (...types: string[]) => AcceptsReturns
@@ -17,4 +25,13 @@ export interface Request extends ServerRequest {
   acceptsCharsets: (...charsets: string[]) => AcceptsReturns
   acceptsLanguages: (...languages: string[]) => AcceptsReturns
   range: (size: number, options?: any) => -1 | -2 | Ranges | undefined
+  route?: Middleware | undefined
+  is: (...types: string[]) => string | boolean
+
+  hostname: string | undefined
+  ip?: string
+  ips?: string[]
+  protocol?: Protocol
+  subdomains?: string[]
+  secure?: boolean
 }

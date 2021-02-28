@@ -1,7 +1,7 @@
 import { Request } from '../../request.ts'
 import { Response } from '../../response.ts'
 import { send } from './send.ts'
-import { status } from 'https://deno.land/x/status@0.1.0/status.ts'
+import { status } from 'https://deno.land/x/status/status.ts'
 
 export const sendStatus = (req: Request, res: Response) => (statusCode: number): Response => {
   const body = status(statusCode)

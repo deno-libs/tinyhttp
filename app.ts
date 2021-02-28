@@ -3,7 +3,7 @@ import { NextFunction, Router, Handler, Middleware, UseMethodParams } from 'http
 import { onErrorHandler, ErrorHandler } from './onError.ts'
 // import { setImmediate } from 'https://deno.land/std@0.88.0/node/timers.ts'
 import rg from 'https://esm.sh/regexparam'
-import { Request } from './request.ts'
+import { Request, getRouteFromApp } from './request.ts'
 import { Response } from './response.ts'
 import { getURLParams, getPathname } from './parseUrl.ts'
 import { extendMiddleware } from './extend.ts'
@@ -229,6 +229,8 @@ export class App<
       req.url = lead(req.url.substring(path.length)) || '/'
 
       req.path = getPathname(req.url)
+
+      if (this.settings?.enableReqRoute) req.route = getRouteFromApp(this as any, handler)
 
       if (type === 'route') req.params = getURLParams(regex, pathname)
 

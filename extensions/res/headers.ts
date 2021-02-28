@@ -1,5 +1,6 @@
 import * as mime from 'https://esm.sh/es-mime-types'
 import { encodeUrl } from 'https://esm.sh/@tinyhttp/encode-url'
+import { vary } from '../../utils/vary.ts'
 import { Response as Res } from '../../response.ts'
 import { Request as Req } from '../../request.ts'
 import { getRequestHeader } from '../req/headers.ts'
@@ -67,6 +68,12 @@ export const setLinksHeader = <Response extends Res = Res>(res: Response) => (li
         .map((rel) => '<' + links[rel] + '>; rel="' + rel + '"')
         .join(', ')
   )
+
+  return res
+}
+
+export const setVaryHeader = <Response extends Res = Res>(res: Response) => (field: string): Response => {
+  vary<Response>(res, field)
 
   return res
 }

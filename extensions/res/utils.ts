@@ -1,5 +1,6 @@
 import { format, parse } from 'https://deno.land/x/content_type/mod.ts'
 import { etag as eTag } from 'https://deno.land/x/opine@1.1.0/src/utils/etag.ts'
+import * as mime from 'https://esm.sh/es-mime-types'
 
 export const createETag = (body: Parameters<typeof eTag>[0]) => {
   return eTag(body, { weak: true })
@@ -10,4 +11,35 @@ export function setCharset(type: string, charset: string) {
   if (parsed.parameters) parsed.parameters.charset = charset
 
   return format(parsed)
+}
+
+export const normalizeType = (type: string) =>
+  ~type.indexOf('/') ? acceptParams(type) : { value: mime.lookup(type), params: {} }
+
+export function acceptParams(str: string, index?: number) {
+  const parts = str.split(/ *; */)
+  const ret: {
+    value: string
+    quality: number
+    params: Record<string, any>
+    originalIndex?: number
+  } = { value: parts[0], quality: 1, params: {}, originalIndex: index }
+
+  for (const part of parts) {
+    const pms = part.split(/ *= */)
+    if ('q' === pms[0]) ret.quality = parseFloat(pms[1])
+    else ret.params[pms[0]] = pms[1]
+  }
+
+  return ret
+}
+
+export function normalizeTypes(types: string[]) {
+  const ret = []
+
+  for (const type of types) {
+    ret.push(normalizeType(type))
+  }
+
+  return ret
 }
