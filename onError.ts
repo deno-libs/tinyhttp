@@ -12,20 +12,19 @@ export type ServerError = Partial<{
 export type ErrorHandler = (err: ServerError, req: Request, next?: NextFunction) => void
 
 export const onErrorHandler: ErrorHandler = async (err: ServerError, req: Request) => {
-  let code = 500
+  let code = err.code || 500
 
-  if (err.code && err.code in STATUS_CODES) code = err.code
-  else if (err.status) code = err.status
+  if (err.status) code = err.status
 
   if (typeof err === 'string') {
     await req.respond({
       body: err,
       status: 500
     })
-  } else if (code in STATUS_CODES) {
+  } else if (STATUS_CODES.includes(code)) {
     await req.respond({
-      body: status.message[code],
-      status: 500
+      body: status.pretty(code).toString(),
+      status: code
     })
   } else
     req.respond({
