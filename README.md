@@ -7,7 +7,7 @@
 
 This is a [Deno](https://deno.land) port of [tinyhttp](https://github.com/talentlessguy/tinyhttp), 0-legacy, tiny &amp; fast web framework as a replacement of Express.
 
-> **WARNING!** This port is very unstable and lacks features. It also doesn't have all of the tinyhttp's original extensions. Wait for the v2 release of tinyhttp for a better version (see [talentlessguy/tinyhttp#198](https://github.com/talentlessguy/tinyhttp/issues/198))
+> **WARNING!** This port is very unstable and is not tested yet. Wait for the v2 release of tinyhttp for a better version (see [talentlessguy/tinyhttp#198](https://github.com/talentlessguy/tinyhttp/issues/198))
 
 ## Example
 
