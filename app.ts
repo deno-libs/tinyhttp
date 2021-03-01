@@ -1,5 +1,6 @@
 // deno-lint-ignore-file
 import { NextFunction, Router, Handler, Middleware, UseMethodParams } from 'https://esm.sh/@tinyhttp/router'
+export type { NextFunction, Router, Handler, Middleware, UseMethodParams }
 import { onErrorHandler, ErrorHandler } from './onError.ts'
 // import { setImmediate } from 'https://deno.land/std@0.88.0/node/timers.ts'
 import rg from 'https://esm.sh/regexparam'

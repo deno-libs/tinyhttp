@@ -1,32 +1,35 @@
-import { App } from '../../app.ts'
-// import { MongoClient, Bson } from 'https://deno.land/x/mongo@v0.21.0/mod.ts'
-// import * as dotenv from 'https://deno.land/x/dotenv/mod.ts'
+import { App, Handler } from '../../app.ts'
+import { Request } from '../../request.ts'
+import { MongoClient, Bson } from 'https://deno.land/x/mongo@v0.21.2/mod.ts'
+import * as dotenv from 'https://deno.land/x/tiny_env@1.0.0/mod.ts'
 
-// dotenv.config()
+dotenv.load()
 
-const app = new App()
+type Req = Request & {
+  bodyResult: any
+}
+
+const app = new App<any, Req>({
+  onError: (err, req) => {
+    console.log(err)
+    req.respond({ body: 'Error' })
+  }
+})
 const port = parseInt(Deno.env.get('PORT') || '') || 3000
 
 // connect to mongodb
-/* const client = new MongoClient()
+const client = new MongoClient()
 
 await client.connect(Deno.env.get('DB_URI') || '')
 
 const db = client.database('notes')
-const coll = db.collection('notes') */
+const coll = db.collection('notes')
 
-app.get(async (req, res) => {
-  const buf: Uint8Array = await Deno.readAll(req.body)
-
-  console.log(buf.toString())
-
-  res.send('bruh')
-})
-
-/* // get all notes
+// get all notes
 app.get('/notes', async (_, res, next) => {
   try {
     const r = await coll.find({}).toArray()
+
     res.send(r)
     next()
   } catch (err) {
@@ -34,30 +37,41 @@ app.get('/notes', async (_, res, next) => {
   }
 })
 
+const bodyParser: Handler<Req> = async (req, res, next) => {
+  const buf = await Deno.readAll(req.body)
+
+  const dec = new TextDecoder()
+
+  const body = dec.decode(buf)
+
+  try {
+    const result = JSON.parse(body)
+    req.bodyResult = result
+  } catch (e) {
+    next(e)
+  }
+  next()
+}
+app.use(bodyParser)
+
 // add new note
 app.post('/notes', async (req, res, next) => {
   try {
+    const { title, desc } = req.bodyResult
+    const r = await coll.insertOne({ title, desc })
 
-
-    if (result?.value) {
-      const { title, desc } = result.value
-      const r = await coll.insertOne({ title, desc })
-      assertStrictEquals(1, r.insertedCount)
-      res.send(`Note with title of "${title}" has been added`)
-    } else {
-      next('No body provided')
-    }
+    res.send(`Note with title of "${title}" has been added`)
   } catch (err) {
     next(err)
   }
 })
- */
-/* // delete note
+
+// delete note
 app.delete('/notes', async (req, res, next) => {
   try {
-    const { id } = req.body
-    const r = await coll.deleteOne({ _id: new Bson.ObjectId(id) })
-    assertStrictEquals(1, r)
+    const { id } = req.bodyResult
+    await coll.deleteOne({ _id: new Bson.ObjectId(id) })
+
     res.send(`Note with id of ${id} has been deleted`)
   } catch (err) {
     next(err)
@@ -67,16 +81,12 @@ app.delete('/notes', async (req, res, next) => {
 // update existing note
 app.put('/notes', async (req, res, next) => {
   try {
-    const { title, desc, id } = req.body
-    await coll.findOneAndUpdate(
-      { _id: new mongodb.ObjectId(id) },
-      { $set: { title, desc } },
-      { returnOriginal: false, upsert: true }
-    )
+    const { title, desc, id } = req.bodyResult
+    await coll.updateOne({ _id: new Bson.ObjectId(id) }, { $set: { title, desc } })
     res.send(`Note with title of ${title} has been updated`)
   } catch (err) {
     next(err)
   }
 })
- */
+
 app.listen(port, () => console.log(`Started on http://localhost:${port}`))
