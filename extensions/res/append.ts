@@ -1,4 +1,4 @@
-import { Response as Res } from '../../response.ts'
+import { Res } from '../../deps.ts'
 import { setHeader, getResponseHeader } from './headers.ts'
 
 export const append = <Response extends Res = Res>(res: Response) => (

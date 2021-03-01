@@ -1,8 +1,8 @@
-import { Response as Res } from '../../response.ts'
-import { Request as Req } from '../../request.ts'
+import { Req, Res } from '../../deps.ts'
 import { isAbsolute, join, extname } from 'https://deno.land/std/path/mod.ts'
-import { contentType } from 'https://esm.sh/es-mime-types'
+import { contentType } from '../../deps.ts'
 import { createETag } from './utils.ts'
+import { send } from './send.ts'
 
 export type SendFileOptions = Partial<{
   root: string
@@ -56,8 +56,9 @@ export const sendFile = <Request extends Req = Req, Response extends Res = Res>(
 
     if (start >= stats.size || end >= stats.size) {
       res.status = 416
-      res.headers.set('Content-Range', `bytes */${stats.size}`)
-      return res.end()
+      res.headers?.set('Content-Range', `bytes */${stats.size}`)
+      req.respond({})
+      return res
     }
     headers['Content-Range'] = `bytes ${start}-${end}/${stats.size}`
     headers['Content-Length'] = end - start + 1
@@ -66,16 +67,16 @@ export const sendFile = <Request extends Req = Req, Response extends Res = Res>(
     headers['Content-Length'] = stats.size
   }
 
-  for (const [k, v] of Object.entries(headers)) res.setHeader(k, v)
+  for (const [k, v] of Object.entries(headers)) res.headers?.set(k, v)
 
   res.status = status
 
-  for (const [k, v] of Object.entries(headers)) res.headers.set(k, v)
+  for (const [k, v] of Object.entries(headers)) res.headers?.set(k, v)
 
   try {
     const file = Deno.openSync(filePath, { read: true, ...options })
 
-    res.send(file)
+    send(req, res)(file)
   } catch (e) {
     cb?.(e)
   } finally {

@@ -1,5 +1,6 @@
-import { Request } from '../../request.ts'
-import { Response } from '../../response.ts'
+import { Req, Res } from '../../deps.ts'
+import { send } from './send.ts'
+import { QueryParams } from '../../types.ts'
 
 export type JSONPOptions = Partial<{
   escape: boolean
@@ -34,13 +35,18 @@ function stringify(
   return json
 }
 
+type R = Req & { query: QueryParams }
+
 /**
  * Send JSON response with JSONP callback support
  * @param req Request
  * @param res Response
  * @param app App
  */
-export const jsonp = (req: Request, res: Response) => (obj: unknown, opts: JSONPOptions = {}) => {
+export const jsonp = <Request extends R = R, Response extends Res = Res>(req: Request, res: Response) => (
+  obj: unknown,
+  opts: JSONPOptions = {}
+) => {
   const val = obj
 
   const { escape, replacer, spaces, callbackName = 'callback' } = opts
@@ -49,15 +55,15 @@ export const jsonp = (req: Request, res: Response) => (obj: unknown, opts: JSONP
 
   let callback = req.query[callbackName]
 
-  if (!res.get('Content-Type')) {
-    res.set('X-Content-Type-Options', 'nosniff')
-    res.set('Content-Type', 'application/json')
+  if (!res.headers?.get('Content-Type')) {
+    res.headers?.set('X-Content-Type-Options', 'nosniff')
+    res.headers?.set('Content-Type', 'application/json')
   }
 
   // jsonp
   if (typeof callback === 'string' && callback.length !== 0) {
-    res.set('X-Content-Type-Options', 'nosniff')
-    res.set('Content-Type', 'text/javascript')
+    res.headers?.set('X-Content-Type-Options', 'nosniff')
+    res.headers?.set('Content-Type', 'text/javascript')
 
     // restrict callback charset
     callback = callback.replace(/[^[\]\w$.]/g, '')
@@ -70,5 +76,5 @@ export const jsonp = (req: Request, res: Response) => (obj: unknown, opts: JSONP
     body = `/**/ typeof ${callback} === 'function' && ${callback}(${body});`
   }
 
-  return res.send(body)
+  return send(req, res)(body)
 }

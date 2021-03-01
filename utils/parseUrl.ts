@@ -27,5 +27,3 @@ export const getPathname = (u: string) => {
 }
 
 export const getQueryParams = (url = '/') => parse(url.slice(url.indexOf('?') + 1))
-
-export type QueryParams = ReturnType<typeof getQueryParams>

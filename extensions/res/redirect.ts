@@ -1,10 +1,9 @@
 import { NextFunction } from 'https://esm.sh/@tinyhttp/router'
 import { formatResponse } from './format.ts'
 import { setLocationHeader } from './headers.ts'
-import { Request as Req } from '../../request.ts'
-import { Response as Res } from '../../response.ts'
+import { Req, Res } from '../../deps.ts'
 import { status as getStatus } from 'https://deno.land/x/status@0.1.0/status.ts'
-import { escapeHTML } from 'https://esm.sh/es-escape-html'
+import { escapeHtml } from '../../deps.ts'
 
 export const redirect = <
   Request extends Req = Req,
@@ -19,7 +18,7 @@ export const redirect = <
 
   let body = ''
 
-  address = setLocationHeader(req, res)(address).headers.get('Location') as string
+  address = setLocationHeader(req, res)(address).headers?.get('Location') as string
 
   formatResponse(
     req,
@@ -30,18 +29,18 @@ export const redirect = <
       body = getStatus(status) + '. Redirecting to ' + address
     },
     html: () => {
-      const u = escapeHTML(address)
+      const u = escapeHtml(address)
 
       body = `<p>${getStatus(status)}. Redirecting to <a href="${u}">${u}</a></p>`
     }
   })
 
-  res.setHeader('Content-Length', body.length)
+  res.headers?.set('Content-Length', body.length.toString())
 
   res.status = status
 
-  if (req.method === 'HEAD') res.end()
-  else res.end(body)
+  if (req.method === 'HEAD') req.respond({})
+  else req.respond({ body })
 
   return res
 }

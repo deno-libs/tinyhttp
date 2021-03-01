@@ -1,7 +1,8 @@
-import { Request } from '../../request.ts'
-import { Response } from '../../response.ts'
+import { Req, Res } from '../../deps.ts'
 
-export const end = (req: Request, res: Response) => (body: any = '') => {
+export const end = <Request extends Req = Req, Response extends Res = Res>(req: Request, res: Response) => (
+  body: any = ''
+) => {
   req.respond({ ...res, body })
   return res
 }

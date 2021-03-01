@@ -1,26 +1,17 @@
-import { Handler } from 'https://esm.sh/@tinyhttp/router'
+import { Handler, NextFunction } from 'https://esm.sh/@tinyhttp/router'
 import { normalizeType, normalizeTypes } from './utils.ts'
 import { setVaryHeader } from './headers.ts'
 import { getAccepts } from '../req/mod.ts'
-import { Request as Req } from '../../request.ts'
-import { Response as Res } from '../../response.ts'
+import { Req, Res } from '../../deps.ts'
 
 export type FormatProps = {
   default?: () => void
 } & Record<string, Handler>
 
-export type FormatError = Error & {
-  status: number
-  statusCode: number
-  types: ReturnType<typeof normalizeTypes>[]
-}
-
-type next = (err?: FormatError) => void
-
-export const formatResponse = <Request extends Req = Req, Response extends Res = Res, Next extends next = next>(
+export const formatResponse = <Request extends Req = Req, Response extends Res = Res>(
   req: Request,
   res: Response,
-  next: Next
+  next: NextFunction
 ) => (obj: FormatProps) => {
   const fn = obj.default
 
@@ -33,12 +24,12 @@ export const formatResponse = <Request extends Req = Req, Response extends Res =
   setVaryHeader(res)('Accept')
 
   if (key) {
-    res.setHeader('Content-Type', normalizeType(key).value)
+    res.headers?.set('Content-Type', normalizeType(key).value || '')
     obj[key](req, res, next)
   } else if (fn) {
     fn()
   } else {
-    const err = new Error('Not Acceptable') as FormatError
+    const err = new Error('Not Acceptable') as any
     err.status = err.statusCode = 406
     err.types = normalizeTypes(keys).map((o) => o.value)
 

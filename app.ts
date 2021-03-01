@@ -12,6 +12,34 @@ import * as path from 'https://deno.land/std/path/mod.ts'
 
 const lead = (x: string) => (x.charCodeAt(0) === 47 ? x : '/' + x)
 
+declare global {
+  namespace tinyhttp {
+    // These open interfaces may be extended in an application-specific manner via declaration merging.
+    interface Request {}
+    interface Response {}
+    interface Application {}
+  }
+}
+
+export const renderTemplate = <O = any, Res extends Response = Response>(res: Res, app: App) => (
+  file: string,
+  data?: Record<string, any>,
+  options?: TemplateEngineOptions<O>
+): Response => {
+  app.render(
+    file,
+    data,
+    (err: unknown, html: unknown) => {
+      if (err) throw err
+
+      res.send(html)
+    },
+    options
+  )
+
+  return res
+}
+
 /**
  * Execute handler with passed `req` and `res`. Catches errors and resolves async handlers.
  * @param h
@@ -75,10 +103,12 @@ export type TemplateEngineOptions<O = any> = Partial<{
  * ```
  */
 export class App<
-  RenderOptions = any,
-  Req extends Request = Request,
-  Res extends Response<RenderOptions> = Response<RenderOptions>
-> extends Router<App, Req, Res> {
+    RenderOptions = any,
+    Req extends Request = Request,
+    Res extends Response<RenderOptions> = Response<RenderOptions>
+  >
+  extends Router<App, Req, Res>
+  implements tinyhttp.Application {
   middleware: Middleware<Req>[] = []
   locals: Record<string, string> = {}
   noMatchHandler: Handler

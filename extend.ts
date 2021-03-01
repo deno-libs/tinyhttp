@@ -1,21 +1,20 @@
 import { NextFunction } from 'https://esm.sh/@tinyhttp/router'
-import { App } from './app.ts'
+import { App, renderTemplate } from './app.ts'
 import { Request } from './request.ts'
 import {
   getRequestHeader,
-  getFreshOrStale,
+  /* getFreshOrStale, */
   getAccepts,
   getAcceptsCharsets,
   getAcceptsEncodings,
   getAcceptsLanguages,
-  getRangeFromHeader,
   checkIfXMLHttpRequest,
-  reqIs,
   getHostname,
   getIP,
   getIPs,
   getProtocol,
   getSubdomains
+  /* reqIs */
 } from './extensions/req/mod.ts'
 import {
   send,
@@ -37,7 +36,7 @@ import {
   clearCookie
 } from './extensions/res/mod.ts'
 import { getQueryParams } from './utils/parseUrl.ts'
-import { Response, renderTemplate } from './response.ts'
+import { Response } from './response.ts'
 
 export const extendMiddleware = <
   RenderOptions = unknown,
@@ -62,27 +61,27 @@ export const extendMiddleware = <
 
   req.get = getRequestHeader(req)
 
-  if (settings?.freshnessTesting) {
-    req.fresh = getFreshOrStale(req, res)
+  /*   if (settings?.freshnessTesting) {
+    req.fresh = getFreshOrStale<Req, Res>(req, res)
     req.stale = !req.fresh
-  }
+  } */
 
-  req.accepts = getAccepts(req)
-  req.acceptsCharsets = getAcceptsCharsets(req)
-  req.acceptsEncodings = getAcceptsEncodings(req)
-  req.acceptsLanguages = getAcceptsLanguages(req)
+  req.accepts = getAccepts<Req>(req)
+  req.acceptsCharsets = getAcceptsCharsets<Req>(req)
+  req.acceptsEncodings = getAcceptsEncodings<Req>(req)
+  req.acceptsLanguages = getAcceptsLanguages<Req>(req)
 
-  req.range = getRangeFromHeader(req)
+  // req.range = getRangeFromHeader(req)
   req.xhr = checkIfXMLHttpRequest(req)
-  req.is = reqIs(req)
+  // req.is = reqIs(req)
 
   if (settings?.networkExtensions) {
-    req.protocol = getProtocol(req)
+    req.protocol = getProtocol<Req>(req)
     req.secure = req.protocol === 'https'
-    req.hostname = getHostname(req)
-    req.subdomains = getSubdomains(req, settings.subdomainOffset)
-    req.ip = getIP(req)
-    req.ips = getIPs(req)
+    req.hostname = getHostname<Req>(req)
+    req.subdomains = getSubdomains<Req>(req, settings.subdomainOffset)
+    req.ip = getIP<Req>(req)
+    req.ips = getIPs<Req>(req)
   }
 
   // Response extensions
@@ -91,7 +90,7 @@ export const extendMiddleware = <
   res.send = send<Req, Res>(req, res)
   res.sendFile = sendFile<Req, Res>(req, res)
   res.sendStatus = sendStatus(req, res)
-  res.json = json<Res>(res)
+  res.json = json<Req, Res>(req, res)
   res.setHeader = setHeader<Res>(res)
   res.set = setHeader<Res>(res)
   res.location = setLocationHeader<Req, Res>(req, res)

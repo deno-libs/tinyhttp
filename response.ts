@@ -5,28 +5,9 @@ import type { SendFileOptions } from './extensions/res/sendFile.ts'
 import type { TemplateEngineOptions, App } from './app.ts'
 import type { FormatProps } from './extensions/res/format.ts'
 import type { DownloadOptions } from './extensions/res/download.ts'
-import { SerializeOptions } from 'https://esm.sh/@tinyhttp/cookie'
+import { Cookie } from 'https://deno.land/std@0.88.0/http/cookie.ts'
 
-export const renderTemplate = <O = any, Res extends Response = Response>(res: Res, app: App) => (
-  file: string,
-  data?: Record<string, any>,
-  options?: TemplateEngineOptions<O>
-): Response => {
-  app.render(
-    file,
-    data,
-    (err: unknown, html: unknown) => {
-      if (err) throw err
-
-      res.send(html)
-    },
-    options
-  )
-
-  return res
-}
-
-export interface Response<O = any> extends ServerResponse {
+export interface Response<O = any> extends ServerResponse, tinyhttp.Request {
   headers: Headers
   app: App
   send(body: unknown): Response
@@ -41,7 +22,7 @@ export interface Response<O = any> extends ServerResponse {
   set(field: string | Record<string, string | number | string[]>, val?: string | number | readonly string[]): Response
   location(url: string): Response
   status: number
-  get(field: string): string | number | string[] | null
+  get(field: string): string | null | undefined
   append(field: string, value: any): Response
   render(file: string, data?: Record<string, any>, options?: TemplateEngineOptions<O>): Response
   links(links: { [key: string]: string }): Response
@@ -52,11 +33,7 @@ export interface Response<O = any> extends ServerResponse {
   download(path: string, filename: string, options?: DownloadOptions, cb?: (err?: any) => void): Response
   attachment(filename?: string): Response
 
-  cookie(
-    name: string,
-    value: string | Record<string, unknown>,
-    options?: SerializeOptions & Partial<{ signed: boolean }>
-  ): Response
+  cookie(name: string, value: string | Record<string, unknown>, options?: Omit<Cookie, 'name' | 'value'>): Response
   clearCookie(name: string): Response
   jsonp(obj: any): Response
 }

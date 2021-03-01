@@ -1,8 +1,8 @@
 // deno-lint-ignore-file
 
-import { Request } from '../request.ts'
-import { default as ipaddr, IPv4, IPv6 } from 'https://esm.sh/ipaddr.js'
-import forwarded from 'https://esm.sh/forwarded'
+import { Req } from '../deps.ts'
+import { forwarded } from './forwarded.ts'
+import { ipaddr, IPv4, IPv6 } from '../deps.ts'
 
 const DIGIT_REGEXP = /^[0-9]+$/
 const isip = ipaddr.isValid
@@ -22,7 +22,7 @@ const IP_RANGES: Record<string, string[]> = {
  * @param request
  * @param trust
  */
-function alladdrs(req: Request, trust: ((...args: any[]) => any) | any[] | string[] | string) {
+function alladdrs(req: Req, trust: ((...args: any[]) => any) | any[] | string[] | string) {
   // get addresses
 
   const addrs = forwarded(req)
@@ -132,7 +132,7 @@ function parseNetmask(netmask: string) {
  * @param trust
  * @public
  */
-export function proxyaddr(req: Request, trust: ((...args: any[]) => any) | any[] | string[] | string) {
+export function proxyaddr(req: Req, trust: ((...args: any[]) => any) | any[] | string[] | string) {
   const addrs = alladdrs(req, trust)
 
   return addrs[addrs.length - 1]

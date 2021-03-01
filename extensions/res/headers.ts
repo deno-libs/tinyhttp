@@ -1,8 +1,4 @@
-import * as mime from 'https://esm.sh/es-mime-types'
-import { encodeUrl } from 'https://esm.sh/@tinyhttp/encode-url'
-import { vary } from '../../utils/vary.ts'
-import { Response as Res } from '../../response.ts'
-import { Request as Req } from '../../request.ts'
+import { vary, encodeUrl, charset, lookup, Req, Res } from '../../deps.ts'
 import { getRequestHeader } from '../req/headers.ts'
 
 const charsetRegExp = /;\s*charset\s*=/
@@ -21,13 +17,13 @@ export const setHeader = <Response extends Res = Res>(res: Response) => (
       }
 
       if (!charsetRegExp.test(value)) {
-        const charset = mime.charset(value.split(';')[0])
+        const ch = charset(value.split(';')[0])
 
-        if (typeof charset === 'string') value += '; charset=' + charset.toLowerCase()
+        if (typeof ch === 'string') value += '; charset=' + ch.toLowerCase()
       }
     }
 
-    res.headers.set(field, value as string)
+    res.headers?.set(field, value as string)
   } else {
     for (const key in field) {
       setHeader(res)(key, field[key] as string)
@@ -36,10 +32,8 @@ export const setHeader = <Response extends Res = Res>(res: Response) => (
   return res
 }
 
-export const getResponseHeader = <Response extends Res = Res>(res: Response) => (
-  field: string
-): string | number | string[] | null => {
-  return res.headers.get(field)
+export const getResponseHeader = <Response extends Res = Res>(res: Response) => (field: string) => {
+  return res.headers?.get(field)
 }
 
 export const setLocationHeader = <Request extends Req = Req, Response extends Res = Res>(
@@ -52,16 +46,16 @@ export const setLocationHeader = <Request extends Req = Req, Response extends Re
   if (url === 'back') loc = (getRequestHeader(req)('Referrer') as string) || '/'
 
   // set location
-  res.headers.set('Location', encodeUrl(loc))
+  res.headers?.set('Location', encodeUrl(loc))
   return res
 }
 
 export const setLinksHeader = <Response extends Res = Res>(res: Response) => (links: {
   [key: string]: string
 }): Response => {
-  let link = res.headers.get('Link') || ''
+  let link = res.headers?.get('Link') || ''
   if (link) link += ', '
-  res.setHeader(
+  res.headers?.set(
     'Link',
     link +
       Object.keys(links)
@@ -73,13 +67,13 @@ export const setLinksHeader = <Response extends Res = Res>(res: Response) => (li
 }
 
 export const setVaryHeader = <Response extends Res = Res>(res: Response) => (field: string): Response => {
-  vary<Response>(res, field)
+  vary(res.headers || new Headers({}), field)
 
   return res
 }
 
 export const setContentType = <Response extends Res = Res>(res: Response) => (type: string): Response => {
-  const ct = type.indexOf('/') === -1 ? mime.lookup(type) : type
+  const ct = type.indexOf('/') === -1 ? lookup(type) : type
 
   setHeader(res)('Content-Type', ct)
 

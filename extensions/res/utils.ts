@@ -1,6 +1,6 @@
 import { format, parse } from 'https://deno.land/x/content_type/mod.ts'
 import { etag as eTag } from 'https://deno.land/x/opine@1.1.0/src/utils/etag.ts'
-import * as mime from 'https://esm.sh/es-mime-types'
+import { lookup } from '../../deps.ts'
 
 export const createETag = (body: Parameters<typeof eTag>[0]) => {
   return eTag(body, { weak: true })
@@ -14,7 +14,7 @@ export function setCharset(type: string, charset: string) {
 }
 
 export const normalizeType = (type: string) =>
-  ~type.indexOf('/') ? acceptParams(type) : { value: mime.lookup(type), params: {} }
+  ~type.indexOf('/') ? acceptParams(type) : { value: lookup(type), params: {} }
 
 export function acceptParams(str: string, index?: number) {
   const parts = str.split(/ *; */)

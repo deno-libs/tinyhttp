@@ -1,29 +1,30 @@
-import { Request } from '../../request.ts'
-import { Response } from '../../response.ts'
-import parseRange, { Options } from 'https://esm.sh/range-parser'
+import { Req, Res, parseRange, ParseRangeOptions } from '../../deps.ts'
 import fresh from 'https://deno.land/x/fresh@v1.0.0/mod.ts'
-import { is } from 'https://deno.land/x/type_is@1.0.2/mod.ts'
+import { is } from 'https://deno.land/x/type_is@1.0.1/mod.ts'
 
-export const getRequestHeader = (req: Request) => (header: string): string | string[] | null => {
+export const getRequestHeader = <Request extends Req = Req>(req: Request) => (header: string) => {
   const lc = header.toLowerCase()
 
   switch (lc) {
     case 'referer':
     case 'referrer':
-      return req.headers.get('referrer') || req.headers.get('referer')
+      return (req.headers.get('referrer') as string) || (req.headers.get('referer') as string)
     default:
-      return req.headers.get(lc)
+      return req.headers.get(lc) as string
   }
 }
-export const getRangeFromHeader = (req: Request) => (size: number, options?: Options) => {
-  const range = getRequestHeader(req)('Range') as string
+export const getRangeFromHeader = <Request extends Req = Req>(req: Request) => (
+  size: number,
+  options?: ParseRangeOptions
+) => {
+  const range = getRequestHeader(req)('Range')
 
   if (!range) return
 
   return parseRange(size, range, options)
 }
 
-export const getFreshOrStale = (req: Request, res: Response) => {
+export const getFreshOrStale = <Request extends Req = Req, Response extends Res = Res>(req: Request, res: Response) => {
   const method = req.method
   const status = res.status || 200
 
@@ -44,6 +45,8 @@ export const getFreshOrStale = (req: Request, res: Response) => {
   return false
 }
 
-export const checkIfXMLHttpRequest = (req: Request) => req.headers.get('X-Requested-With') === 'XMLHttpRequest'
+export const checkIfXMLHttpRequest = <Request extends Req = Req>(req: Request) =>
+  req.headers?.get('X-Requested-With') === 'XMLHttpRequest'
 
-export const reqIs = (req: Request) => (...types: string[]) => is(req.headers.get('content-type') as string, types)
+export const reqIs = <Request extends Req = Req>(req: Request) => (...types: string[]) =>
+  is(req.headers?.get('content-type') as string, types)
