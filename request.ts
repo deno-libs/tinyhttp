@@ -1,5 +1,5 @@
 // deno-lint-ignore-file
-import { ServerRequest } from 'https://deno.land/std@0.87.0/http/server.ts'
+import { ServerRequest } from 'https://deno.land/std/http/server.ts'
 import { Ranges } from 'https://esm.sh/range-parser'
 import { App } from './app.ts'
 import { Handler, Middleware } from 'https://esm.sh/@tinyhttp/router'

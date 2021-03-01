@@ -33,8 +33,8 @@ import {
   setVaryHeader,
   attachment,
   download,
-  clearCookie,
-  setCookie
+  setCookie,
+  clearCookie
 } from './extensions/res/mod.ts'
 import { getQueryParams } from './utils/parseUrl.ts'
 import { Response, renderTemplate } from './response.ts'
@@ -106,7 +106,7 @@ export const extendMiddleware = <
   res.attachment = attachment<Res>(res)
 
   res.cookie = setCookie<Req, Res>(req, res)
-  res.clearCookie = clearCookie<Req, Res>(req, res)
+  res.clearCookie = clearCookie<Res>(res)
 
   next?.()
 }

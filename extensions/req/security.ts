@@ -1,4 +1,4 @@
-import { isIP } from 'https://deno.land/x/isIP/mod.ts'
+import { isIP } from 'https://deno.land/x/isIP@1.0.0/mod.ts'
 import { Request } from '../../request.ts'
 import { compile, proxyaddr, all } from '../../utils/proxyAddr.ts'
 import { Protocol } from '../../request.ts'

@@ -3,7 +3,7 @@ import { formatResponse } from './format.ts'
 import { setLocationHeader } from './headers.ts'
 import { Request as Req } from '../../request.ts'
 import { Response as Res } from '../../response.ts'
-import { status as getStatus } from 'https://deno.land/x/status/status.ts'
+import { status as getStatus } from 'https://deno.land/x/status@0.1.0/status.ts'
 import { escapeHTML } from 'https://esm.sh/es-escape-html'
 
 export const redirect = <

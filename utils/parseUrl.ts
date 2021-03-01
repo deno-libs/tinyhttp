@@ -1,4 +1,4 @@
-import { parse } from 'https://deno.land/std@0.88.0/node/querystring.ts'
+import { parse } from 'https://deno.land/std/node/querystring.ts'
 
 type Regex = {
   keys: string[]

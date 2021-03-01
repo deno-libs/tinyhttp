@@ -1,4 +1,4 @@
-import { Accepts } from 'https://deno.land/x/accepts/mod.ts'
+import { Accepts } from 'https://deno.land/x/accepts@2.1.0/mod.ts'
 import { Request } from '../../request.ts'
 
 export const getAccepts = (req: Request) => (...types: string[]) => new Accepts(req.headers).types(types)

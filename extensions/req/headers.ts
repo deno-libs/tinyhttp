@@ -1,8 +1,8 @@
 import { Request } from '../../request.ts'
 import { Response } from '../../response.ts'
 import parseRange, { Options } from 'https://esm.sh/range-parser'
-import fresh from 'https://deno.land/x/fresh/mod.ts'
-import { is } from 'https://deno.land/x/type_is/mod.ts'
+import fresh from 'https://deno.land/x/fresh@v1.0.0/mod.ts'
+import { is } from 'https://deno.land/x/type_is@1.0.2/mod.ts'
 
 export const getRequestHeader = (req: Request) => (header: string): string | string[] | null => {
   const lc = header.toLowerCase()

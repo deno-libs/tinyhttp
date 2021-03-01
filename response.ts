@@ -1,10 +1,10 @@
 // deno-lint-ignore-file
 
-import { Response as ServerResponse } from 'https://deno.land/std@0.87.0/http/server.ts'
+import { Response as ServerResponse } from 'https://deno.land/std/http/server.ts'
 import type { SendFileOptions } from './extensions/res/sendFile.ts'
 import type { TemplateEngineOptions, App } from './app.ts'
-import type { FormatProps } from './extensions/format.ts'
-import type { DownloadOptions } from './extensions/download.ts'
+import type { FormatProps } from './extensions/res/format.ts'
+import type { DownloadOptions } from './extensions/res/download.ts'
 import { SerializeOptions } from 'https://esm.sh/@tinyhttp/cookie'
 
 export const renderTemplate = <O = any, Res extends Response = Response>(res: Res, app: App) => (
@@ -57,6 +57,6 @@ export interface Response<O = any> extends ServerResponse {
     value: string | Record<string, unknown>,
     options?: SerializeOptions & Partial<{ signed: boolean }>
   ): Response
-  clearCookie(name: string, options?: SerializeOptions): Response
+  clearCookie(name: string): Response
   jsonp(obj: any): Response
 }
