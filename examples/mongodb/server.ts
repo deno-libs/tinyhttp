@@ -9,12 +9,7 @@ type Req = Request & {
   bodyResult: any
 }
 
-const app = new App<any, Req>({
-  onError: (err, req) => {
-    console.log(err)
-    req.respond({ body: 'Error' })
-  }
-})
+const app = new App<any, Req>()
 const port = parseInt(Deno.env.get('PORT') || '') || 3000
 
 // connect to mongodb
@@ -37,7 +32,7 @@ app.get('/notes', async (_, res, next) => {
   }
 })
 
-const bodyParser: Handler<Req> = async (req, res, next) => {
+const bodyParser: Handler<Req> = async (req, _res, next) => {
   const buf = await Deno.readAll(req.body)
 
   const dec = new TextDecoder()
@@ -58,7 +53,7 @@ app.use(bodyParser)
 app.post('/notes', async (req, res, next) => {
   try {
     const { title, desc } = req.bodyResult
-    const r = await coll.insertOne({ title, desc })
+    await coll.insertOne({ title, desc })
 
     res.send(`Note with title of "${title}" has been added`)
   } catch (err) {
