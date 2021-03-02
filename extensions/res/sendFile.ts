@@ -6,7 +6,7 @@ import { send } from './send.ts'
 
 export type SendFileOptions = Partial<{
   root: string
-  headers: Record<string, any>
+  headers: Record<string, string>
   encoding: string
   end: number
   start: number
@@ -33,15 +33,24 @@ export const sendFile = <Request extends Req = Req, Response extends Res = Res>(
 
   const filePath = root ? join(root, path) : path
 
-  const stats = Deno.statSync(filePath)
+  let stats: Deno.FileInfo
 
-  headers['Content-Encoding'] = encoding
+  try {
+    stats = Deno.statSync(filePath)
 
-  headers['Last-Modified'] = stats.mtime?.toUTCString()
+    headers['Content-Encoding'] = encoding
 
-  headers['Content-Type'] = contentType(extname(path))
+    headers['Last-Modified'] = stats.mtime!.toUTCString()
 
-  headers['ETag'] = createETag(stats)
+    headers['Content-Type'] = contentType(extname(path)) || 'text/html'
+
+    headers['ETag'] = createETag(stats)
+
+    headers['Content-Length'] = `${stats.size}`
+  } catch (e) {
+    req.respond({ status: 500, body: 'Cannot read info of a file' })
+    return res
+  }
 
   headers['Content-Security-Policy'] = "default-src 'none'"
   headers['X-Content-Type-Options'] = 'nosniff'
@@ -61,10 +70,8 @@ export const sendFile = <Request extends Req = Req, Response extends Res = Res>(
       return res
     }
     headers['Content-Range'] = `bytes ${start}-${end}/${stats.size}`
-    headers['Content-Length'] = end - start + 1
+    headers['Content-Length'] = `${end - start + 1}`
     headers['Accept-Ranges'] = 'bytes'
-  } else {
-    headers['Content-Length'] = stats.size
   }
 
   for (const [k, v] of Object.entries(headers)) res.headers?.set(k, v)

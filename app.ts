@@ -1,14 +1,13 @@
 // deno-lint-ignore-file
-import { NextFunction, Router, Handler, Middleware, UseMethodParams } from 'https://esm.sh/@tinyhttp/router'
-export type { NextFunction, Router, Handler, Middleware, UseMethodParams }
+import { Router, serve, Server } from './deps.ts'
+import { NextFunction, Handler, Middleware, UseMethodParams } from './types.ts'
 import { onErrorHandler, ErrorHandler } from './onError.ts'
 // import { setImmediate } from 'https://deno.land/std@0.88.0/node/timers.ts'
 import rg from 'https://esm.sh/regexparam'
-import { Request, getRouteFromApp } from './request.ts'
-import { Response } from './response.ts'
+import type { Request } from './request.ts'
+import type { Response } from './response.ts'
 import { getURLParams, getPathname } from './utils/parseUrl.ts'
 import { extendMiddleware } from './extend.ts'
-import { serve, Server } from 'https://deno.land/std/http/server.ts'
 import * as path from 'https://deno.land/std/path/mod.ts'
 
 const lead = (x: string) => (x.charCodeAt(0) === 47 ? x : '/' + x)
@@ -80,6 +79,9 @@ export type TemplateEngineOptions<O = any> = Partial<{
   viewsFolder: string
   _locals: Record<string, any>
 }>
+
+export const getRouteFromApp = ({ middleware }: App, h: Handler) =>
+  middleware.find(({ handler }) => typeof handler === 'function' && handler.name === h.name)
 
 /**
  * `App` class - the starting point of tinyhttp app.

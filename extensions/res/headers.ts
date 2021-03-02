@@ -23,7 +23,7 @@ export const setHeader = <Response extends Res = Res>(res: Response) => (
       }
     }
 
-    res.headers?.set(field, value as string)
+    res.headers.set(field, value as string)
   } else {
     for (const key in field) {
       setHeader(res)(key, field[key] as string)
@@ -46,7 +46,7 @@ export const setLocationHeader = <Request extends Req = Req, Response extends Re
   if (url === 'back') loc = (getRequestHeader(req)('Referrer') as string) || '/'
 
   // set location
-  res.headers?.set('Location', encodeUrl(loc))
+  res.headers.set('Location', encodeUrl(loc))
   return res
 }
 
@@ -55,7 +55,7 @@ export const setLinksHeader = <Response extends Res = Res>(res: Response) => (li
 }): Response => {
   let link = res.headers?.get('Link') || ''
   if (link) link += ', '
-  res.headers?.set(
+  res.headers.set(
     'Link',
     link +
       Object.keys(links)

@@ -9,4 +9,14 @@ export { Accepts } from 'https://deno.land/x/accepts@2.1.0/mod.ts'
 export { encodeUrl } from 'https://deno.land/x/encodeurl@1.0.0/mod.ts'
 export { charset, contentType, lookup } from 'https://deno.land/x/media_types@v2.6.1/mod.ts'
 
-export type { ServerRequest as Req, Response as Res } from 'https://deno.land/std@0.88.0/http/server.ts'
+import type { ServerRequest as Req, Response as ServerResponse } from 'https://deno.land/std@0.88.0/http/server.ts'
+
+interface Res extends ServerResponse {
+  headers: Headers
+}
+
+export type { Req, Res }
+
+export { serve, Server } from 'https://deno.land/std@0.88.0/http/server.ts'
+
+export { Router } from 'https://esm.sh/@tinyhttp/router'

@@ -6,10 +6,10 @@ import * as dotenv from 'https://deno.land/x/tiny_env@1.0.0/mod.ts'
 dotenv.load()
 
 type Req = Request & {
-  bodyResult: any
+  bodyResult: Record<string, unknown>
 }
 
-const app = new App<any, Req>()
+const app = new App<unknown, Req>()
 const port = parseInt(Deno.env.get('PORT') || '') || 3000
 
 // connect to mongodb

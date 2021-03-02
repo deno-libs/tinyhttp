@@ -3,7 +3,7 @@ import { App, renderTemplate } from './app.ts'
 import { Request } from './request.ts'
 import {
   getRequestHeader,
-  /* getFreshOrStale, */
+  getFreshOrStale,
   getAccepts,
   getAcceptsCharsets,
   getAcceptsEncodings,
@@ -13,8 +13,9 @@ import {
   getIP,
   getIPs,
   getProtocol,
-  getSubdomains
-  /* reqIs */
+  getSubdomains,
+  getRangeFromHeader,
+  reqIs
 } from './extensions/req/mod.ts'
 import {
   send,
@@ -61,19 +62,19 @@ export const extendMiddleware = <
 
   req.get = getRequestHeader(req)
 
-  /*   if (settings?.freshnessTesting) {
+  if (settings?.freshnessTesting) {
     req.fresh = getFreshOrStale<Req, Res>(req, res)
     req.stale = !req.fresh
-  } */
+  }
 
   req.accepts = getAccepts<Req>(req)
   req.acceptsCharsets = getAcceptsCharsets<Req>(req)
   req.acceptsEncodings = getAcceptsEncodings<Req>(req)
   req.acceptsLanguages = getAcceptsLanguages<Req>(req)
 
-  // req.range = getRangeFromHeader(req)
+  req.range = getRangeFromHeader(req)
   req.xhr = checkIfXMLHttpRequest(req)
-  // req.is = reqIs(req)
+  req.is = reqIs(req)
 
   if (settings?.networkExtensions) {
     req.protocol = getProtocol<Req>(req)

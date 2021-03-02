@@ -1,11 +1,7 @@
 // deno-lint-ignore-file
 import { ServerRequest } from 'https://deno.land/std@0.88.0/http/server.ts'
 import { App } from './app.ts'
-import { Handler, Middleware } from 'https://esm.sh/@tinyhttp/router'
-import { QueryParams, Ranges, Protocol, AcceptsReturns } from './types.ts'
-
-export const getRouteFromApp = ({ middleware }: App, h: Handler) =>
-  middleware.find(({ handler }) => typeof handler === 'function' && handler.name === h.name)
+import { QueryParams, Ranges, Protocol, AcceptsReturns, Middleware } from './types.ts'
 
 export interface Request extends ServerRequest, tinyhttp.Request {
   path: string

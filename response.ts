@@ -1,13 +1,13 @@
 // deno-lint-ignore-file
 
-import { Response as ServerResponse } from 'https://deno.land/std/http/server.ts'
+import { Res as ServerResponse } from './deps.ts'
 import type { SendFileOptions } from './extensions/res/sendFile.ts'
 import type { TemplateEngineOptions, App } from './app.ts'
 import type { FormatProps } from './extensions/res/format.ts'
 import type { DownloadOptions } from './extensions/res/download.ts'
 import { Cookie } from 'https://deno.land/std@0.88.0/http/cookie.ts'
 
-export interface Response<O = any> extends ServerResponse, tinyhttp.Request {
+export interface Response<O = any> extends ServerResponse, tinyhttp.Response {
   headers: Headers
   app: App
   send(body: unknown): Response

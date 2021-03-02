@@ -1,3 +1,5 @@
+import { NextFunction, Handler, Middleware, UseMethodParams } from 'https://esm.sh/@tinyhttp/router'
+
 type QueryParams = {
   [key: string]: string | string[]
 }
@@ -13,5 +15,7 @@ interface Range {
   start: number
   end: number
 }
+
+export type { NextFunction, Handler, Middleware, UseMethodParams }
 
 export type { QueryParams, AcceptsReturns, Protocol, Range, Ranges }
