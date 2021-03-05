@@ -1,6 +1,16 @@
+name: CI
+
+# Controls when the action will run. Triggers the workflow on push or pull request
+# events but only for the master branch
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
 steps:
   - uses: actions/checkout@v2
   - uses: denolib/setup-deno@v2
     with:
-      deno-version: v1.x
+      deno-version: v1.8
   - run: deno test --allow-net --no-check --location http://127.0.1 ./tests
