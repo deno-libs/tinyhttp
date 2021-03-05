@@ -16,9 +16,9 @@ jobs:
       - uses: denolib/setup-deno@v2
         with:
           deno-version: v1.8
-      - run: deno test --allow-net --unstable --coverage=coverage  --location http://127.0.1 ./tests
-        name: Run tests
-      - run: Create coverage report
+      - name: Create tests
+        run: deno test --allow-net --unstable --coverage=coverage  --location http://127.0.1 ./tests
+      - name: Create coverage report
         run: deno --unstable coverage ./coverage --lcov > coverage.lcov
       - name: Collect coverage
         uses: codecov/codecov-action@v1.0.10
