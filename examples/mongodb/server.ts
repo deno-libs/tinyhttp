@@ -1,11 +1,11 @@
-import { App, Handler } from '../../app.ts'
+import { App, RHandler } from '../../mod.ts'
 import { Request } from '../../request.ts'
 import { MongoClient, Bson } from 'https://deno.land/x/mongo@v0.21.2/mod.ts'
 import * as dotenv from 'https://deno.land/x/tiny_env@1.0.0/mod.ts'
 
 dotenv.load()
 
-type Req = Request & {
+interface Req extends Request {
   bodyResult: Record<string, unknown>
 }
 
@@ -32,7 +32,7 @@ app.get('/notes', async (_, res, next) => {
   }
 })
 
-const bodyParser: Handler<Req> = async (req, _res, next) => {
+const bodyParser: RHandler<Req> = async (req, _res, next) => {
   const buf = await Deno.readAll(req.body)
 
   const dec = new TextDecoder()
