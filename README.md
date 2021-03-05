@@ -3,7 +3,8 @@
   <h1 align="center">tinyhttp</h1>
 </p>
 
-[![nest badge](https://nest.land/badge.svg)](https://nest.land/package/tinyhttp) ![GitHub release (latest by date)](https://img.shields.io/github/v/release/talentlessguy/tinyhttp-deno?style=flat-square)
+[![nest badge](https://nest.land/badge.svg)](https://nest.land/package/tinyhttp) ![GitHub release (latest by date)](https://img.shields.io/github/v/release/talentlessguy/tinyhttp-deno?style=flat-square) [![GitHub Workflow Status][gh-actions-img]][github-actions]
+[![Codecov](https://img.shields.io/codecov/c/gh/talentlessguy/tinyhttp-deno?style=flat-square)][codecov]
 
 This is a [Deno](https://deno.land) port of [tinyhttp](https://github.com/talentlessguy/tinyhttp), 0-legacy, tiny &amp; fast web framework as a replacement of Express.
 
@@ -29,3 +30,8 @@ app.get('/:name/', (req, res) => {
 
 app.listen(3000, () => console.log(`Started on :3000`))
 ```
+
+[gh-actions-img]: https://img.shields.io/github/workflow/status/talentlessguy/tinyhttp/CI?style=flat-square
+[codecov]: https://codecov.io/gh/talentlessguy/tinyhttp-deno
+[github-actions]: https://github.com/talentlessguy/tinyhttp-deno/actions
+[license]: https://github.com/talentlessguy/tinyhttp-deno/blob/master/LICENSE
