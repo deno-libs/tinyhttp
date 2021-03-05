@@ -1,6 +1,6 @@
 // deno-lint-ignore-file
 import { Router, serve, Server } from './deps.ts'
-import { NextFunction, Handler, Middleware, UseMethodParams } from './types.ts'
+import { NextFunction, RHandler as Handler, Middleware, UseMethodParams } from './types.ts'
 import { onErrorHandler, ErrorHandler } from './onError.ts'
 // import { setImmediate } from 'https://deno.land/std@0.88.0/node/timers.ts'
 import rg from 'https://esm.sh/regexparam'
@@ -83,6 +83,13 @@ export type TemplateEngineOptions<O = any> = Partial<{
 export const getRouteFromApp = ({ middleware }: App, h: Handler) =>
   middleware.find(({ handler }) => typeof handler === 'function' && handler.name === h.name)
 
+export type AppConstructor<Req, Res> = Partial<{
+  noMatchHandler: Handler<Req>
+  onError: ErrorHandler
+  settings: AppSettings
+  applyExtensions: (req: Req, res: Res, next: NextFunction) => void
+}>
+
 /**
  * `App` class - the starting point of tinyhttp app.
  *
@@ -120,14 +127,7 @@ export class App<
   engines: Record<string, TemplateFunc<RenderOptions>> = {}
   applyExtensions?: (req: Req, res: Res, next: NextFunction) => void
 
-  constructor(
-    options: Partial<{
-      noMatchHandler: Handler<Req>
-      onError: ErrorHandler
-      settings: AppSettings
-      applyExtensions: (req: Req, res: Res, next: NextFunction) => void
-    }> = {}
-  ) {
+  constructor(options: AppConstructor<Req, Res> = {}) {
     super()
     this.onError = options?.onError || onErrorHandler
     this.noMatchHandler = options?.noMatchHandler || this.onError.bind(null, { code: 404 })

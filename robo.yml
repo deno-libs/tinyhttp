@@ -1,0 +1,3 @@
+test:
+  exec: deno test --allow-net --no-check --location http://127.0.1 ./tests
+  summary: run tests

@@ -1,0 +1,6 @@
+steps:
+  - uses: actions/checkout@v2
+  - uses: denolib/setup-deno@v2
+    with:
+      deno-version: v1.x
+  - run: deno test --allow-net --no-check --location http://127.0.1 ./tests
