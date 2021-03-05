@@ -1,9 +1,8 @@
 // deno-lint-ignore-file
-import { Router, serve, Server } from './deps.ts'
+import { Router, serve, Server, rg } from './deps.ts'
 import { NextFunction, RHandler as Handler, Middleware, UseMethodParams } from './types.ts'
 import { onErrorHandler, ErrorHandler } from './onError.ts'
 // import { setImmediate } from 'https://deno.land/std@0.88.0/node/timers.ts'
-import rg from 'https://esm.sh/regexparam'
 import type { Request } from './request.ts'
 import type { Response } from './response.ts'
 import { getURLParams, getPathname } from './utils/parseUrl.ts'

@@ -1,4 +1,4 @@
-import { NextFunction, Handler as RHandler, Middleware, UseMethodParams } from 'https://esm.sh/@tinyhttp/router'
+import { NextFunction, Handler as RHandler, Middleware, UseMethodParams, Method } from 'https://esm.sh/@tinyhttp/router'
 import { Request, Response } from './mod.ts'
 
 type QueryParams = {
@@ -19,6 +19,15 @@ interface Range {
 
 export type Handler = RHandler<Request, Response>
 
-export type { NextFunction, RHandler, Middleware, UseMethodParams }
-
-export type { QueryParams, AcceptsReturns, Protocol, Range, Ranges }
+export type {
+  QueryParams,
+  AcceptsReturns,
+  Protocol,
+  Range,
+  Ranges,
+  Method,
+  NextFunction,
+  RHandler,
+  Middleware,
+  UseMethodParams
+}

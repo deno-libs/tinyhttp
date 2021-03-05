@@ -1,7 +1,6 @@
 import { expect } from 'https://deno.land/x/expect/mod.ts'
-import { App, Request } from '../../mod.ts'
-import { serve } from '../../deps.ts'
-import { BindToSuperDeno, it, describe, InitAppAndTest, randomPort } from '../util.ts'
+import { App } from '../../mod.ts'
+import { BindToSuperDeno, it, describe, InitAppAndTest } from '../util.ts'
 
 describe('Testing App', () => {
   it('should launch a basic server', async () => {
@@ -23,19 +22,8 @@ describe('Testing App', () => {
 
     expect(app.locals.hello).toBe('world')
   })
-  /* it('Custom noMatchHandler works', async () => {it('Custom noMatchHandler works', async () => {
-    const { fetch } = InitAppAndTest(() => {}, undefined, 'get', {
-      noMatchHandler: (req) => {
-        req.respond({
-          status: 404,
-          body: `Oopsie! Page ${req.url} is lost.`
-        })
-      }
-    })
-
-    await fetch.get('/').expect(404, 'Oopsie! Page / is lost.')
-  })
-    const { fetch } = InitAppAndTest(() => {}, undefined, 'get', {
+  /* it('Custom noMatchHandler works', async () => {
+    const { fetch } = InitAppAndTest(() => {}, undefined, {
       noMatchHandler: (req) => {
         req.respond({
           status: 404,

@@ -1,6 +1,6 @@
 import { getFreePort } from 'https://deno.land/x/free_port@v1.2.0/mod.ts'
 import { superdeno } from 'https://deno.land/x/superdeno@3.0.0/mod.ts'
-import { App, Handler, AppConstructor, Request, Response } from '../mod.ts'
+import { App, Handler, AppConstructor, Request, Response, Method } from '../mod.ts'
 
 function random(min: number, max: number): number {
   return Math.round(Math.random() * (max - min)) + min
@@ -59,19 +59,10 @@ export const BindToSuperDeno = <Req extends Request, Res extends Response>(app: 
   return fetch
 }
 
-export const InitAppAndTest = (
-  handler: Handler,
-  route?: string,
-  method = 'get',
-  settings: AppConstructor<Request, Response> = {}
-) => {
-  const app = new App(settings)
+export const InitAppAndTest = (handler: Handler, route = '/', settings: AppConstructor<Request, Response> = {}) => {
+  const app = new App<unknown, Request, Response>(settings)
 
-  if (route) {
-    app[method.toLowerCase() as 'get'](route, handler)
-  } else {
-    app.use(handler)
-  }
+  app.use(route, handler)
 
   return { fetch: BindToSuperDeno(app), app }
 }
