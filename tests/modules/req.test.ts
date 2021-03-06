@@ -1,4 +1,4 @@
-// import { expect } from 'https://deno.land/x/expect@v0.2.6/mod.ts'
+import { expect } from 'https://deno.land/x/expect@v0.2.6/mod.ts'
 import { describe, it, InitAppAndTest } from '../util.ts'
 
 import {
@@ -6,11 +6,11 @@ import {
   getAccepts,
   getAcceptsEncodings,
   getFreshOrStale,
-  getRequestHeader
-  /*  getRangeFromHeader,
-  reqIs */
+  getRequestHeader,
+  getRangeFromHeader,
+  reqIs
 } from '../../extensions/req/mod.ts'
-// import { Ranges } from '../../types.ts'
+import { Ranges } from '../../types.ts'
 
 describe('Request extensions', () => {
   describe('req.get(header)', () => {
@@ -102,6 +102,39 @@ describe('Request extensions', () => {
       })
 
       await fetch.get('/').expect('stale')
+    })
+  })
+  describe('req.range', () => {
+    it('should return parsed ranges', async () => {
+      const { fetch } = InitAppAndTest((req, res) => {
+        const range = getRangeFromHeader(req)
+        const array = range(300)
+        expect(array).toContain({ end: 299, start: 0 })
+        expect(array).toHaveLength(1)
+        res.end()
+      })
+
+      await fetch.get('/').set('Range', 'bytes=0-1000')
+    })
+    it('should cap to the given size', async () => {
+      const { fetch } = InitAppAndTest((req, res) => {
+        const range = getRangeFromHeader(req)
+        const size = 300
+        expect((range(size) as Ranges)?.[0].end).toBe(size - 1)
+        res.end()
+      })
+
+      await fetch.get('/').set('Range', 'bytes=0-1000')
+    })
+    it('should cap to the given size when open-ended', async () => {
+      const { fetch } = InitAppAndTest((req, res) => {
+        const range = getRangeFromHeader(req)
+        const size = 300
+        expect((range(size) as Ranges)?.[0].end).toBe(size - 1)
+        res.end()
+      })
+
+      await fetch.get('/').set('Range', 'bytes=0-')
     })
   })
 })
