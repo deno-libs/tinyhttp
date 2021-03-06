@@ -4,7 +4,7 @@
 </p>
 
 [![nest badge](https://nest.land/badge.svg)](https://nest.land/package/tinyhttp) ![GitHub release (latest by date)](https://img.shields.io/github/v/release/talentlessguy/tinyhttp-deno?style=flat-square) [![GitHub Workflow Status][gh-actions-img]][github-actions]
-[![Codecov](https://img.shields.io/codecov/c/gh/talentlessguy/tinyhttp-deno?style=flat-square)][codecov]
+[![Codecov][codecov-badge]][codecov] [![][docs-badge]][docs]
 
 This is a [Deno](https://deno.land) port of [tinyhttp](https://github.com/talentlessguy/tinyhttp), 0-legacy, tiny &amp; fast web framework as a replacement of Express.
 
@@ -35,3 +35,6 @@ app.listen(3000, () => console.log(`Started on :3000`))
 [codecov]: https://codecov.io/gh/talentlessguy/tinyhttp-deno
 [github-actions]: https://github.com/talentlessguy/tinyhttp-deno/actions
 [license]: https://github.com/talentlessguy/tinyhttp-deno/blob/master/LICENSE
+[codecov-badge]: https://img.shields.io/codecov/c/gh/talentlessguy/tinyhttp-deno?style=flat-square
+[docs-badge]: https://img.shields.io/github/v/release/talentlessguy/tinyhttp-deno?color=yellow&label=Docs&logo=deno&style=flat-square
+[docs]: https://doc.deno.land/https/deno.land/x/tinyhttp/mod.ts

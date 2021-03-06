@@ -9,6 +9,7 @@ export { Accepts } from 'https://deno.land/x/accepts@2.1.0/mod.ts'
 export { encodeUrl } from 'https://deno.land/x/encodeurl@1.0.0/mod.ts'
 export { charset, contentType, lookup } from 'https://deno.land/x/media_types@v2.6.1/mod.ts'
 export { default as rg } from 'https://esm.sh/regexparam'
+export { forwarded } from 'https://deno.land/x/forwarded@v0.0.2/mod.ts'
 import type { ServerRequest as Req, Response as ServerResponse } from 'https://deno.land/std@0.88.0/http/server.ts'
 
 interface Res extends ServerResponse {

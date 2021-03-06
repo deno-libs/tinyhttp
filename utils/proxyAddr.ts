@@ -1,8 +1,7 @@
 // deno-lint-ignore-file
 
 import { Req } from '../deps.ts'
-import { forwarded } from './forwarded.ts'
-import { ipaddr, IPv4, IPv6 } from '../deps.ts'
+import { ipaddr, IPv4, IPv6, forwarded } from '../deps.ts'
 
 const DIGIT_REGEXP = /^[0-9]+$/
 const isip = ipaddr.isValid
