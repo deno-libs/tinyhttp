@@ -4,8 +4,8 @@ import { describe, it, InitAppAndTest } from '../util.ts'
 import {
   checkIfXMLHttpRequest,
   getAccepts,
-  /* getAcceptsEncodings,
-  getFreshOrStale, */
+  getAcceptsEncodings,
+  getFreshOrStale,
   getRequestHeader
   /*  getRangeFromHeader,
   reqIs */
@@ -59,6 +59,49 @@ describe('Request extensions', () => {
       })
 
       await fetch.get('/').set('Accept', 'text/plain, text/html').expect('text/plain | text/html')
+    })
+  })
+
+  describe('req.acceptsEncodings()', () => {
+    it('should detect "Accept-Encoding" header', async () => {
+      const { fetch } = InitAppAndTest((req, res) => {
+        const encodings = getAcceptsEncodings(req)()
+
+        res.send(Array.isArray(encodings) ? encodings[0] : encodings)
+      })
+
+      await fetch.get('/').set('Accept-Encoding', 'gzip').expect('gzip')
+    })
+    it('should parse multiple values', async () => {
+      const { fetch } = InitAppAndTest((req, res) => {
+        const encodings = getAcceptsEncodings(req)()
+
+        res.end((encodings as string[]).join(' | '))
+      })
+
+      await fetch.get('/').set('Accept-Encoding', 'gzip, br').expect('gzip | br | identity')
+    })
+  })
+  describe('req.fresh', () => {
+    it('returns false if method is neither GET nor HEAD', async () => {
+      const { fetch } = InitAppAndTest((req, res) => {
+        const fresh = getFreshOrStale(req, res)
+
+        res.end(fresh ? 'fresh' : 'stale')
+      })
+
+      await fetch.get('/').send('Hello World').expect('stale')
+    })
+    it('returns false if status code is neither >=200 nor < 300, nor 304', async () => {
+      const { fetch } = InitAppAndTest((req, res) => {
+        res.status = 418
+
+        const fresh = getFreshOrStale(req, res)
+
+        res.end(fresh ? 'fresh' : 'stale')
+      })
+
+      await fetch.get('/').expect('stale')
     })
   })
 })
