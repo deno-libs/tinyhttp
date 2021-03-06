@@ -1,4 +1,4 @@
-import { compile } from './proxyAddr.ts'
+import { compile } from '../deps.ts'
 
 type TrustValue = ((...args: any[]) => any) | boolean | string | number | string[]
 
@@ -7,9 +7,7 @@ export function compileTrust(value: TrustValue) {
 
   if (value === true) {
     // Support plain true / false
-    return function () {
-      return true
-    }
+    return () => true
   }
 
   if (typeof value === 'number') {
