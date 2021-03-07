@@ -1,6 +1,6 @@
-import { expect } from 'https://deno.land/x/expect/mod.ts'
+import { describe, it, expect, run } from 'https://deno.land/x/wizard@0.1.0/mod.ts'
 import { App } from '../../mod.ts'
-import { BindToSuperDeno, it, describe, InitAppAndTest } from '../util.ts'
+import { BindToSuperDeno, InitAppAndTest } from '../util.ts'
 
 describe('Testing App', () => {
   it('should launch a basic server', async () => {
@@ -51,3 +51,5 @@ describe('Testing App', () => {
     await fetch.get('/').expect(500, 'Ouch, you hurt me on / page.')
   })
 })
+
+run()

@@ -1,6 +1,5 @@
-import { expect } from 'https://deno.land/x/expect@v0.2.6/mod.ts'
+import { describe, it, expect, run } from 'https://deno.land/x/wizard@0.1.0/mod.ts'
 import { getPathname, getQueryParams, getURLParams } from '../../utils/parseUrl.ts'
-import { describe, it } from '../util.ts'
 import { rg } from '../../deps.ts'
 
 describe('getQueryParams(url)', () => {
@@ -41,3 +40,5 @@ describe('getPathname(url)', () => {
     expect(getPathname('/hello/world?num=42')).toBe('/hello/world')
   })
 })
+
+run()
