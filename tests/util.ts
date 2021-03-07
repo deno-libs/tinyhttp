@@ -11,7 +11,7 @@ export const randomPort = async () => {
 }
 
 export const BindToSuperDeno = <Req extends Request, Res extends Response>(app: App<unknown, Req, Res>) => {
-  const fetch = superdeno(app.handler.bind(app))
+  const fetch = superdeno(app.attach)
 
   return fetch
 }

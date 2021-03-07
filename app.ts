@@ -2,7 +2,7 @@
 import { Router, serve, Server, rg } from './deps.ts'
 import { NextFunction, RHandler as Handler, Middleware, UseMethodParams } from './types.ts'
 import { onErrorHandler, ErrorHandler } from './onError.ts'
-// import { setImmediate } from 'https://deno.land/std@0.88.0/node/timers.ts'
+import { setImmediate } from 'https://deno.land/std@0.88.0/node/timers.ts'
 import type { Request } from './request.ts'
 import type { Response } from './response.ts'
 import { getURLParams, getPathname } from './utils/parseUrl.ts'
@@ -125,6 +125,7 @@ export class App<
   settings: AppSettings & Record<string, any>
   engines: Record<string, TemplateFunc<RenderOptions>> = {}
   applyExtensions?: (req: Req, res: Res, next: NextFunction) => void
+  attach: (req: Req) => void
 
   constructor(options: AppConstructor<Req, Res> = {}) {
     super()
@@ -132,6 +133,7 @@ export class App<
     this.noMatchHandler = options?.noMatchHandler || this.onError.bind(null, { code: 404 })
     this.settings = options.settings || { xPoweredBy: true }
     this.applyExtensions = options?.applyExtensions
+    this.attach = (req) => setImmediate(this.handler.bind(this, req, undefined), req)
   }
 
   set(setting: string, value: any) {
@@ -298,7 +300,7 @@ export class App<
     cb?.()
 
     for await (const req of server) {
-      this.handler(req as any)
+      this.attach(req as any)
     }
     return server
   }

@@ -29,7 +29,7 @@ export interface Response<O = any> extends ServerResponse, tinyhttp.Response {
   type(type: string): Response
   format(obj: FormatProps): Response
   vary(field: string): Response
-  locals?: Record<string, any>
+  locals: Record<string, any>
   download(path: string, filename: string, options?: DownloadOptions, cb?: (err?: any) => void): Response
   attachment(filename?: string): Response
 

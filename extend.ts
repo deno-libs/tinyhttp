@@ -48,6 +48,8 @@ export const extendMiddleware = <
 ) => (req: Req, res: Res, next: NextFunction) => {
   const { settings } = app
 
+  res.locals = res.locals || Object.create(null)
+
   // Request extensions
   if (settings?.bindAppToReqRes) {
     req.app = app
