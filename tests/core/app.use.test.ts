@@ -1,6 +1,6 @@
 import { describe, it, expect, run } from 'https://deno.land/x/wizard/mod.ts'
 import { App } from '../../app.ts'
-import { BindToSuperDeno, InitAppAndTest } from '../util.ts'
+import { BindToSuperDeno } from '../util.ts'
 
 describe('app.use(path, h)', () => {
   it('should chain middleware', () => {
