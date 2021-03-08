@@ -8,7 +8,7 @@
 
 This is a [Deno](https://deno.land) port of [tinyhttp](https://github.com/talentlessguy/tinyhttp), 0-legacy, tiny &amp; fast web framework as a replacement of Express.
 
-> **WARNING!** This port is very unstable and is not tested yet. Wait for the v2 release of tinyhttp for a better version (see [talentlessguy/tinyhttp#198](https://github.com/talentlessguy/tinyhttp/issues/198))
+> **WARNING!** This port is very unstable and is not well tested yet. Wait for the v2 release of tinyhttp for a complete version (see [talentlessguy/tinyhttp#198](https://github.com/talentlessguy/tinyhttp/issues/198))
 
 ## Example
 
@@ -17,13 +17,6 @@ import { App } from 'https://deno.land/x/tinyhttp/app.ts'
 
 const app = new App()
 
-app.use('/', (req, res, next) => {
-  console.log(`${req.method} ${req.url}`)
-
-  res.set('Test-Header', 'Value')
-
-  next()
-})
 app.get('/:name/', (req, res) => {
   res.send(`Hello on ${req.url} from Deno v${Deno.version.deno} and tinyhttp! 🦕`)
 })
