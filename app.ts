@@ -7,7 +7,7 @@ import type { Request } from './request.ts'
 import type { Response } from './response.ts'
 import { getURLParams, getPathname } from './utils/parseUrl.ts'
 import { extendMiddleware } from './extend.ts'
-import * as path from 'https://deno.land/std/path/mod.ts'
+import * as path from 'https://deno.land/std@0.88.0/path/mod.ts'
 
 const lead = (x: string) => (x.charCodeAt(0) === 47 ? x : '/' + x)
 

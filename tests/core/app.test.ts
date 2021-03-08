@@ -48,7 +48,7 @@ describe('App constructor', () => {
     await fetch.get('/').expect(500, 'Ouch, you hurt me on / page.')
   })
 })
-/* 
+
 describe('Template engines', () => {
   it('Works with eta out of the box', async () => {
     const app = new App<EtaConfig>()
@@ -65,6 +65,6 @@ describe('Template engines', () => {
 
     await fetch.get('/').expect(200, 'Hello from Eta')
   })
-}) */
+})
 
 run()

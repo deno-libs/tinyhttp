@@ -17,7 +17,7 @@ jobs:
         with:
           deno-version: v1.8
       - name: Create tests
-        run: deno test --allow-net --unstable --coverage=coverage  --location http://127.0.1 ./tests -q
+        run: deno test -A --no-check --location http://127.0.1 --unstable --coverage=coverage ./tests -q
       - name: Create coverage report
         run: deno --unstable coverage ./coverage --lcov > coverage.lcov
       - name: Collect coverage
