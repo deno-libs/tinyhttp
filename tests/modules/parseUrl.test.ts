@@ -1,4 +1,4 @@
-import { describe, it, expect, run } from 'https://deno.land/x/wizard@0.1.0/mod.ts'
+import { describe, it, expect, run } from 'https://deno.land/x/wizard/mod.ts'
 import { getPathname, getQueryParams, getURLParams } from '../../utils/parseUrl.ts'
 import { rg } from '../../deps.ts'
 

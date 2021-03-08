@@ -11,6 +11,8 @@ import * as path from 'https://deno.land/std/path/mod.ts'
 
 const lead = (x: string) => (x.charCodeAt(0) === 47 ? x : '/' + x)
 
+const mount = (fn: App | Handler) => (fn instanceof App ? fn.attach : fn)
+
 declare global {
   namespace tinyhttp {
     // These open interfaces may be extended in an application-specific manner via declaration merging.
@@ -199,24 +201,24 @@ export class App<
   use(...args: UseMethodParams<Req, Res, App>) {
     const base = args[0]
 
-    const fns: any[] = args.slice(1).flat()
+    const fns = args.slice(1)
 
     if (base === '/') {
-      for (const fn of fns) {
-        super.use(base, fn)
-      }
+      for (const fn of fns.flat()) super.use(base, mount(fn as Handler))
     } else if (typeof base === 'function' || base instanceof App) {
-      super.use('/', [base, ...fns])
-    } else if (fns.some((fn) => fn instanceof App) && typeof base === 'string') {
+      super.use('/', [base, ...fns].map(mount as any))
+    } else if (fns.some((fn) => fn instanceof App)) {
       super.use(
         base,
-        fns.map((fn: App) => {
+        fns.flatMap((fn) => {
           if (fn instanceof App) {
+            fn = fn as App
             fn.mountpath = typeof base === 'string' ? base : '/'
-            fn.parent = this as any
+
+            fn.parent = (this as unknown) as App
           }
 
-          return fn as any
+          return mount(fn as App)
         })
       )
     } else super.use(...args)
