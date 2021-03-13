@@ -1,4 +1,4 @@
-import type { Req, Res } from '../../deps.ts'
+import { Req, Res } from '../../../deps.ts'
 
 export const json = <Request extends Req = Req, Response extends Res = Res>(req: Request, res: Response) => <
   T = unknown
