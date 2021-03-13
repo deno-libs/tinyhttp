@@ -1,7 +1,7 @@
-import { Req, Res } from '../../deps.ts'
+import { Req, Res } from '../../../deps.ts'
 import { json } from './json.ts'
-import { createETag, setCharset } from './utils.ts'
-import { end } from './end.ts'
+import { createETag, setCharset } from '../utils.ts'
+import { end } from '../end.ts'
 
 export const send = <Request extends Req = Req, Response extends Res = Res>(req: Request, res: Response) => (
   body: any

@@ -1,4 +1,4 @@
-import { Req, Res } from '../../deps.ts'
+import { Req, Res } from '../../../deps.ts'
 import { send } from './send.ts'
 import { status } from 'https://deno.land/x/status/status.ts'
 
