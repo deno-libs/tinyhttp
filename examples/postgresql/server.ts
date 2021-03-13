@@ -1,11 +1,8 @@
-import { App, RHandler, Request } from '../../mod.ts'
+import { App } from '../../mod.ts'
 import { Client } from 'https://deno.land/x/postgres@v0.8.0/mod.ts'
+import { json } from 'https://deno.land/x/parsec/mod.ts'
 
-interface Req extends Request {
-  bodyResult: Record<string, unknown>
-}
-
-const app = new App<unknown, Req>()
+const app = new App()
 const port = parseInt(Deno.env.get('PORT') || '', 10) || 3000
 
 const client = new Client({
@@ -16,29 +13,13 @@ const client = new Client({
 })
 await client.connect()
 
-const bodyParser: RHandler<Req> = async (req, _, next) => {
-  const buf = await Deno.readAll(req.body)
-
-  const dec = new TextDecoder()
-
-  const body = dec.decode(buf)
-
-  try {
-    const result = JSON.parse(body)
-    req.bodyResult = result
-  } catch (e) {
-    next(e)
-  }
-  next()
-}
-
 app.get('/notes', async (_, res) => {
   const query = await client.queryObject('SELECT * FROM NOTES', { fields: ['id', 'name'] })
   res.send(query.rows)
 })
 
-app.use(bodyParser).post('/notes', async (req, res) => {
-  const { title, desc } = req.bodyResult
+app.use(json).post('/notes', async (req, res) => {
+  const { title, desc } = req.parsedBody!
 
   const query = await client.queryObject(`INSERT INTO users(title, desc) VALUES (${title}, ${desc});`)
 

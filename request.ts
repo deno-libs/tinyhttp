@@ -35,4 +35,6 @@ export interface Request extends ServerRequest, tinyhttp.Request {
   connection: {
     remoteAddress: string
   }
+
+  parsedBody?: Record<string, unknown>
 }

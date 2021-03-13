@@ -1,15 +1,11 @@
-import { App, RHandler } from '../../mod.ts'
-import { Request } from '../../request.ts'
+import { App } from '../../mod.ts'
 import { MongoClient, Bson } from 'https://deno.land/x/mongo@v0.21.2/mod.ts'
 import * as dotenv from 'https://deno.land/x/tiny_env@1.0.0/mod.ts'
+import { json } from 'https://deno.land/x/parsec/mod.ts'
 
 dotenv.load()
 
-interface Req extends Request {
-  bodyResult: Record<string, unknown>
-}
-
-const app = new App<unknown, Req>()
+const app = new App()
 const port = parseInt(Deno.env.get('PORT') || '') || 3000
 
 // connect to mongodb
@@ -32,27 +28,12 @@ app.get('/notes', async (_, res, next) => {
   }
 })
 
-const bodyParser: RHandler<Req> = async (req, _res, next) => {
-  const buf = await Deno.readAll(req.body)
-
-  const dec = new TextDecoder()
-
-  const body = dec.decode(buf)
-
-  try {
-    const result = JSON.parse(body)
-    req.bodyResult = result
-  } catch (e) {
-    next(e)
-  }
-  next()
-}
-app.use(bodyParser)
+app.use(json)
 
 // add new note
 app.post('/notes', async (req, res, next) => {
   try {
-    const { title, desc } = req.bodyResult
+    const { title, desc } = req.parsedBody!
     await coll.insertOne({ title, desc })
 
     res.send(`Note with title of "${title}" has been added`)
@@ -64,7 +45,7 @@ app.post('/notes', async (req, res, next) => {
 // delete note
 app.delete('/notes', async (req, res, next) => {
   try {
-    const { id } = req.bodyResult
+    const { id } = req.parsedBody!
     await coll.deleteOne({ _id: new Bson.ObjectId(id) })
 
     res.send(`Note with id of ${id} has been deleted`)
@@ -76,7 +57,7 @@ app.delete('/notes', async (req, res, next) => {
 // update existing note
 app.put('/notes', async (req, res, next) => {
   try {
-    const { title, desc, id } = req.bodyResult
+    const { title, desc, id } = req.parsedBody!
     await coll.updateOne({ _id: new Bson.ObjectId(id) }, { $set: { title, desc } })
     res.send(`Note with title of ${title} has been updated`)
   } catch (err) {

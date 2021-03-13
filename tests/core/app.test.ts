@@ -51,7 +51,13 @@ describe('App constructor', () => {
 
 describe('Template engines', () => {
   it('Works with eta out of the box', async () => {
-    const app = new App<EtaConfig>()
+    const app = new App<EtaConfig>({
+      onError: (err) => console.log(err)
+    })
+
+    const pwd = Deno.cwd()
+
+    Deno.chdir(path.resolve(pwd, 'tests/fixtures'))
 
     app.engine('eta', eta)
 
@@ -59,6 +65,7 @@ describe('Template engines', () => {
       res.render('index.eta', {
         name: 'Eta'
       })
+      Deno.chdir(pwd)
     })
 
     const fetch = BindToSuperDeno(app)
