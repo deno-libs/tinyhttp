@@ -1,7 +1,7 @@
 // deno-lint-ignore-file
 
 import { Res as ServerResponse } from './deps.ts'
-import type { SendFileOptions } from './extensions/res/sendFile.ts'
+import type { SendFileOptions } from './extensions/res/send/sendFile.ts'
 import type { TemplateEngineOptions, App } from './app.ts'
 import type { FormatProps } from './extensions/res/format.ts'
 import type { DownloadOptions } from './extensions/res/download.ts'
