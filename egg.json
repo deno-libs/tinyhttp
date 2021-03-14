@@ -4,7 +4,7 @@
   "entry": "./app.ts",
   "description": "0-legacy, tiny & fast web framework as a replacement of Express",
   "homepage": "https://github.com/talentlessguy/tinyhttp-deno",
-  "version": "0.0.25",
+  "version": "0.0.26",
   "files": [
     "./*.ts",
     "./utils/*.ts",
