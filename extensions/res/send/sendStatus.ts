@@ -5,7 +5,7 @@ import { status } from 'https://deno.land/x/status/status.ts'
 export const sendStatus = <Request extends Req = Req, Response extends Res = Res>(req: Request, res: Response) => (
   statusCode: number
 ): Response => {
-  const body = status(statusCode)
+  const body = status.pretty(statusCode)
 
   res.status = statusCode
 

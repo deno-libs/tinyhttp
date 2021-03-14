@@ -34,7 +34,8 @@ import {
   attachment,
   download,
   setCookie,
-  clearCookie
+  clearCookie,
+  redirect
 } from './extensions/res/mod.ts'
 import { getQueryParams } from './utils/parseUrl.ts'
 import { Response } from './response.ts'
@@ -101,6 +102,7 @@ export const extendMiddleware = <
   res.append = append<Res>(res)
   res.render = renderTemplate<RenderOptions, Res>(res, app)
   res.links = setLinksHeader<Res>(res)
+  res.redirect = redirect<Req, Res, NextFunction>(req, res, next)
   res.type = setContentType<Res>(res)
   res.format = formatResponse<Req, Res>(req, res, next)
   res.vary = setVaryHeader<Res>(res)

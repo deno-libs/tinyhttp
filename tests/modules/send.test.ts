@@ -1,6 +1,6 @@
 import { describe, it, run } from 'https://deno.land/x/wizard/mod.ts'
 import { InitAppAndTest } from '../util.ts'
-import { send, json } from '../../extensions/res/send/mod.ts'
+import { send, json, sendStatus } from '../../extensions/res/send/mod.ts'
 
 describe('json(body)', () => {
   it('should send a json-stringified reply when an object is passed', async () => {
@@ -89,6 +89,14 @@ describe('send(body)', () => {
 
     await fetch.get('/').expect('Content-Type', 'application/octet-stream')
   }) */
+})
+
+describe('sendStatus(status)', () => {
+  it(`should send "I'm a teapot" when argument is 418`, async () => {
+    const { fetch } = InitAppAndTest((req, res) => sendStatus(req, res)(418))
+
+    await fetch.get('/').expect(418, 'Im A Teapot')
+  })
 })
 
 run()

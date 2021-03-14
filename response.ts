@@ -36,4 +36,6 @@ export interface Response<O = any> extends ServerResponse, tinyhttp.Response {
   cookie(name: string, value: string | Record<string, unknown>, options?: Omit<Cookie, 'name' | 'value'>): Response
   clearCookie(name: string): Response
   jsonp(obj: any): Response
+
+  redirect(url: string, status?: number): Response
 }

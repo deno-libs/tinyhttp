@@ -35,12 +35,15 @@ export const redirect = <
     }
   })
 
-  res.headers?.set('Content-Length', body.length.toString())
+  res.headers.set('Content-Length', body.length.toString())
 
-  res.status = status
-
-  if (req.method === 'HEAD') req.respond({})
-  else req.respond({ body })
+  if (req.method === 'HEAD') req.respond({ status })
+  else
+    req.respond({
+      body,
+      status,
+      ...res
+    })
 
   return res
 }

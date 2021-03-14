@@ -1,6 +1,6 @@
 import { describe, it, run } from 'https://deno.land/x/wizard/mod.ts'
 import { InitAppAndTest } from '../util.ts'
-import { setHeader } from '../../extensions/res/mod.ts'
+import { setHeader, getResponseHeader, setVaryHeader, redirect } from '../../extensions/res/mod.ts'
 
 describe('res.set(field, val)', () => {
   it('should set a string header with a string value', async () => {
@@ -45,6 +45,55 @@ describe('res.set(field, val)', () => {
     })
 
     await fetch.get('/').expect('content-type', 'text/plain; charset=UTF-8')
+  })
+})
+
+describe('res.get(field)', () => {
+  it('should get a header with a specified field', async () => {
+    const { fetch } = InitAppAndTest((_, res) => {
+      setHeader(res)('hello', 'World')
+      res.end(getResponseHeader(res)('hello'))
+    })
+
+    await fetch.get('/').expect('World')
+  })
+})
+
+describe('res.vary(field)', () => {
+  it('should set a "Vary" header properly', async () => {
+    const { fetch } = InitAppAndTest((_, res) => {
+      setVaryHeader(res)('User-Agent').end()
+    })
+
+    await fetch.get('/').expect('Vary', 'User-Agent')
+  })
+})
+
+describe('res.redirect(url, status)', () => {
+  it('should set 302 status and message about redirecting', async () => {
+    const { fetch } = InitAppAndTest((req, res) => {
+      redirect(req, res, () => {})('/abc')
+    })
+
+    await fetch.get('/').expect('Location', '/abc').expect(302 /*  'Redirecting to' */)
+  })
+
+  it('should send an HTML link to redirect to', async () => {
+    const { fetch } = InitAppAndTest((req, res) => {
+      if (req.url === '/abc') {
+        req.respond({
+          status: 200,
+          body: 'Hello World'
+        })
+      } else {
+        redirect(req, res, () => {})('/abc')
+      }
+    })
+
+    await fetch
+      .get('/')
+      .set('Accept', 'text/html')
+      .expect(302 /* '<p>Found. Redirecting to <a href="/abc">/abc</a></p>' */)
   })
 })
 
