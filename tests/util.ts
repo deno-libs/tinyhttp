@@ -16,10 +16,15 @@ export const BindToSuperDeno = <Req extends Request, Res extends Response>(app: 
   return fetch
 }
 
-export const InitAppAndTest = (handler: Handler, route = '/', settings: AppConstructor<Request, Response> = {}) => {
+export const InitAppAndTest = (
+  handler: Handler,
+  route = '/',
+  settings: AppConstructor<Request, Response> = {},
+  method: 'get' | 'post' | 'use' = 'use'
+) => {
   const app = new App<unknown, Request, Response>(settings)
 
-  app.use(route, handler)
+  app[method](route, handler)
 
   return { fetch: BindToSuperDeno(app), app }
 }

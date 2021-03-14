@@ -51,28 +51,43 @@ describe('send(body)', () => {
     // @ts-ignore
     await fetch.get('/').expect(null)
   })
-  /*  it('should remove some headers for 204 status', async () => {
+  /* it('should remove some headers for 204 status', async () => {
     const { fetch } = InitAppAndTest((req, res) => {
       res.status = 204
 
       send(req, res)('Hello World')
     })
 
-    await fetch.get('/').expect('Content-Length', '').expect('Content-Type', '').expect('Transfer-Encoding', '')
+    await fetch
+      .get('/')
+      .expect('Content-Length', '')
+      .expect('Content-Type', '')
+      .expect('Transfer-Encoding', '')
+      .expect('')
   })
   it('should remove some headers for 304 status', async () => {
-    const { fetch } = InitAppAndTest((req, res) => {
-      res.status = 304
+    const { fetch } = InitAppAndTest(
+      (req, res) => {
+        res.status = 304
+        res.headers?.delete('Content-Type')
+        send(req, res)('Hello World')
+      },
+      '/',
+      {},
+      'get'
+    )
 
-      send(req, res)('Hello World')
-    })
-
-    await fetch.get('/').expect('Content-Length', '').expect('Content-Type', '').expect('Transfer-Encoding', '')
-  })
-  it("should set Content-Type to application/octet-stream for buffers if the header hasn't been set before", async () => {
+    await fetch
+      .get('/')
+      .expect('Content-Length', '')
+      .expect('Content-Type', '')
+      .expect('Transfer-Encoding', '')
+      .expect('')
+  }) */
+  /* it("should set Content-Type to application/octet-stream for buffers if the header hasn't been set before", async () => {
     const { fetch } = InitAppAndTest((req, res) => send(req, res)(new TextEncoder().encode('Hello World')).end())
 
-    await fetch.get('/').set('Content-Type', '').expect('Content-Type', 'application/octet-stream')
+    await fetch.get('/').expect('Content-Type', 'application/octet-stream')
   }) */
 })
 

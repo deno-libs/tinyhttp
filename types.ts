@@ -17,7 +17,7 @@ interface Range {
   end: number
 }
 
-export type Handler = RHandler<Request, Response>
+export type Handler<Req = Request> = RHandler<Req, Response>
 
 export type {
   QueryParams,

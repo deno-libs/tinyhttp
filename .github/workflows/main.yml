@@ -16,6 +16,8 @@ jobs:
       - uses: denolib/setup-deno@v2
         with:
           deno-version: v1.8
+      - name: Cache Dependencies
+        run: deno cache deps.ts
       - name: Create tests
         run: deno test -A --no-check --location http://127.0.1 --unstable --coverage=coverage ./tests -q
       - name: Create coverage report

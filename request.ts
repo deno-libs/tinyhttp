@@ -3,7 +3,7 @@ import { ServerRequest } from 'https://deno.land/std@0.88.0/http/server.ts'
 import { App } from './app.ts'
 import { QueryParams, Ranges, Protocol, AcceptsReturns, Middleware } from './types.ts'
 
-export interface Request extends ServerRequest, tinyhttp.Request {
+export interface Request<Body = Record<string, unknown>> extends ServerRequest, tinyhttp.Request {
   path: string
   originalUrl: string
   query: QueryParams
@@ -36,5 +36,5 @@ export interface Request extends ServerRequest, tinyhttp.Request {
     remoteAddress: string
   }
 
-  parsedBody?: Record<string, unknown>
+  parsedBody?: Body
 }
