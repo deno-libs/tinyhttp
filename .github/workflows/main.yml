@@ -9,7 +9,7 @@ on:
     branches: [master]
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -18,7 +18,7 @@ jobs:
           deno-version: v1.8
       - name: Cache Dependencies
         run: deno cache deps.ts
-      - name: Create tests
+      - name: Run tests
         run: deno test --no-check -A --location http://127.0.1 --unstable --coverage=coverage ./tests -q
       - name: Create coverage report
         run: deno --unstable coverage ./coverage --lcov > coverage.lcov

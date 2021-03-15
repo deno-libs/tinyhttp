@@ -4,11 +4,11 @@ import {
   setHeader,
   getResponseHeader,
   setVaryHeader,
-  redirect,
   setContentType,
-  attachment,
   setLocationHeader
-} from '../../extensions/res/mod.ts'
+} from '../../extensions/res/headers.ts'
+import { redirect } from '../../extensions/res/redirect.ts'
+import { attachment } from '../../extensions/res/download.ts'
 import * as path from 'https://deno.land/std@0.88.0/path/mod.ts'
 
 const __dirname = new URL('.', import.meta.url).pathname
