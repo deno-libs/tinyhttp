@@ -6,29 +6,16 @@ import { Req, Res } from '../../deps.ts'
 
 export type DownloadOptions = SendFileOptions &
   Partial<{
-    headers: Record<string, any>
+    headers: Record<string, unknown>
   }>
-
-type Callback = (err?: any) => void
 
 export const download = <Request extends Req = Req, Response extends Res = Res>(req: Request, res: Response) => (
   path: string,
-  filename?: string | Callback,
-  options?: DownloadOptions | Callback,
-  cb?: Callback
+  filename?: string,
+  options: DownloadOptions = {}
 ): Response => {
-  let done = cb
-  let name: string | null = filename as string
-  let opts: DownloadOptions | null = options as DownloadOptions
-
-  // support function as second or third arg
-  if (typeof filename === 'function') {
-    done = filename
-    name = null
-  } else if (typeof options === 'function') {
-    done = options
-    opts = null
-  }
+  const name: string | null = filename as string
+  let opts: DownloadOptions = options
 
   // set Content-Disposition when file is sent
   const headers: Record<string, any> = {
@@ -36,7 +23,7 @@ export const download = <Request extends Req = Req, Response extends Res = Res>(
   }
 
   // merge user-provided headers
-  if (opts && opts.headers) {
+  if (opts.headers) {
     for (const key of Object.keys(opts.headers)) {
       if (key.toLowerCase() !== 'content-disposition') headers[key] = opts.headers[key]
     }
@@ -47,11 +34,7 @@ export const download = <Request extends Req = Req, Response extends Res = Res>(
 
   // send file
 
-  return sendFile<Request, Response>(req, res)(
-    opts.root ? path : resolve(path),
-    opts,
-    done || (() => undefined)
-  ) as Response
+  return sendFile<Request, Response>(req, res)(path, opts) as Response
 }
 
 export const attachment = <Response extends Res = Res>(res: Response) => (filename?: string): Response => {

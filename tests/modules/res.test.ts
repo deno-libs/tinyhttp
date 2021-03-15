@@ -1,6 +1,17 @@
-import { describe, it, run } from 'https://deno.land/x/wizard/mod.ts'
+import { describe, it, run, expect } from 'https://deno.land/x/wizard/mod.ts'
 import { InitAppAndTest } from '../util.ts'
-import { setHeader, getResponseHeader, setVaryHeader, redirect, setContentType } from '../../extensions/res/mod.ts'
+import {
+  setHeader,
+  getResponseHeader,
+  setVaryHeader,
+  redirect,
+  setContentType,
+  attachment,
+  download
+} from '../../extensions/res/mod.ts'
+import * as path from 'https://deno.land/std@0.88.0/path/mod.ts'
+
+const __dirname = new URL('.', import.meta.url).pathname
 
 describe('res.set(field, val)', () => {
   it('should set a string header with a string value', async () => {
@@ -114,4 +125,74 @@ describe('res.type(type)', () => {
   })
 })
 
+describe('res.attachment(filename)', () => {
+  it('should set Content-Disposition without a filename specified', async () => {
+    const { fetch } = InitAppAndTest((_, res) => {
+      attachment(res)().end()
+    })
+
+    await fetch.get('/').expect('Content-Disposition', 'attachment')
+  })
+  it('should set Content-Disposition with a filename specified', async () => {
+    const { fetch } = InitAppAndTest((_, res) => {
+      attachment(res)(path.join(__dirname, '../fixtures', 'favicon.ico')).end()
+    })
+
+    await fetch.get('/').expect('Content-Disposition', 'attachment; filename="favicon.ico"')
+  })
+})
+
+/* describe('res.download(filename)', () => {
+  it('should set Content-Disposition based on path', async () => {
+    const { fetch } = InitAppAndTest((req, res) => {
+      download(req, res)(path.join(__dirname, '../fixtures', 'favicon.ico'))
+    })
+
+    await fetch
+      .get('/')
+      .expect('Content-Disposition', 'attachment; filename="favicon.ico"')
+      .expect('Content-Encoding', 'utf-8')
+  })
+  it('should set Content-Disposition based on filename', async () => {
+    const { fetch } = InitAppAndTest((req, res) => {
+      download(req, res)(path.join(__dirname, '../fixtures', 'favicon.ico'), 'favicon.icon')
+    })
+
+    await fetch.get('/').expect('Content-Disposition', 'attachment; filename="favicon.icon"')
+  })
+
+  it('should set "root" from options', async () => {
+    const { fetch } = InitAppAndTest((req, res) => {
+      download(req, res)('favicon.ico', undefined, {
+        root: path.join(__dirname, '../fixtures')
+      })
+    })
+
+    await fetch.get('/').expect('Content-Disposition', 'attachment; filename="favicon.ico"')
+  })
+  it(`should pass options to sendFile`, async () => {
+    const { fetch } = InitAppAndTest((req, res) => {
+      download(req, res)(path.join(__dirname, '../fixtures', 'favicon.ico'), undefined, {
+        encoding: 'ascii'
+      })
+    })
+
+    await fetch.get('/').expect('Content-Disposition', 'attachment; filename="favicon.ico"')
+  })
+  it('should set headers from options', async () => {
+    const { fetch } = InitAppAndTest((req, res) => {
+      download(req, res)(path.join(__dirname, '../fixtures', 'favicon.ico'), undefined, {
+        headers: {
+          'X-Custom-Header': 'Value'
+        }
+      })
+    })
+
+    await fetch
+      .get('/')
+      .expect('Content-Disposition', 'attachment; filename="favicon.ico"')
+      .expect('X-Custom-Header', 'Value')
+  })
+})
+ */
 run()

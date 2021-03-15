@@ -24,8 +24,7 @@ export type SendFileOptions = Partial<{
  */
 export const sendFile = <Request extends Req = Req, Response extends Res = Res>(req: Request, res: Response) => (
   path: string,
-  opts: SendFileOptions = {},
-  cb?: (err?: unknown) => void
+  opts: SendFileOptions = {}
 ) => {
   const { root, headers = {}, encoding = 'utf-8', ...options } = opts
 
@@ -35,22 +34,17 @@ export const sendFile = <Request extends Req = Req, Response extends Res = Res>(
 
   let stats: Deno.FileInfo
 
-  try {
-    stats = Deno.statSync(filePath)
+  stats = Deno.statSync(filePath)
 
-    headers['Content-Encoding'] = encoding
+  headers['Content-Encoding'] = encoding
 
-    headers['Last-Modified'] = stats.mtime!.toUTCString()
+  headers['Last-Modified'] = stats.mtime!.toUTCString()
 
-    headers['Content-Type'] = contentType(extname(path)) || 'text/html'
+  headers['Content-Type'] = contentType(extname(path)) || 'text/html'
 
-    headers['ETag'] = createETag(stats)
+  headers['ETag'] = createETag(stats)
 
-    headers['Content-Length'] = `${stats.size}`
-  } catch (e) {
-    req.respond({ status: 500, body: 'Cannot read info of a file' })
-    return res
-  }
+  headers['Content-Length'] = `${stats.size}`
 
   headers['Content-Security-Policy'] = "default-src 'none'"
   headers['X-Content-Type-Options'] = 'nosniff'
@@ -78,17 +72,9 @@ export const sendFile = <Request extends Req = Req, Response extends Res = Res>(
 
   res.status = status
 
-  for (const [k, v] of Object.entries(headers)) res.headers?.set(k, v)
+  const file = Deno.openSync(filePath, { read: true, ...options })
 
-  try {
-    const file = Deno.openSync(filePath, { read: true, ...options })
-
-    send(req, res)(file)
-  } catch (e) {
-    cb?.(e)
-  } finally {
-    cb?.()
-  }
+  send(req, res)(file)
 
   return res
 }
