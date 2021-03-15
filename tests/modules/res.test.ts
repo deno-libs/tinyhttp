@@ -1,6 +1,6 @@
 import { describe, it, run } from 'https://deno.land/x/wizard/mod.ts'
 import { InitAppAndTest } from '../util.ts'
-import { setHeader, getResponseHeader, setVaryHeader, redirect } from '../../extensions/res/mod.ts'
+import { setHeader, getResponseHeader, setVaryHeader, redirect, setContentType } from '../../extensions/res/mod.ts'
 
 describe('res.set(field, val)', () => {
   it('should set a string header with a string value', async () => {
@@ -94,6 +94,23 @@ describe('res.redirect(url, status)', () => {
       .get('/')
       .set('Accept', 'text/html')
       .expect(302 /* '<p>Found. Redirecting to <a href="/abc">/abc</a></p>' */)
+  })
+})
+
+describe('res.type(type)', () => {
+  it('should detect MIME type', async () => {
+    const { fetch } = InitAppAndTest((_, res) => {
+      setContentType(res)('html').end()
+    })
+
+    await fetch.get('/').expect('Content-Type', 'text/html; charset=utf-8')
+  })
+  it('should detect MIME type by extension', async () => {
+    const { fetch } = InitAppAndTest((_, res) => {
+      setContentType(res)('.html').end()
+    })
+
+    await fetch.get('/').expect('Content-Type', 'text/html; charset=utf-8')
   })
 })
 
