@@ -1,4 +1,4 @@
-import { describe, it, run, expect } from 'https://deno.land/x/wizard/mod.ts'
+import { describe, it, run } from 'https://deno.land/x/wizard/mod.ts'
 import { InitAppAndTest } from '../util.ts'
 import {
   setHeader,
@@ -7,7 +7,7 @@ import {
   redirect,
   setContentType,
   attachment,
-  download
+  setLocationHeader
 } from '../../extensions/res/mod.ts'
 import * as path from 'https://deno.land/std@0.88.0/path/mod.ts'
 
@@ -195,4 +195,29 @@ describe('res.attachment(filename)', () => {
   })
 })
  */
+
+describe('res.location(url)', () => {
+  it('sets the "Location" header', async () => {
+    const { fetch } = InitAppAndTest((req, res) => {
+      setLocationHeader(req, res)('https://example.com').end()
+    })
+
+    await fetch.get('/').expect('Location', 'https://example.com').expect(200)
+  })
+  it('should encode URL', async () => {
+    const { fetch } = InitAppAndTest((req, res) => {
+      setLocationHeader(req, res)('https://google.com?q=\u2603 §10').end()
+    })
+
+    await fetch.get('/').expect('Location', 'https://google.com?q=%E2%98%83%20%C2%A710').expect(200)
+  })
+  it('should not touch encoded sequences', async () => {
+    const { fetch } = InitAppAndTest((req, res) => {
+      setLocationHeader(req, res)('https://google.com?q=%A710').end()
+    })
+
+    await fetch.get('/').expect('Location', 'https://google.com?q=%A710').expect(200)
+  })
+})
+
 run()
