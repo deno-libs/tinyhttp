@@ -89,7 +89,18 @@ export type AppConstructor<Req, Res> = Partial<{
   onError: ErrorHandler
   settings: AppSettings
   applyExtensions: (req: Req, res: Res, next: NextFunction) => void
+  eventHandler: FetchEventListenerObject
 }>
+
+/** DENO DEPLOY TYPES */
+export interface FetchEvent extends Event {
+  request: Request
+  respondWith(response: Response | Promise<Response>): Promise<Response>
+}
+
+export interface FetchEventListenerObject {
+  handleEvent(evt: FetchEvent): void | Promise<void>
+}
 
 /**
  * `App` class - the starting point of tinyhttp app.
@@ -129,6 +140,8 @@ export class App<
   applyExtensions?: (req: Req, res: Res, next: NextFunction) => void
   attach: (req: Req) => void
 
+  #eventHandler?: FetchEventListenerObject
+
   constructor(options: AppConstructor<Req, Res> = {}) {
     super()
     this.onError = options?.onError || onErrorHandler
@@ -136,6 +149,7 @@ export class App<
     this.settings = options.settings || { xPoweredBy: true }
     this.applyExtensions = options?.applyExtensions
     this.attach = (req) => setImmediate(this.handler.bind(this, req, undefined), req)
+    this.#eventHandler = options.eventHandler
   }
 
   set(setting: string, value: any) {
@@ -288,6 +302,33 @@ export class App<
     const loop = () => idx < mw.length && handle(mw[idx++])(req, (res as unknown) as Res, next as NextFunction)
 
     loop()
+
+    return res as Res
+  }
+
+  fetchEventHandler(): FetchEventListenerObject {
+    if (this.#eventHandler) {
+      return this.#eventHandler
+    }
+    return (this.#eventHandler = {
+      handleEvent: async (requestEvent) => {
+        let resolve: (response: Response) => void
+        // deno-lint-ignore no-explicit-any
+        let reject: (reason: any) => void
+        const responsePromise = new Promise<Response>((res, rej) => {
+          resolve = res
+          reject = rej
+        })
+        const respondedPromise = requestEvent.respondWith(responsePromise)
+        const response = this.handler(requestEvent.request as Req)
+        if (response) {
+          resolve!(response)
+        } else {
+          reject!(new Error('No response returned from app handler.'))
+        }
+        await respondedPromise
+      }
+    })
   }
 
   /**
