@@ -6,8 +6,8 @@ app
   .get('/', (req, res) => {
     const greeting = `Hello on ${req.url} from Deno v${Deno.version.deno} and tinyhttp! 🦕`
     res.format({
-      html: () => `<h1>${greeting}</h1>`,
-      text: () => greeting
+      text: (_, res) => res.send(greeting),
+      html: (_, res) => res.send(`<h1>${greeting}</h1>`)
     })
   })
   .get('/page/:page/', (req, res) => {

@@ -25,6 +25,7 @@ export const formatResponse = <Request extends Req = Req, Response extends Res =
 
   if (key) {
     res.headers?.set('Content-Type', normalizeType(key).value || '')
+
     obj[key](req, res, next)
   } else if (fn) {
     fn()

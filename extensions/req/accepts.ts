@@ -1,5 +1,5 @@
 import { Accepts } from '../../deps.ts'
-import { Req } from '../../deps.ts'
+import type { Req } from '../../deps.ts'
 
 export const getAccepts = <Request extends Req = Req>(req: Request) => (...types: string[]) =>
   new Accepts(req.headers).types(types)

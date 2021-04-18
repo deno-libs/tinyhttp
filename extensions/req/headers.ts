@@ -1,6 +1,6 @@
 import { Req, Res, parseRange, ParseRangeOptions } from '../../deps.ts'
 import fresh from 'https://deno.land/x/fresh@v1.0.0/mod.ts'
-import { is } from 'https://deno.land/x/type_is@1.0.1/mod.ts'
+import { is } from 'https://denopkg.com/talentlessguy/type_is'
 
 export const getRequestHeader = <Request extends Req = Req>(req: Request) => (header: string) => {
   const lc = header.toLowerCase()

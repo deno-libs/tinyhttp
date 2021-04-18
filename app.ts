@@ -1,17 +1,17 @@
 // deno-lint-ignore-file
-import { Router, serve, Server, rg } from './deps.ts'
+import { Router, serve, Server, rg, pushMiddleware } from './deps.ts'
 import { NextFunction, RHandler as Handler, Middleware, UseMethodParams } from './types.ts'
 import { onErrorHandler, ErrorHandler } from './onError.ts'
-import { setImmediate } from 'https://deno.land/std@0.88.0/node/timers.ts'
+import { setImmediate } from 'https://deno.land/std@0.93.0/node/timers.ts'
 import type { Request } from './request.ts'
 import type { Response } from './response.ts'
 import { getURLParams, getPathname } from './utils/parseUrl.ts'
 import { extendMiddleware } from './extend.ts'
-import * as path from 'https://deno.land/std@0.88.0/path/mod.ts'
+import * as path from 'https://deno.land/std@0.93.0/path/mod.ts'
 
 const lead = (x: string) => (x.charCodeAt(0) === 47 ? x : '/' + x)
 
-const mount = (fn: App | Handler) => (fn instanceof App ? fn.attach : fn)
+const mount = (fn: any) => (fn instanceof App ? fn.attach : fn)
 
 declare global {
   namespace tinyhttp {
@@ -140,6 +140,10 @@ export class App<
   applyExtensions?: (req: Req, res: Res, next: NextFunction) => void
   attach: (req: Req) => void
 
+  mountpath = '/'
+
+  apps: Record<string, App> = {}
+
   #eventHandler?: FetchEventListenerObject
 
   constructor(options: AppConstructor<Req, Res> = {}) {
@@ -215,27 +219,52 @@ export class App<
   use(...args: UseMethodParams<Req, Res, App>) {
     const base = args[0]
 
-    const fns = args.slice(1)
+    const fns = args.slice(1).flat()
+
+    if (base instanceof App) {
+      // Set App parent to current App
+      // @ts-ignore
+      base.parent = this
+
+      // Mount on root
+      base.mountpath = '/'
+
+      this.apps['/'] = base
+    }
+
+    const path = typeof base === 'string' ? base : '/'
+
+    let regex: { keys: string[]; pattern: RegExp }
+
+    for (const fn of fns) {
+      if (fn instanceof App) {
+        regex = rg(path, true)
+
+        fn.mountpath = path
+
+        this.apps[path] = fn
+
+        // @ts-ignore
+        fn.parent = this
+      }
+    }
 
     if (base === '/') {
-      for (const fn of fns.flat()) super.use(base, mount(fn as Handler))
+      for (const fn of fns) super.use(base, mount(fn as Handler))
     } else if (typeof base === 'function' || base instanceof App) {
-      super.use('/', [base, ...fns].map(mount as any))
-    } else if (fns.some((fn) => fn instanceof App)) {
-      super.use(
-        base,
-        fns.flatMap((fn) => {
-          if (fn instanceof App) {
-            fn = fn as App
-            fn.mountpath = typeof base === 'string' ? base : '/'
-
-            fn.parent = (this as unknown) as App
-          }
-
-          return mount(fn as App)
-        })
-      )
-    } else super.use(...args)
+      super.use('/', [base, ...fns].map(mount))
+    } else if (Array.isArray(base)) {
+      super.use('/', [...base, ...fns].map(mount))
+    } else {
+      pushMiddleware(this.middleware)({
+        path: base as string,
+        // @ts-ignore
+        regex,
+        type: 'mw',
+        handler: mount(fns[0] as Handler),
+        handlers: fns.slice(1).map(mount)
+      })
+    }
 
     return this // chainable
   }
@@ -244,7 +273,7 @@ export class App<
       if (!m.path) m.path = '/'
       m.regex = m.type === 'mw' ? rg(m.path, true) : rg(m.path)
 
-      return (m.method ? m.method === method : true) && m.regex.pattern.test(url)
+      return (m.method ? m.method === method : true) && m.regex?.pattern.test(url)
     })
   }
   /**
