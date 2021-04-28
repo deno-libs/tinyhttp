@@ -32,7 +32,7 @@ app.listen(3000, () => console.log(`Started on :3000`))
 ](https://badge-crypto.vercel.app/eth/0x9d9236DC024958D7fB73Ad9B178BD5D372D82288) [![ChainLink](https://badge-crypto.vercel.app/api/badge?coin=link&address=0x9d9236DC024958D7fB73Ad9B178BD5D372D82288)](https://badge-crypto.vercel.app/link/0xcd0da1c9b0DA7D2b862bbF813cB50f76F2fB4F5d)
 
 [gh-actions-img]: https://img.shields.io/github/workflow/status/talentlessguy/tinyhttp/CI?style=flat-square
-[codecov]: https://codecov.io/gh/deno-libs/tinyhttp-deno
+[codecov]: https://codecov.io/gh/deno-libs/tinyhttp
 [github-actions]: https://github.com/talentlessguy/tinyhttp-deno/actions
 [license]: https://github.com/talentlessguy/tinyhttp-deno/blob/master/LICENSE
 [codecov-badge]: https://img.shields.io/codecov/c/gh/talentlessguy/tinyhttp-deno?style=flat-square
