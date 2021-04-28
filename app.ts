@@ -2,12 +2,12 @@
 import { Router, serve, Server, rg, pushMiddleware } from './deps.ts'
 import { NextFunction, RHandler as Handler, Middleware, UseMethodParams } from './types.ts'
 import { onErrorHandler, ErrorHandler } from './onError.ts'
-import { setImmediate } from 'https://deno.land/std@0.93.0/node/timers.ts'
+import { setImmediate } from 'https://deno.land/std@0.95.0/node/timers.ts'
 import type { Request } from './request.ts'
 import type { Response } from './response.ts'
 import { getURLParams, getPathname } from './utils/parseUrl.ts'
 import { extendMiddleware } from './extend.ts'
-import * as path from 'https://deno.land/std@0.93.0/path/mod.ts'
+import * as path from 'https://deno.land/std@0.95.0/path/mod.ts'
 
 const lead = (x: string) => (x.charCodeAt(0) === 47 ? x : '/' + x)
 
@@ -89,18 +89,7 @@ export type AppConstructor<Req, Res> = Partial<{
   onError: ErrorHandler
   settings: AppSettings
   applyExtensions: (req: Req, res: Res, next: NextFunction) => void
-  eventHandler: FetchEventListenerObject
 }>
-
-/** DENO DEPLOY TYPES */
-export interface FetchEvent extends Event {
-  request: Request
-  respondWith(response: Response | Promise<Response>): Promise<Response>
-}
-
-export interface FetchEventListenerObject {
-  handleEvent(evt: FetchEvent): void | Promise<void>
-}
 
 /**
  * `App` class - the starting point of tinyhttp app.
@@ -144,8 +133,6 @@ export class App<
 
   apps: Record<string, App> = {}
 
-  #eventHandler?: FetchEventListenerObject
-
   constructor(options: AppConstructor<Req, Res> = {}) {
     super()
     this.onError = options?.onError || onErrorHandler
@@ -153,7 +140,7 @@ export class App<
     this.settings = options.settings || { xPoweredBy: true }
     this.applyExtensions = options?.applyExtensions
     this.attach = (req) => setImmediate(this.handler.bind(this, req, undefined), req)
-    this.#eventHandler = options.eventHandler
+    // this.#eventHandler = options.eventHandler
   }
 
   set(setting: string, value: any) {
@@ -333,31 +320,6 @@ export class App<
     loop()
 
     return res as Res
-  }
-
-  fetchEventHandler(): FetchEventListenerObject {
-    if (this.#eventHandler) {
-      return this.#eventHandler
-    }
-    return (this.#eventHandler = {
-      handleEvent: async (requestEvent) => {
-        let resolve: (response: Response) => void
-        // deno-lint-ignore no-explicit-any
-        let reject: (reason: any) => void
-        const responsePromise = new Promise<Response>((res, rej) => {
-          resolve = res
-          reject = rej
-        })
-        const respondedPromise = requestEvent.respondWith(responsePromise)
-        const response = this.handler(requestEvent.request as Req)
-        if (response) {
-          resolve!(response)
-        } else {
-          reject!(new Error('No response returned from app handler.'))
-        }
-        await respondedPromise
-      }
-    })
   }
 
   /**

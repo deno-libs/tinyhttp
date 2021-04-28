@@ -5,7 +5,7 @@ import type { SendFileOptions } from './extensions/res/send/sendFile.ts'
 import type { TemplateEngineOptions, App } from './app.ts'
 import type { FormatProps } from './extensions/res/format.ts'
 import type { DownloadOptions } from './extensions/res/download.ts'
-import { Cookie } from 'https://deno.land/std@0.93.0/http/cookie.ts'
+import { Cookie } from 'https://deno.land/std@0.95.0/http/cookie.ts'
 
 export interface Response<O = any> extends ServerResponse, tinyhttp.Response {
   headers: Headers

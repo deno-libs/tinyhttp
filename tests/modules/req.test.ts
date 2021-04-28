@@ -35,7 +35,7 @@ describe('req.xhr', () => {
   })
 })
 
-describe('req.fresh', () => {
+/* describe('req.fresh', () => {
   it('returns false if method is neither GET nor HEAD', async () => {
     const { fetch } = InitAppAndTest((req, res) => {
       const fresh = getFreshOrStale(req, res)
@@ -56,7 +56,7 @@ describe('req.fresh', () => {
 
     await fetch.get('/').expect('stale')
   })
-})
+}) */
 
 describe('req.accepts()', () => {
   it('should detect an "Accept" header', async () => {
