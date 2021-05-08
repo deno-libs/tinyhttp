@@ -221,7 +221,7 @@ export class App<
 
     const path = typeof base === 'string' ? base : '/'
 
-    let regex: { keys: string[]; pattern: RegExp }
+    let regex: { keys: string[]; pattern: RegExp } | undefined
 
     for (const fn of fns) {
       if (fn instanceof App) {
@@ -245,11 +245,15 @@ export class App<
     } else {
       pushMiddleware(this.middleware)({
         path: base as string,
-        // @ts-ignore
         regex,
         type: 'mw',
         handler: mount(fns[0] as Handler),
-        handlers: fns.slice(1).map(mount)
+        handlers: fns.slice(1).map(mount),
+        fullPaths: fns
+          .flat()
+          .map((fn) =>
+            fn instanceof App && fn.middleware?.[0] ? lead(base as string) + lead(fn.middleware?.[0].path!) : ''
+          )
       })
     }
 

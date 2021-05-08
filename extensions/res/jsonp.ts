@@ -1,5 +1,5 @@
 import { Req, Res } from '../../deps.ts'
-import { send } from './send.ts'
+import { send } from './send/send.ts'
 import { QueryParams } from '../../types.ts'
 
 export type JSONPOptions = Partial<{

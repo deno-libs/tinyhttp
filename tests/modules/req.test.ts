@@ -3,7 +3,7 @@ import { InitAppAndTest } from '../util.ts'
 import { Ranges } from '../../types.ts'
 import {
   checkIfXMLHttpRequest,
-  getFreshOrStale,
+  /*  getFreshOrStale, */
   getRequestHeader,
   getAccepts,
   getAcceptsEncodings,

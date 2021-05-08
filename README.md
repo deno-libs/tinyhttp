@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="logo.svg"  />
+  <img src="https://raw.githubusercontent.com/deno-libs/tinyhttp/master/logo.svg"  />
   <h1 align="center">tinyhttp</h1>
 </p>
 
