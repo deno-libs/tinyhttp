@@ -1,7 +1,7 @@
 import { parse } from 'https://deno.land/std@0.97.0/node/querystring.ts'
 
 type Regex = {
-  keys: string[]
+  keys: string[] | boolean
   pattern: RegExp
 }
 
@@ -11,7 +11,7 @@ export const getURLParams = (r: Regex, reqUrl = '/'): URLParams => {
 
   const params: URLParams = {}
 
-  if (matches) for (let i = 0; i < keys.length; i++) params[keys[i]] = matches[i + 1]
+  if (matches && Array.isArray(keys)) for (let i = 0; i < keys.length; i++) params[keys[i]] = matches[i + 1]
 
   return params
 }

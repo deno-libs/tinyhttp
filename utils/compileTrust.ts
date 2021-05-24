@@ -5,22 +5,14 @@ type TrustValue = ((...args: any[]) => any) | boolean | string | number | string
 export function compileTrust(value: TrustValue) {
   if (typeof value === 'function') return value
 
-  if (value === true) {
-    // Support plain true / false
-    return () => true
-  }
+  // Support plain true / false
+  if (value === true) return () => true
 
-  if (typeof value === 'number') {
-    // Support trusting hop count
-    return function (_: unknown, i: number) {
-      return i < ((value as unknown) as number)
-    }
-  }
+  // Support trusting hop count
+  if (typeof value === 'number') return (_: unknown, i: number) => i < (value as unknown as number)
 
-  if (typeof value === 'string') {
-    // Support comma-separated values
-    value = value.split(/ *, */)
-  }
+  // Support comma-separated values
+  if (typeof value === 'string') value = value.split(/ *, */)
 
   return compile(value || [])
 }

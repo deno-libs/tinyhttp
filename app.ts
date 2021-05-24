@@ -22,38 +22,38 @@ declare global {
   }
 }
 
-export const renderTemplate = <O = any, Res extends Response = Response>(res: Res, app: App) => (
-  file: string,
-  data?: Record<string, any>,
-  options?: TemplateEngineOptions<O>
-): Response => {
-  app.render(
-    file,
-    data,
-    (err: unknown, html: unknown) => {
-      if (err) throw err
+export const renderTemplate =
+  <O = any, Res extends Response = Response>(res: Res, app: App) =>
+  (file: string, data?: Record<string, any>, options?: TemplateEngineOptions<O>): Response => {
+    app.render(
+      file,
+      data,
+      (err: unknown, html: unknown) => {
+        if (err) throw err
 
-      res.send(html)
-    },
-    options
-  )
+        res.send(html)
+      },
+      options
+    )
 
-  return res
-}
+    return res
+  }
 
 /**
  * Execute handler with passed `req` and `res`. Catches errors and resolves async handlers.
  * @param h
  */
-export const applyHandler = <Req, Res>(h: Handler<Req, Res>) => async (req: Req, res: Res, next: NextFunction) => {
-  try {
-    if (h.constructor.name === 'AsyncFunction') {
-      await h(req, res, next)
-    } else h(req, res, next)
-  } catch (e) {
-    next(e)
+export const applyHandler =
+  <Req, Res>(h: Handler<Req, Res>) =>
+  async (req: Req, res: Res, next: NextFunction) => {
+    try {
+      if (h.constructor.name === 'AsyncFunction') {
+        await h(req, res, next)
+      } else h(req, res, next)
+    } catch (e) {
+      next(e)
+    }
   }
-}
 
 /**
  * tinyhttp App has a few settings for toggling features
@@ -119,7 +119,8 @@ export class App<
     Res extends Response<RenderOptions> = Response<RenderOptions>
   >
   extends Router<App, Req, Res>
-  implements tinyhttp.Application {
+  implements tinyhttp.Application
+{
   middleware: Middleware<Req>[] = []
   locals: Record<string, string> = {}
   noMatchHandler: Handler
@@ -221,7 +222,7 @@ export class App<
 
     const path = typeof base === 'string' ? base : '/'
 
-    let regex: { keys: string[]; pattern: RegExp } | undefined
+    let regex: { keys: string[] | boolean; pattern: RegExp } | undefined
 
     for (const fn of fns) {
       if (fn instanceof App) {
@@ -312,14 +313,14 @@ export class App<
 
       if (type === 'route') req.params = getURLParams(regex, pathname)
 
-      await applyHandler<Req, Res>((handler as unknown) as Handler<Req, Res>)(req, res, next)
+      await applyHandler<Req, Res>(handler as unknown as Handler<Req, Res>)(req, res, next)
     }
 
     let idx = 0
 
     next = next || ((err: any) => (err ? this.onError(err, req) : loop()))
 
-    const loop = () => idx < mw.length && handle(mw[idx++])(req, (res as unknown) as Res, next as NextFunction)
+    const loop = () => idx < mw.length && handle(mw[idx++])(req, res as unknown as Res, next as NextFunction)
 
     loop()
 
