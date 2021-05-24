@@ -222,7 +222,7 @@ export class App<
 
     const path = typeof base === 'string' ? base : '/'
 
-    let regex: { keys: string[] | boolean; pattern: RegExp } | undefined
+    let regex: any
 
     for (const fn of fns) {
       if (fn instanceof App) {
@@ -263,7 +263,8 @@ export class App<
   find(url: string, method: string) {
     return this.middleware.filter((m) => {
       if (!m.path) m.path = '/'
-      m.regex = m.type === 'mw' ? rg(m.path, true) : rg(m.path)
+
+      m.regex = (m.type === 'mw' ? rg(m.path, true) : rg(m.path)) as { pattern: RegExp; keys: false }
 
       return (m.method ? m.method === method : true) && m.regex?.pattern.test(url)
     })
