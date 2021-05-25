@@ -146,14 +146,17 @@ export class App<
 
   set(setting: string, value: any) {
     this.settings[setting] = value
+    return this
   }
 
   enable(setting: string) {
     this.settings[setting] = true
+    return this
   }
 
   disable(setting: string) {
     this.settings[setting] = false
+    return this
   }
 
   /**

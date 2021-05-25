@@ -4,7 +4,7 @@
   "entry": "./mod.ts",
   "description": "0-legacy, tiny & fast web framework as a replacement of Express",
   "homepage": "https://github.com/talentlessguy/tinyhttp-deno",
-  "version": "0.1.4",
+  "version": "0.1.6",
   "files": [
     "./*.ts",
     "./utils/*.ts",
@@ -12,7 +12,7 @@
     "README.md"
   ],
   "checkFormat": false,
-  "checkTests": false,
+  "checkTests": true,
   "checkInstallation": false,
   "check": true,
   "unlisted": false,
