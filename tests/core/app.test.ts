@@ -1,9 +1,9 @@
-import { describe, it, expect, run } from 'https://deno.land/x/wizard/mod.ts'
+import { describe, it, expect, run } from 'https://deno.land/x/tincan@0.2.1/mod.ts'
 import { App } from '../../app.ts'
 import { BindToSuperDeno, InitAppAndTest } from '../util.ts'
 import { renderFile as eta } from 'https://deno.land/x/eta@v1.12.1/mod.ts'
 import { EtaConfig } from 'https://deno.land/x/eta@v1.12.1/config.ts'
-import * as path from 'https://deno.land/std@0.97.0/path/mod.ts'
+import * as path from 'https://deno.land/std@0.98.0/path/mod.ts'
 
 describe('App constructor', () => {
   it('app.locals are get and set', () => {

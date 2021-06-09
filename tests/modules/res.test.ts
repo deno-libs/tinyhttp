@@ -1,4 +1,4 @@
-import { describe, it, run } from 'https://deno.land/x/wizard/mod.ts'
+import { describe, it, run } from 'https://deno.land/x/tincan@0.2.1/mod.ts'
 import { InitAppAndTest } from '../util.ts'
 import {
   setHeader,
@@ -9,7 +9,7 @@ import {
 } from '../../extensions/res/headers.ts'
 import { redirect } from '../../extensions/res/redirect.ts'
 import { attachment } from '../../extensions/res/download.ts'
-import * as path from 'https://deno.land/std@0.97.0/path/mod.ts'
+import * as path from 'https://deno.land/std@0.98.0/path/mod.ts'
 
 const __dirname = new URL('.', import.meta.url).pathname
 

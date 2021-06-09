@@ -1,4 +1,4 @@
-import { describe, it, expect, run } from 'https://deno.land/x/wizard/mod.ts'
+import { describe, it, expect, run } from 'https://deno.land/x/tincan@0.2.1/mod.ts'
 import { InitAppAndTest } from '../util.ts'
 import { Ranges } from '../../types.ts'
 import {
