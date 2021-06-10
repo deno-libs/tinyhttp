@@ -263,13 +263,19 @@ export class App<
 
     return this // chainable
   }
-  find(url: string, method: string) {
+  find(url: string) {
     return this.middleware.filter((m) => {
-      if (!m.path) m.path = '/'
+      m.regex = m.regex || (rg(m.path, m.type === 'mw') as { keys: string[]; pattern: RegExp })
 
-      m.regex = (m.type === 'mw' ? rg(m.path, true) : rg(m.path)) as { pattern: RegExp; keys: false }
+      let fullPathRegex: { keys: string[] | boolean; pattern: RegExp } | null
 
-      return (m.method ? m.method === method : true) && m.regex?.pattern.test(url)
+      m.fullPath && typeof m.fullPath === 'string'
+        ? (fullPathRegex = rg(m.fullPath, m.type === 'mw'))
+        : (fullPathRegex = null)
+
+      return (
+        m.regex.pattern.test(url) && (m.type === 'mw' && fullPathRegex?.keys ? fullPathRegex.pattern.test(url) : true)
+      )
     })
   }
   /**
@@ -292,19 +298,36 @@ export class App<
 
     const pathname = getPathname(req.originalUrl)
 
-    const mw: Middleware<Req, Res>[] = [
+    const matched = this.find(pathname)
+
+    const mw: Middleware[] = [
       {
         handler: exts,
         type: 'mw',
         path: '/'
       },
-      ...this.find(pathname, req.method),
-      {
-        handler: this.noMatchHandler,
-        type: 'mw',
-        path: '/'
-      }
+      ...matched.filter((x) => (x.method ? x.method === req.method : true))
     ]
+
+    if (matched[0] != null) {
+      mw.push({
+        type: 'mw',
+        handler: (req, res, next) => {
+          if (req.method === 'HEAD') {
+            res.statusCode = 204
+            return res.end('')
+          }
+          next()
+        },
+        path: '/'
+      })
+    }
+
+    mw.push({
+      handler: this.noMatchHandler,
+      type: 'mw',
+      path: '/'
+    })
 
     const handle = (mw: Middleware<Req, Res>) => async (req: Req, res: Res, next: NextFunction) => {
       const { path = '/', handler, type, regex = rg('/') } = mw
