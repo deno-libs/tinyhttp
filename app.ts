@@ -306,22 +306,8 @@ export class App<
         type: 'mw',
         path: '/'
       },
-      ...matched.filter((x) => (x.method ? x.method === req.method : true))
+      ...matched.filter((x) => req.method === 'HEAD' || (x.method ? x.method === req.method : true))
     ]
-
-    if (matched[0] != null) {
-      mw.push({
-        type: 'mw',
-        handler: (req, res, next) => {
-          if (req.method === 'HEAD') {
-            res.statusCode = 204
-            return res.end('')
-          }
-          next()
-        },
-        path: '/'
-      })
-    }
 
     mw.push({
       handler: this.noMatchHandler,
