@@ -10,7 +10,7 @@ export { encodeUrl } from 'https://deno.land/x/encodeurl@1.0.0/mod.ts'
 export { charset, contentType, lookup } from 'https://deno.land/x/media_types@v2.8.4/mod.ts'
 export { parse as rg } from 'https://deno.land/x/regexparam@v2.0.0/src/index.js'
 export { forwarded } from 'https://deno.land/x/forwarded@0.0.6/mod.ts'
-export * from 'https://deno.land/x/proxy_addr@0.0.5/mod.ts'
+export * from 'https://deno.land/x/proxy_addr@0.0.6/mod.ts'
 import type { ServerRequest as Req, Response as ServerResponse } from 'https://deno.land/std@0.98.0/http/server.ts'
 
 interface Res extends ServerResponse {
