@@ -1,6 +1,6 @@
 import { App } from '../../app.ts'
-import { renderFile as eta } from 'https://deno.land/x/eta@v1.12.1/mod.ts'
-import { EtaConfig } from 'https://deno.land/x/eta@v1.12.1/config.ts'
+import { renderFile as eta } from 'https://deno.land/x/eta@v1.12.2/mod.ts'
+import { EtaConfig } from 'https://deno.land/x/eta@v1.12.2/config.ts'
 
 const app = new App<EtaConfig>()
 
