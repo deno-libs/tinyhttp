@@ -1,5 +1,5 @@
 import { Req, Res } from '../../../deps.ts'
-import { isAbsolute, join, extname } from 'https://deno.land/std@0.98.0/path/mod.ts'
+import { isAbsolute, join, extname } from 'https://deno.land/std@0.99.0/path/mod.ts'
 import { contentType } from '../../../deps.ts'
 import { createETag } from '../utils.ts'
 import { send } from './send.ts'

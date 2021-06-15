@@ -2,12 +2,12 @@
 import { Router, serve, Server, rg, pushMiddleware } from './deps.ts'
 import { NextFunction, RHandler as Handler, Middleware, UseMethodParams } from './types.ts'
 import { onErrorHandler, ErrorHandler } from './onError.ts'
-import { setImmediate } from 'https://deno.land/std@0.98.0/node/timers.ts'
+import { setImmediate } from 'https://deno.land/std@0.99.0/node/timers.ts'
 import type { Request } from './request.ts'
 import type { Response } from './response.ts'
 import { getURLParams, getPathname } from './utils/parseUrl.ts'
 import { extendMiddleware } from './extend.ts'
-import * as path from 'https://deno.land/std@0.98.0/path/mod.ts'
+import * as path from 'https://deno.land/std@0.99.0/path/mod.ts'
 
 const lead = (x: string) => (x.charCodeAt(0) === 47 ? x : '/' + x)
 

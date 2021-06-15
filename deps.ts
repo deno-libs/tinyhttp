@@ -11,7 +11,7 @@ export { charset, contentType, lookup } from 'https://deno.land/x/media_types@v2
 export { parse as rg } from 'https://deno.land/x/regexparam@v2.0.0/src/index.js'
 export { forwarded } from 'https://deno.land/x/forwarded@0.0.6/mod.ts'
 export * from 'https://deno.land/x/proxy_addr@0.0.6/mod.ts'
-import type { ServerRequest as Req, Response as ServerResponse } from 'https://deno.land/std@0.98.0/http/server.ts'
+import type { ServerRequest as Req, Response as ServerResponse } from 'https://deno.land/std@0.99.0/http/server.ts'
 
 interface Res extends ServerResponse {
   headers: Headers
@@ -19,6 +19,6 @@ interface Res extends ServerResponse {
 
 export type { Req, Res }
 
-export { serve, Server } from 'https://deno.land/std@0.98.0/http/server.ts'
+export { serve, Server } from 'https://deno.land/std@0.99.0/http/server.ts'
 
 export { Router, pushMiddleware } from 'https://esm.sh/@tinyhttp/router@1.3.3'
