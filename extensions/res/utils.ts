@@ -1,5 +1,5 @@
-import { format, parse } from 'https://deno.land/x/content_type/mod.ts'
-import { etag as eTag } from 'https://deno.land/x/opine@1.5.3/src/utils/etag.ts'
+import { format, parse } from 'https://deno.land/x/content_type@1.0.1/mod.ts'
+import { etag as eTag } from 'https://deno.land/x/opine@1.5.4/src/utils/etag.ts'
 import { lookup } from '../../deps.ts'
 
 export const createETag = (body: Parameters<typeof eTag>[0]) => {
@@ -21,7 +21,7 @@ export function acceptParams(str: string, index?: number) {
   const ret: {
     value: string
     quality: number
-    params: Record<string, any>
+    params: Record<string, string>
     originalIndex?: number
   } = { value: parts[0], quality: 1, params: {}, originalIndex: index }
 

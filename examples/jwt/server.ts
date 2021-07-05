@@ -1,6 +1,6 @@
 import { App } from '../../mod.ts'
 import { getNumericDate, Payload, Header, create, verify } from 'https://deno.land/x/djwt@v2.2/mod.ts'
-import { readAll } from 'https://deno.land/std@0.99.0/io/util.ts'
+import { readAll } from 'https://deno.land/std@0.100.0/io/util.ts'
 
 const SECRET = 'my_secret'
 
