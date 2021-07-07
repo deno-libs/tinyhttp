@@ -59,7 +59,7 @@ export const applyHandler =
  * tinyhttp App has a few settings for toggling features
  */
 export type AppSettings = Partial<
-  Record<'networkExtensions' | 'freshnessTesting' | 'bindAppToReqRes' | 'enableReqRoute', boolean> &
+  Record<'networkExtensions' | 'bindAppToReqRes' | 'enableReqRoute', boolean> &
     Record<'subdomainOffset', number> &
     Record<'xPoweredBy', string | boolean>
 >
@@ -284,13 +284,12 @@ export class App<
    * @param res Res object
    */
   handler(req: Req, next?: NextFunction) {
-    /* Set X-Powered-By header */
-    const { xPoweredBy } = this.settings
-    if (xPoweredBy) req.headers.set('X-Powered-By', typeof xPoweredBy === 'string' ? xPoweredBy : 'tinyhttp')
-
     let res = {
       headers: new Headers({})
     }
+    /* Set X-Powered-By header */
+    const { xPoweredBy } = this.settings
+    if (xPoweredBy) res.headers.set('X-Powered-By', typeof xPoweredBy === 'string' ? xPoweredBy : 'tinyhttp')
 
     const exts = this.applyExtensions || extendMiddleware<RenderOptions, Req, Res>(this as any)
 
@@ -308,6 +307,20 @@ export class App<
       },
       ...matched.filter((x) => req.method === 'HEAD' || (x.method ? x.method === req.method : true))
     ]
+
+    if (matched[0] != null) {
+      mw.push({
+        type: 'mw',
+        handler: (req, res, next) => {
+          if (req.method === 'HEAD') {
+            res.statusCode = 204
+            return res.end('')
+          }
+          next()
+        },
+        path: '/'
+      })
+    }
 
     mw.push({
       handler: this.noMatchHandler,

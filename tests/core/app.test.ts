@@ -235,4 +235,191 @@ describe('next(err?)', () => {
   })
 })
 
+describe('HTTP methods', () => {
+  it('app.get handles get request', async () => {
+    const app = new App()
+
+    app.get('/', (req, res) => void res.send(req.method))
+
+    await BindToSuperDeno(app).get('/').expect(200, 'GET')
+  })
+  it('app.post handles post request', async () => {
+    const { fetch } = InitAppAndTest((req, res) => void res.send(req.method), '/', {}, 'post')
+
+    await fetch.post('/').expect(200, 'POST')
+  })
+  it('app.put handles put request', async () => {
+    const { fetch } = InitAppAndTest((req, res) => void res.send(req.method), '/', {}, 'put')
+
+    await fetch.put('/').expect(200, 'PUT')
+  })
+  it('app.patch handles patch request', async () => {
+    const { fetch } = InitAppAndTest((req, res) => void res.send(req.method), '/', {}, 'patch')
+
+    await fetch.patch('/').expect(200, 'PATCH')
+  })
+  it('app.head handles head request', async () => {
+    const app = new App()
+
+    app.head('/', (req, res) => void res.send(req.method))
+
+    const fetch = BindToSuperDeno(app)
+
+    await fetch.head('/').expect(200)
+  })
+  it('app.delete handles delete request', async () => {
+    const app = new App()
+
+    app.delete('/', (req, res) => void res.send(req.method))
+
+    const fetch = BindToSuperDeno(app)
+
+    await fetch.delete('/').expect(200, 'DELETE')
+  })
+  it('app.checkout handles checkout request', async () => {
+    const app = new App()
+
+    app.checkout('/', (req, res) => void res.send(req.method))
+
+    const fetch = BindToSuperDeno(app)
+
+    await fetch.checkout('/').expect(200, 'CHECKOUT')
+  })
+  it('app.copy handles copy request', async () => {
+    const app = new App()
+
+    app.copy('/', (req, res) => void res.send(req.method))
+
+    const fetch = BindToSuperDeno(app)
+
+    await fetch.copy('/').expect(200, 'COPY')
+  })
+  it('app.lock handles lock request', async () => {
+    const app = new App()
+
+    app.lock('/', (req, res) => void res.send(req.method))
+
+    const fetch = BindToSuperDeno(app)
+
+    await fetch.lock('/').expect(200, 'LOCK')
+  })
+  it('app.merge handles merge request', async () => {
+    const app = new App()
+
+    app.merge('/', (req, res) => void res.send(req.method))
+
+    const fetch = BindToSuperDeno(app)
+
+    await fetch.merge('/').expect(200, 'MERGE')
+  })
+  it('app.mkactivity handles mkactivity request', async () => {
+    const app = new App()
+
+    app.mkactivity('/', (req, res) => void res.send(req.method))
+
+    const fetch = BindToSuperDeno(app)
+
+    await fetch.mkactivity('/').expect(200, 'MKACTIVITY')
+  })
+  it('app.mkcol handles mkcol request', async () => {
+    const app = new App()
+
+    app.mkcol('/', (req, res) => void res.send(req.method))
+
+    const fetch = BindToSuperDeno(app)
+
+    await fetch.mkcol('/').expect(200, 'MKCOL')
+  })
+  it('app.move handles move request', async () => {
+    const app = new App()
+
+    app.move('/', (req, res) => void res.send(req.method))
+
+    const fetch = BindToSuperDeno(app)
+
+    await fetch.move('/').expect(200, 'MOVE')
+  })
+  it('app.search handles search request', async () => {
+    const app = new App()
+
+    app.search('/', (req, res) => void res.send(req.method))
+
+    const fetch = BindToSuperDeno(app)
+
+    await fetch.search('/').expect(200, 'SEARCH')
+  })
+  it('app.notify handles notify request', async () => {
+    const app = new App()
+
+    app.notify('/', (req, res) => void res.send(req.method))
+
+    const fetch = BindToSuperDeno(app)
+
+    await fetch.notify('/').expect(200, 'NOTIFY')
+  })
+  it('app.purge handles purge request', async () => {
+    const app = new App()
+
+    app.purge('/', (req, res) => void res.send(req.method))
+
+    const fetch = BindToSuperDeno(app)
+
+    await fetch.purge('/').expect(200, 'PURGE')
+  })
+  it('app.report handles report request', async () => {
+    const app = new App()
+
+    app.report('/', (req, res) => void res.send(req.method))
+
+    const fetch = BindToSuperDeno(app)
+
+    await fetch.report('/').expect(200, 'REPORT')
+  })
+  it('app.subscribe handles subscribe request', async () => {
+    const app = new App()
+
+    app.subscribe('/', (req, res) => void res.send(req.method))
+
+    const fetch = BindToSuperDeno(app)
+
+    await fetch.subscribe('/').expect(200, 'SUBSCRIBE')
+  })
+  it('app.unsubscribe handles unsubscribe request', async () => {
+    const app = new App()
+
+    app.unsubscribe('/', (req, res) => void res.send(req.method))
+
+    const fetch = BindToSuperDeno(app)
+
+    await fetch.unsubscribe('/').expect(200, 'UNSUBSCRIBE')
+  })
+  /* it('app.trace handles trace request', async () => {
+    const app = new App()
+
+    app.trace('/', (req, res) => void res.send(req.method))
+
+    const fetch = BindToSuperDeno(app)
+
+    await fetch.trace('/').expect(200, 'TRACE')
+  })
+ */ it('HEAD request works when any of the method handlers are defined', async () => {
+    const app = new App()
+
+    app.get('/', (_, res) => res.send('It works'))
+
+    const fetch = BindToSuperDeno(app)
+
+    await fetch.head('/').expect(200)
+  })
+  it('HEAD request does not work for undefined handlers', async () => {
+    const app = new App()
+
+    app.get('/', (_, res) => res.send('It works'))
+
+    const fetch = BindToSuperDeno(app)
+
+    await fetch.head('/hello').expect(404)
+  })
+})
+
 run()

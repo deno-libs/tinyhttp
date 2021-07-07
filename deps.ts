@@ -5,7 +5,7 @@ export type { Options as ParseRangeOptions }
 export { escapeHtml } from 'https://deno.land/x/escape_html@1.0.0/mod.ts'
 export { vary } from 'https://deno.land/x/vary@1.0.0/mod.ts'
 export { isIP } from 'https://deno.land/x/isIP@1.0.0/mod.ts'
-export { Accepts } from 'https://deno.land/x/accepts@2.1.0/mod.ts'
+export { Accepts } from 'https://denopkg.com/talentlessguy/accepts@patch-1/mod.ts#='
 export { encodeUrl } from 'https://deno.land/x/encodeurl@1.0.0/mod.ts'
 export { charset, contentType, lookup } from 'https://deno.land/x/media_types@v2.9.1/mod.ts'
 export { parse as rg } from 'https://deno.land/x/regexparam@v2.0.0/src/index.js'

@@ -14,7 +14,7 @@ export const InitAppAndTest = (
   handler: Handler,
   route = '/',
   settings: AppConstructor<Request, Response> = {},
-  method: 'get' | 'post' | 'use' = 'use'
+  method: 'get' | 'post' | 'patch' | 'put' | 'use' = 'use'
 ) => {
   const app = new App<unknown, Request, Response>(settings)
 
