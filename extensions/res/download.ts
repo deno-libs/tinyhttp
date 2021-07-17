@@ -1,6 +1,6 @@
 import { contentDisposition } from 'https://esm.sh/@tinyhttp/content-disposition'
 import { SendFileOptions, sendFile } from './send/sendFile.ts'
-import { extname } from 'https://deno.land/std@0.100.0/path/mod.ts'
+import { extname } from 'https://deno.land/std@0.101.0/path/mod.ts'
 import { setContentType, setHeader } from './headers.ts'
 import { Req, Res } from '../../deps.ts'
 

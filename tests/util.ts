@@ -1,5 +1,5 @@
 import { getFreePort } from 'https://deno.land/x/free_port@v1.2.0/mod.ts'
-import { superdeno } from 'https://deno.land/x/superdeno@4.3.0/mod.ts'
+import { superdeno } from 'https://deno.land/x/superdeno@4.4.0/mod.ts'
 import { App, Handler, AppConstructor, Request, Response } from '../mod.ts'
 
 const random = (min: number, max: number): number => Math.round(Math.random() * (max - min)) + min
