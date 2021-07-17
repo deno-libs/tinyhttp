@@ -422,4 +422,301 @@ describe('HTTP methods', () => {
   })
 })
 
+describe('Route handlers', () => {
+  it('router accepts array of middlewares', async () => {
+    const app = new App()
+
+    app.use('/', [
+      (req, _, n) => {
+        // @ts-ignore
+        req.parsedBody = 'hello'
+        n()
+      },
+      (req, _, n) => {
+        // @ts-ignore
+        req.parsedBody += ' '
+        n()
+      },
+      (req, _, n) => {
+        // @ts-ignore
+        req.parsedBody += 'world'
+        n()
+      },
+      (req, res) => {
+        res.send(req.parsedBody)
+      }
+    ])
+
+    const request = BindToSuperDeno(app)
+
+    await request.get('/').expect(200, 'hello world')
+  })
+  it('router accepts path as array of middlewares', async () => {
+    const app = new App()
+
+    app.use([
+      (req, _, n) => {
+        // @ts-ignore
+        req.parsedBody = 'hello'
+        n()
+      },
+      (req, _, n) => {
+        // @ts-ignore
+        req.parsedBody += ' '
+        n()
+      },
+      (req, _, n) => {
+        // @ts-ignore
+        req.parsedBody += 'world'
+        n()
+      },
+      (req, res) => {
+        res.send(req.parsedBody)
+      }
+    ])
+
+    const request = BindToSuperDeno(app)
+
+    await request.get('/').expect(200, 'hello world')
+  })
+  it('router accepts list of middlewares', async () => {
+    const app = new App()
+
+    app.use(
+      (req, _, n) => {
+        // @ts-ignore
+        req.parsedBody = 'hello'
+        n()
+      },
+      (req, _, n) => {
+        // @ts-ignore
+        req.parsedBody += ' '
+        n()
+      },
+      (req, _, n) => {
+        // @ts-ignore
+        req.parsedBody += 'world'
+        n()
+      },
+      (req, res) => {
+        res.send(req.parsedBody)
+      }
+    )
+
+    const request = BindToSuperDeno(app)
+
+    await request.get('/').expect(200, 'hello world')
+  })
+  it('router accepts array of wares', async () => {
+    const app = new App()
+
+    app.get('/', [
+      (req, _, n) => {
+        // @ts-ignore
+        req.parsedBody = 'hello'
+        n()
+      },
+      (req, _, n) => {
+        // @ts-ignore
+        req.parsedBody += ' '
+        n()
+      },
+      (req, _, n) => {
+        // @ts-ignore
+        req.parsedBody += 'world'
+        n()
+      },
+      (req, res) => {
+        res.send(req.parsedBody)
+      }
+    ])
+
+    const request = BindToSuperDeno(app)
+
+    await request.get('/').expect(200, 'hello world')
+  })
+  it('router methods do not match loosely', async () => {
+    const app = new App()
+
+    app.get('/route', (_, res) => res.send('found'))
+
+    const request = BindToSuperDeno(app)
+
+    await request.get('/route/subroute').expect(404)
+  })
+})
+
+describe('Subapps', () => {
+  it('sub-app mounts on a specific path', () => {
+    const app = new App()
+
+    const subApp = new App()
+
+    app.use('/subapp', subApp)
+
+    expect(subApp.mountpath).toBe('/subapp')
+  })
+  it('sub-app mounts on root', async () => {
+    const app = new App()
+
+    const subApp = new App()
+
+    subApp.use((_, res) => void res.send('Hello World!'))
+
+    app.use(subApp)
+
+    const request = BindToSuperDeno(app)
+
+    await request.get('/').expect(200, 'Hello World!')
+  })
+  it('sub-app handles its own path', async () => {
+    const app = new App()
+
+    const subApp = new App()
+
+    subApp.use((_, res) => void res.send('Hello World!'))
+
+    app.use('/subapp', subApp)
+
+    const request = BindToSuperDeno(app)
+
+    await request.get('/subapp').expect(200, 'Hello World!')
+  })
+  it('sub-app paths get prefixed with the mount path', async () => {
+    const app = new App()
+
+    const subApp = new App()
+
+    subApp.get('/route', (_, res) => res.send(`Hello from ${subApp.mountpath}`))
+
+    app.use('/subapp', subApp)
+
+    const request = BindToSuperDeno(app)
+
+    await request.get('/subapp/route').expect(200, 'Hello from /subapp')
+  })
+  /* it('req.originalUrl does not change', async () => {
+    const app = new App()
+    const subApp = new App()
+    subApp.get('/route', (req, res) =>
+      res.send({
+        origUrl: req.originalUrl,
+        url: req.url,
+        path: req.path
+      })
+    )
+    app.use('/subapp', subApp)
+    const server = app.listen()
+    const fetch = makeFetch(server)
+    await fetch('/subapp/route').expect(200, {
+      origUrl: '/subapp/route',
+      url: '/route',
+      path: '/route'
+    })
+  }) */
+
+  it('lets other wares handle the URL if subapp doesnt have that path', async () => {
+    const app = new App()
+
+    const subApp = new App()
+
+    subApp.get('/route', (_, res) => res.send(subApp.mountpath))
+
+    app.use('/test', subApp)
+
+    app.use('/test3', (req, res) => res.send(req.url))
+
+    const request = BindToSuperDeno(app)
+
+    await request.get('/test/route').expect(200, '/test')
+  })
+
+  it('should mount app on a specified path', () => {
+    const app = new App()
+
+    const subapp = new App()
+
+    app.use('/subapp', subapp)
+
+    expect(subapp.mountpath).toBe('/subapp')
+  })
+  it('should mount on "/" if path is not specified', () => {
+    const app = new App()
+
+    const subapp = new App()
+
+    app.use(subapp)
+
+    expect(subapp.mountpath).toBe('/')
+  })
+  it('app.parent should reference to the app it was mounted on', () => {
+    const app = new App()
+
+    const subapp = new App()
+
+    app.use(subapp)
+
+    expect(subapp.parent).toBe(app)
+  })
+  it('app.path() should return the mountpath', () => {
+    const app = new App()
+
+    const subapp = new App()
+
+    app.use('/subapp', subapp)
+
+    expect(subapp.path()).toBe('/subapp')
+  })
+  it('app.path() should nest mountpaths', () => {
+    const app = new App()
+
+    const subapp = new App()
+
+    const subsubapp = new App()
+
+    subapp.use('/admin', subsubapp)
+
+    app.use('/blog', subapp)
+
+    expect(subsubapp.path()).toBe('/blog/admin')
+  })
+  it('middlewares of a subapp should preserve the path', () => {
+    const app = new App()
+
+    const subapp = new App()
+
+    subapp.use('/path', (_req, _res) => void 0)
+
+    app.use('/subapp', subapp)
+
+    expect(subapp.middleware[0].path).toBe('/path')
+  })
+  it('matches when mounted on params', async () => {
+    const app = new App()
+
+    const subApp = new App()
+
+    subApp.get('/', (_, res) => res.send('hit'))
+
+    app.use('/users/:userID', subApp)
+
+    const request = BindToSuperDeno(app)
+
+    await request.get('/users/123/').expect(200, 'hit')
+  })
+  it('matches when mounted on params and on custom subapp route', async () => {
+    const app = new App()
+
+    const subApp = new App()
+
+    subApp.get('/route', (_, res) => res.send('hit'))
+
+    app.use('/users/:userID', subApp)
+
+    const request = BindToSuperDeno(app)
+
+    await request.get('/users/123/route').expect(200, 'hit')
+  })
+})
+
 run()

@@ -247,17 +247,26 @@ export class App<
     } else if (Array.isArray(base)) {
       super.use('/', [...base, ...fns].map(mount))
     } else {
+      const handlerPaths = []
+      const handlerFunctions = []
+      for (const fn of fns) {
+        if (fn instanceof App && fn.middleware?.length) {
+          for (const mw of fn.middleware) {
+            handlerPaths.push(lead(base as string) + lead(mw.path!))
+            handlerFunctions.push(fn)
+          }
+        } else {
+          handlerPaths.push('')
+          handlerFunctions.push(fn)
+        }
+      }
       pushMiddleware(this.middleware)({
         path: base as string,
         regex,
         type: 'mw',
-        handler: mount(fns[0] as Handler),
-        handlers: fns.slice(1).map(mount),
-        fullPaths: fns
-          .flat()
-          .map((fn) =>
-            fn instanceof App && fn.middleware?.[0] ? lead(base as string) + lead(fn.middleware?.[0].path!) : ''
-          )
+        handler: mount(handlerFunctions[0] as Handler),
+        handlers: handlerFunctions.slice(1).map(mount),
+        fullPaths: handlerPaths
       })
     }
 
@@ -281,7 +290,6 @@ export class App<
   /**
    * Extends Req / Res objects, pushes 404 and 500 handlers, dispatches middleware
    * @param req Req object
-   * @param res Res object
    */
   handler(req: Req, next?: NextFunction) {
     let res = {
@@ -291,7 +299,7 @@ export class App<
     const { xPoweredBy } = this.settings
     if (xPoweredBy) res.headers.set('X-Powered-By', typeof xPoweredBy === 'string' ? xPoweredBy : 'tinyhttp')
 
-    const exts = this.applyExtensions || extendMiddleware<RenderOptions, Req, Res>(this as any)
+    const exts = this.applyExtensions || extendMiddleware<RenderOptions>(this as any)
 
     req.originalUrl = req.url || req.originalUrl
 
@@ -329,16 +337,25 @@ export class App<
     })
 
     const handle = (mw: Middleware<Req, Res>) => async (req: Req, res: Res, next: NextFunction) => {
-      const { path = '/', handler, type, regex = rg('/') } = mw
+      const { path = '/', handler, type, regex } = mw
 
-      req.url = lead(req.url.substring(path.length)) || '/'
+      const params = regex ? getURLParams(regex, pathname) : {}
 
-      req.path = getPathname(req.url)
+      if (type === 'route') req.params = params
+
+      if (path.includes(':')) {
+        const first = Object.values(params)[0]
+        const url = req.url.slice(req.url.indexOf(first) + first?.length)
+        req.url = lead(url)
+      } else {
+        req.url = lead(req.url.substring(path.length))
+      }
+
+      if (!req.path) req.path = getPathname(req.url)
 
       if (this.settings?.enableReqRoute) req.route = getRouteFromApp(this as any, handler)
 
-      if (type === 'route') req.params = getURLParams(regex, pathname)
-
+      if (type === 'route') req.params = getURLParams(regex!, pathname)
       await applyHandler<Req, Res>(handler as unknown as Handler<Req, Res>)(req, res, next)
     }
 
