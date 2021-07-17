@@ -29,7 +29,7 @@ app.listen(3000, () => console.log(`Started on :3000`))
 [gh-actions-img]: https://img.shields.io/github/workflow/status/deno-libs/tinyhttp/CI?style=for-the-badge&logo=github&label=&color=B06892
 [codecov]: https://coveralls.io/github/deno-libs/tinyhttp
 [github-actions]: https://github.com/deno-libs/tinyhttp/actions
-[codecov-badge]: https://img.shields.io/coveralls/github/deno-libs/tinyhttp?style=for-the-badge&color=B06892
+[codecov-badge]: https://img.shields.io/coveralls/github/deno-libs/tinyhttp?style=for-the-badge&color=B06892&
 [nest-badge]: https://img.shields.io/badge/publushed%20on-nest.land-B06892?style=for-the-badge
 [code-quality-img]: https://img.shields.io/codefactor/grade/github/deno-libs/tinyhttp?style=for-the-badge&color=B06892
 [code-quality]: https://www.codefactor.io/repository/github/deno-libs/tinyhttp
