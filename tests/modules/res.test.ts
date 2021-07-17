@@ -1,5 +1,5 @@
 import { describe, it, run } from 'https://deno.land/x/tincan@0.2.1/mod.ts'
-import { InitAppAndTest } from '../util.ts'
+import { InitAppAndTest, runServer } from '../util.ts'
 import {
   setHeader,
   getResponseHeader,
@@ -8,8 +8,10 @@ import {
   setLocationHeader
 } from '../../extensions/res/headers.ts'
 import { redirect } from '../../extensions/res/redirect.ts'
+import { formatResponse } from '../../extensions/res/format.ts'
 import { attachment } from '../../extensions/res/download.ts'
 import * as path from 'https://deno.land/std@0.101.0/path/mod.ts'
+import type { Request } from '../../request.ts'
 
 const __dirname = new URL('.', import.meta.url).pathname
 
@@ -105,6 +107,55 @@ describe('res.redirect(url, status)', () => {
       .get('/')
       .set('Accept', 'text/html')
       .expect(302 /* '<p>Found. Redirecting to <a href="/abc">/abc</a></p>' */)
+  })
+})
+
+describe('res.format(obj)', () => {
+  /*   it('should send text by default', async () => {
+    const request = runServer((req, res) => {
+      formatResponse(req, res, () => {})({
+        text: (req: Request) => req.respond({ body: `Hello World` })
+      }).end()
+    })
+
+    await request.get('/').expect(200, 'Hello World')
+  }) */
+  /* it('should send HTML if specified in "Accepts" header', async () => {
+    const request = runServer((req, res) => {
+      // eslint-disable-next-line @typescript-eslint/no-empty-function
+      formatResponse(req, res, () => {})({
+        text: (req: Request) => req.respond({ body: `Hello World` }),
+        html: (req: Request) => req.respond({ body: '<h1>Hello World</h1>' })
+      }).end()
+    })
+
+    await request
+      .get('/')
+      .set('Accept', 'text/html')
+      .expect(200, '<h1>Hello World</h1>')
+      .expect('Content-Type', 'text/html')
+  }) */
+  it('should throw 406 status when invalid MIME is specified', async () => {
+    const request = runServer((req, res) => {
+      formatResponse(req, res, (err) => {
+        res.status = err.status
+        res.send(err.message)
+      })({
+        text: (req: Request) => req.respond({ body: `Hello World` })
+      }).end()
+    })
+
+    await request.get('/').set('Accept', 'foo/bar').expect(406)
+  })
+  it('should call `default` as a function if specified', async () => {
+    const request = runServer((req, res) => {
+      // eslint-disable-next-line @typescript-eslint/no-empty-function
+      formatResponse(req, res, () => {})({
+        default: () => res.end('Hello World')
+      }).end()
+    })
+
+    await request.get('/').expect(200)
   })
 })
 
