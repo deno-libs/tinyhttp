@@ -22,3 +22,13 @@ export const InitAppAndTest = (
 
   return { fetch: BindToSuperDeno(app), app }
 }
+
+export const runServer = (h: Handler) => {
+  const app = new App()
+
+  app.use(h)
+
+  const request = BindToSuperDeno(app)
+
+  return request
+}
