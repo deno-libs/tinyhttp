@@ -3,8 +3,8 @@
   <h1 align="center">tinyhttp</h1>
 </p>
 
-[![nest badge](https://nest.land/badge.svg)](https://nest.land/package/tinyhttp) ![GitHub release (latest by date)](https://img.shields.io/github/v/release/deno-libs/tinyhttp?style=flat-square) [![GitHub Workflow Status][gh-actions-img]][github-actions]
-[![Codecov][codecov-badge]][codecov] [![][docs-badge]][docs]
+[![nest badge][nest-badge]](https://nest.land/package/tinyhttp) [![GitHub Workflow Status][gh-actions-img]][github-actions]
+[![Codecov][codecov-badge]][codecov] [![][docs-badge]][docs] [![][code-quality-img]][code-quality]
 
 This is a [Deno](https://deno.land) port of [tinyhttp](https://github.com/talentlessguy/tinyhttp), 0-legacy, tiny &amp; fast web framework as a replacement of Express.
 
@@ -24,10 +24,12 @@ app.get('/:name/', (req, res) => {
 app.listen(3000, () => console.log(`Started on :3000`))
 ```
 
-[gh-actions-img]: https://img.shields.io/github/workflow/status/talentlessguy/tinyhttp/CI?style=flat-square
-[codecov]: https://codecov.io/gh/deno-libs/tinyhttp
-[github-actions]: https://github.com/deno-libs/tinyhttp/actions
-[license]: https://github.com/deno-libs/tinyhttp/blob/master/LICENSE
-[codecov-badge]: https://img.shields.io/codecov/c/gh/deno-libs/tinyhttp?style=flat-square
-[docs-badge]: https://img.shields.io/github/v/release/deno-libs/tinyhttp?color=yellow&label=Docs&logo=deno&style=flat-square
+[docs-badge]: https://img.shields.io/github/v/release/deno-libs/tinyhttp?label=Docs&logo=deno&style=for-the-badge&color=B06892
 [docs]: https://doc.deno.land/https/deno.land/x/tinyhttp/mod.ts
+[gh-actions-img]: https://img.shields.io/github/workflow/status/deno-libs/tinyhttp/CI?style=for-the-badge&logo=github&label=&color=B06892
+[codecov]: https://coveralls.io/github/deno-libs/tinyhttp
+[github-actions]: https://github.com/deno-libs/tinyhttp/actions
+[codecov-badge]: https://img.shields.io/coveralls/github/deno-libs/tinyhttp?style=for-the-badge&color=B06892
+[nest-badge]: https://img.shields.io/badge/publushed%20on-nest.land-B06892?style=for-the-badge
+[code-quality-img]: https://img.shields.io/codefactor/grade/github/deno-libs/tinyhttp?style=for-the-badge&color=B06892
+[code-quality]: https://www.codefactor.io/repository/github/deno-libs/tinyhttp
