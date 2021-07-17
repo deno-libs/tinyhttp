@@ -719,4 +719,66 @@ describe('Subapps', () => {
   })
 })
 
+describe('App settings', () => {
+  describe('xPoweredBy', () => {
+    it('is enabled by default', () => {
+      const app = new App()
+
+      expect(app.settings.xPoweredBy).toBe(true)
+    })
+    it('should set X-Powered-By to "tinyhttp"', async () => {
+      const { fetch } = InitAppAndTest((_req, res) => void res.send('hi'))
+
+      await fetch.get('/').expect('X-Powered-By', 'tinyhttp')
+    })
+    /* it('when disabled should not send anything', async () => {
+      const app = new App({ settings: { xPoweredBy: false } })
+
+      app.use((_req, res) => void res.send('hi'))
+
+      const request = BindToSuperDeno(app)
+
+      await request.get('/').expect('X-Powered-By', null)
+    }) */
+  })
+  describe('bindAppToReqRes', () => {
+    it('references the current app instance in req.app and res.app', async () => {
+      const app = new App({
+        settings: {
+          bindAppToReqRes: true
+        }
+      })
+
+      app.locals['hello'] = 'world'
+
+      app.use((req, res) => {
+        expect(req.app).toBeInstanceOf(App)
+        expect(res.app).toBeInstanceOf(App)
+        expect(req.app.locals['hello']).toBe('world')
+        expect(res.app.locals['hello']).toBe('world')
+        res.end()
+      })
+
+      const request = BindToSuperDeno(app)
+
+      await request.get('/').expect(200)
+    })
+  })
+
+  describe('enableReqRoute', () => {
+    it('attach current fn to req.route when enabled', async () => {
+      const app = new App({ settings: { enableReqRoute: true } })
+
+      app.use((req, res) => {
+        expect(req.route).toEqual(app.middleware[0])
+        res.end()
+      })
+
+      const request = BindToSuperDeno(app)
+
+      await request.get('/').expect(200)
+    })
+  })
+})
+
 run()
