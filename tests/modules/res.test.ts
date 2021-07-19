@@ -10,7 +10,7 @@ import {
 import { redirect } from '../../extensions/res/redirect.ts'
 import { formatResponse } from '../../extensions/res/format.ts'
 import { attachment } from '../../extensions/res/download.ts'
-import { setCookie } from '../../extensions/res/cookie.ts'
+import { setCookie, clearCookie } from '../../extensions/res/cookie.ts'
 import * as path from 'https://deno.land/std@0.101.0/path/mod.ts'
 import type { Request } from '../../request.ts'
 
@@ -323,6 +323,18 @@ describe('res.cookie(name, value, options)', () => {
     })
 
     await request.get('/').expect(200).expect('Set-Cookie', 'hello=world, foo=bar')
+  })
+})
+
+describe('res.clearCookie(name, options)', () => {
+  it('sets path to "/" if not specified in options', async () => {
+    const request = runServer((_, res) => {
+      clearCookie(res)('cookie').end()
+
+      expect(res.headers.get('Set-Cookie')).toContain('Path=/;')
+    })
+
+    await request.get('/').expect(200)
   })
 })
 

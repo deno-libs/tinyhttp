@@ -2,7 +2,7 @@ import { Req, Res } from '../../deps.ts'
 import * as cookie from 'https://deno.land/std@0.101.0/http/cookie.ts'
 
 export const setCookie =
-  <Request extends Req = Req, Response extends Res = Res>(req: Request, res: Response) =>
+  <Request extends Req = Req, Response extends Res = Res>(_: Request, res: Response) =>
   (name: string, value: string, options?: Omit<cookie.Cookie, 'value' | 'name'>): Response => {
     cookie.setCookie(res, {
       value,
