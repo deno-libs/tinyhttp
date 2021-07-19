@@ -4,6 +4,10 @@ import { BindToSuperDeno, InitAppAndTest } from '../util.ts'
 import { renderFile as eta } from 'https://deno.land/x/eta@v1.12.3/mod.ts'
 import { EtaConfig } from 'https://deno.land/x/eta@v1.12.3/config.ts'
 import * as path from 'https://deno.land/std@0.101.0/path/mod.ts'
+import { readFile as readFileCb } from 'https://deno.land/std@0.101.0/node/fs.ts'
+import { promisify } from 'https://deno.land/std@0.101.0/node/util.ts'
+
+const readFile = promisify(readFileCb)
 
 describe('App constructor', () => {
   it('app.locals are get and set', () => {
@@ -560,6 +564,43 @@ describe('Route handlers', () => {
     const request = BindToSuperDeno(app)
 
     await request.get('/route/subroute').expect(404)
+  })
+  it('req and res inherit properties from previous middlewares', async () => {
+    const app = new App()
+
+    app
+      .use((req, _res, next) => {
+        req.parsedBody = { hello: 'world' }
+        next()
+      })
+      .use((req, res) => {
+        res.json(req.parsedBody)
+      })
+
+    const request = BindToSuperDeno(app)
+
+    await request.get('/').expect(200, { hello: 'world' })
+  })
+  it('req and res inherit properties from previous middlewares asynchronously', async () => {
+    const app = new App()
+
+    const dec = new TextDecoder()
+
+    app
+      .use(async (req, _res, next) => {
+        const file = await readFile(`${Deno.cwd()}/tests/fixtures/test.txt`)
+
+        // @ts-ignore
+        req.parsedBody = dec.decode(file)
+        next()
+      })
+      .use((req, res) => {
+        res.send(req.parsedBody)
+      })
+
+    const request = BindToSuperDeno(app)
+
+    await request.get('/').expect(200, 'Hello World')
   })
 })
 
