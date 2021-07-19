@@ -1,10 +1,12 @@
-<p align="center">
+<div align="center">
   <img src="https://raw.githubusercontent.com/deno-libs/tinyhttp/master/logo.svg"  />
   <h1 align="center">tinyhttp</h1>
-</p>
-
-[![nest badge][nest-badge]](https://nest.land/package/tinyhttp) [![GitHub Workflow Status][gh-actions-img]][github-actions]
+  
+  [![nest badge][nest-badge]](https://nest.land/package/tinyhttp) [![GitHub Workflow Status][gh-actions-img]][github-actions]
 [![Codecov][codecov-badge]][codecov] [![][docs-badge]][docs] [![][code-quality-img]][code-quality]
+</div>
+
+
 
 This is a [Deno](https://deno.land) port of [tinyhttp](https://github.com/talentlessguy/tinyhttp), 0-legacy, tiny &amp; fast web framework as a replacement of Express.
 
