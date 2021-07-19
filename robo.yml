@@ -1,3 +1,0 @@
-test:
-  exec: deno test -A --unstable --location http://127.0.0.1
-  summary: run tests

@@ -1,4 +1,4 @@
-import { describe, it, run } from 'https://deno.land/x/tincan@0.2.1/mod.ts'
+import { describe, it, run, expect } from 'https://deno.land/x/tincan@0.2.1/mod.ts'
 import { InitAppAndTest, runServer } from '../util.ts'
 import {
   setHeader,
@@ -10,6 +10,7 @@ import {
 import { redirect } from '../../extensions/res/redirect.ts'
 import { formatResponse } from '../../extensions/res/format.ts'
 import { attachment } from '../../extensions/res/download.ts'
+import { setCookie } from '../../extensions/res/cookie.ts'
 import * as path from 'https://deno.land/std@0.101.0/path/mod.ts'
 import type { Request } from '../../request.ts'
 
@@ -111,14 +112,14 @@ describe('res.redirect(url, status)', () => {
 })
 
 describe('res.format(obj)', () => {
-  /*   it('should send text by default', async () => {
+  /*  it('should send text by default', async () => {
     const request = runServer((req, res) => {
       formatResponse(req, res, () => {})({
         text: (req: Request) => req.respond({ body: `Hello World` })
       }).end()
     })
 
-    await request.get('/').expect(200, 'Hello World')
+    await request.get('/').expect(200).expect('Hello World')
   }) */
   /* it('should send HTML if specified in "Accepts" header', async () => {
     const request = runServer((req, res) => {
@@ -149,7 +150,6 @@ describe('res.format(obj)', () => {
   })
   it('should call `default` as a function if specified', async () => {
     const request = runServer((req, res) => {
-      // eslint-disable-next-line @typescript-eslint/no-empty-function
       formatResponse(req, res, () => {})({
         default: () => res.end('Hello World')
       }).end()
@@ -268,6 +268,61 @@ describe('res.location(url)', () => {
     })
 
     await fetch.get('/').expect('Location', 'https://google.com?q=%A710').expect(200)
+  })
+})
+
+describe('res.cookie(name, value, options)', () => {
+  it('serializes the cookie and puts it in a Set-Cookie header', async () => {
+    const request = runServer((req, res) => {
+      setCookie(req, res)('hello', 'world').end()
+
+      expect(res.headers.get('Set-Cookie')).toBe('hello=world; Path=/')
+    })
+
+    await request.get('/').expect(200)
+  })
+  it('sets default path to "/" if not specified in options', async () => {
+    const request = runServer((req, res) => {
+      setCookie(req, res)('hello', 'world').end()
+
+      expect(res.headers.get('Set-Cookie')).toContain('Path=/')
+    })
+
+    await request.get('/').expect(200)
+  })
+  /* it('should throw if it is signed and and no secret is provided', async () => {
+    const app = runServer((req, res) => {
+      try {
+        setCookie(req, res)('hello', 'world', {
+          signed: true
+        }).end()
+      } catch (e) {
+        res.end((e as TypeError).message)
+      }
+    })
+
+    await makeFetch(app)('/').expect('cookieParser("secret") required for signed cookies')
+  }) */
+  it('should set "maxAge" and "expires" from options', async () => {
+    const maxAge = 3600 * 24 * 365
+
+    const request = runServer((req, res) => {
+      setCookie(req, res)('hello', 'world', {
+        maxAge
+      }).end()
+
+      expect(res.headers.get('Set-Cookie')).toContain(`Max-Age=${maxAge / 1000}; Path=/; Expires=`)
+    })
+
+    await request.get('/').expect(200)
+  })
+  it('should append to Set-Cookie if called multiple times', async () => {
+    const request = runServer((req, res) => {
+      setCookie(req, res)('hello', 'world')
+      setCookie(req, res)('foo', 'bar').end()
+    })
+
+    await request.get('/').expect(200).expect('Set-Cookie', 'hello=world, foo=bar')
   })
 })
 
