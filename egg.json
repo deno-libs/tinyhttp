@@ -1,10 +1,10 @@
 {
-  "$schema": "https://x.nest.land/eggs@0.3.4/src/schema.json",
+  "$schema": "https://x.nest.land/eggs@0.3.8/src/schema.json",
   "name": "tinyhttp",
   "entry": "./mod.ts",
   "description": "0-legacy, tiny & fast web framework as a replacement of Express",
   "homepage": "https://github.com/talentlessguy/tinyhttp-deno",
-  "version": "0.1.7",
+  "version": "0.1.18",
   "files": ["./*.ts", "./utils/*.ts", "./extensions/**/*.ts", "README.md"],
   "checkFormat": false,
   "checkTests": true,

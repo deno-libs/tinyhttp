@@ -5,13 +5,12 @@ type Regex = {
   pattern: RegExp
 }
 
-export const getURLParams = (r: Regex, reqUrl = '/'): URLParams => {
-  const { pattern, keys } = r
+export const getURLParams = ({ pattern, keys }: Regex, reqUrl = '/'): URLParams => {
   const matches = pattern.exec(reqUrl)
 
-  const params: URLParams = {}
+  const params: Record<string, string> = {}
 
-  if (matches && Array.isArray(keys)) for (let i = 0; i < keys.length; i++) params[keys[i]] = matches[i + 1]
+  if (matches && typeof keys !== 'boolean') for (let i = 0; i < keys.length; i++) params[keys[i]] = matches[i + 1]
 
   return params
 }
@@ -26,4 +25,5 @@ export const getPathname = (u: string) => {
   return u.slice(0, end === -1 ? u.length : end)
 }
 
-export const getQueryParams = (url = '/') => parse(url.slice(url.indexOf('?') + 1))
+export const getQueryParams = (url = '/'): { [key: string]: string[] | string } =>
+  parse(url.slice(url.indexOf('?') + 1))

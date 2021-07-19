@@ -72,6 +72,23 @@ describe('Template engines', () => {
 
     await fetch.get('/').expect(200, 'Hello from Eta')
   })
+  it('can render without data passed', async () => {
+    const pwd = Deno.cwd()
+    Deno.chdir(path.resolve(pwd, 'tests/fixtures'))
+
+    const app = new App<EtaConfig>()
+
+    app.engine('eta', eta)
+
+    app.use((_, res) => {
+      res.render('empty.eta')
+      Deno.chdir(pwd)
+    })
+
+    const request = BindToSuperDeno(app)
+
+    await request.get('/').expect('Hello World')
+  })
 })
 
 describe('Routing', () => {

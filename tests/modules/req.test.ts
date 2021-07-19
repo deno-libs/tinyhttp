@@ -3,7 +3,7 @@ import { InitAppAndTest } from '../util.ts'
 import { Ranges } from '../../types.ts'
 import {
   checkIfXMLHttpRequest,
-  /*  getFreshOrStale, */
+  getFreshOrStale,
   getRequestHeader,
   getAccepts,
   getAcceptsEncodings,
@@ -35,7 +35,7 @@ describe('req.xhr', () => {
   })
 })
 
-/* describe('req.fresh', () => {
+describe('req.fresh', () => {
   it('returns false if method is neither GET nor HEAD', async () => {
     const { fetch } = InitAppAndTest((req, res) => {
       const fresh = getFreshOrStale(req, res)
@@ -43,7 +43,7 @@ describe('req.xhr', () => {
       res.end(fresh ? 'fresh' : 'stale')
     })
 
-    await fetch.get('/').send('Hello World').expect('stale')
+    await fetch.get('/').expect('stale')
   })
   it('returns false if status code is neither >=200 nor < 300, nor 304', async () => {
     const { fetch } = InitAppAndTest((req, res) => {
@@ -56,7 +56,7 @@ describe('req.xhr', () => {
 
     await fetch.get('/').expect('stale')
   })
-}) */
+})
 
 describe('req.accepts()', () => {
   it('should detect an "Accept" header', async () => {
