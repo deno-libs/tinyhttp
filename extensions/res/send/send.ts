@@ -49,10 +49,10 @@ export const send =
       if (body == null) {
         end(req, res)('')
         return res
-      } else if (typeof body?.read !== 'undefined') {
-        if (!res.headers?.get('Content-Type')) req.headers.set('content-type', 'application/octet-stream')
+      } else if (body instanceof Uint8Array || body instanceof File) {
+        if (!res.headers?.get('Content-Type')) res.headers.set('content-type', 'application/octet-stream')
 
-        end(req, res)(body)
+        end(req, res)(body as Uint8Array)
       } else {
         json(req, res)(bodyToSend)
       }
