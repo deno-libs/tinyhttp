@@ -3,7 +3,7 @@
   "name": "tinyhttp",
   "entry": "./mod.ts",
   "description": "0-legacy, tiny & fast web framework as a replacement of Express",
-  "homepage": "https://github.com/talentlessguy/tinyhttp-deno",
+  "homepage": "https://github.com/deno-libs/tinyhttp",
   "version": "0.1.20",
   "files": ["./*.ts", "./utils/*.ts", "./extensions/**/*.ts", "README.md"],
   "checkFormat": false,
