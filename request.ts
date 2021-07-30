@@ -1,5 +1,5 @@
 // deno-lint-ignore-file
-import { ServerRequest } from 'https://deno.land/std@0.101.0/http/server.ts'
+import { ServerRequest } from 'https://deno.land/std@0.103.0/http/server.ts'
 import { App } from './app.ts'
 import { QueryParams, Ranges, Protocol, AcceptsReturns, Middleware } from './types.ts'
 

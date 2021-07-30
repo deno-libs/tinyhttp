@@ -11,7 +11,7 @@ import { redirect } from '../../extensions/res/redirect.ts'
 import { formatResponse } from '../../extensions/res/format.ts'
 import { attachment } from '../../extensions/res/download.ts'
 import { setCookie, clearCookie } from '../../extensions/res/cookie.ts'
-import * as path from 'https://deno.land/std@0.101.0/path/mod.ts'
+import * as path from 'https://deno.land/std@0.103.0/path/mod.ts'
 import type { Request } from '../../request.ts'
 
 const __dirname = new URL('.', import.meta.url).pathname
@@ -290,19 +290,7 @@ describe('res.cookie(name, value, options)', () => {
 
     await request.get('/').expect(200)
   })
-  /* it('should throw if it is signed and and no secret is provided', async () => {
-    const app = runServer((req, res) => {
-      try {
-        setCookie(req, res)('hello', 'world', {
-          signed: true
-        }).end()
-      } catch (e) {
-        res.end((e as TypeError).message)
-      }
-    })
 
-    await makeFetch(app)('/').expect('cookieParser("secret") required for signed cookies')
-  }) */
   it('should set "maxAge" and "expires" from options', async () => {
     const maxAge = 3600 * 24 * 365
 

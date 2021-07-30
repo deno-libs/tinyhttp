@@ -1,5 +1,5 @@
 import { Req, Res } from '../../deps.ts'
-import * as cookie from 'https://deno.land/std@0.101.0/http/cookie.ts'
+import * as cookie from 'https://deno.land/std@0.103.0/http/cookie.ts'
 
 export const setCookie =
   <Request extends Req = Req, Response extends Res = Res>(_: Request, res: Response) =>
