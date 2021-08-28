@@ -1,5 +1,5 @@
 import { Request } from './request.ts'
-import { NextFunction } from 'https://esm.sh/@tinyhttp/router'
+import type { NextFunction } from './deps.ts'
 import { ALL as STATUS_CODES } from 'https://deno.land/x/status@0.1.0/codes.ts'
 import { status } from 'https://deno.land/x/status@0.1.0/status.ts'
 

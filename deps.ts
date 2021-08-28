@@ -22,4 +22,5 @@ export type { Req, Res }
 
 export { serve, Server } from 'https://deno.land/std@0.106.0/http/server.ts'
 
-export { Router, pushMiddleware } from 'https://esm.sh/@tinyhttp/router@1.3.3'
+export { Router, pushMiddleware } from 'https://esm.sh/@tinyhttp/router@2.0.0'
+export type { NextFunction, Handler, Middleware, UseMethodParams, Method } from 'https://esm.sh/@tinyhttp/router@2.0.0'

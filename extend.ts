@@ -1,4 +1,4 @@
-import { NextFunction } from 'https://esm.sh/@tinyhttp/router'
+import type { NextFunction } from './deps.ts'
 import { App, renderTemplate } from './app.ts'
 import { Request } from './request.ts'
 import {
