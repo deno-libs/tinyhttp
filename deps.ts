@@ -1,6 +1,7 @@
 import { default as parseRange, Options } from 'https://esm.sh/range-parser@1.2.1'
 export { parseRange }
 export type { Options as ParseRangeOptions }
+export { Sha1 } from 'https://deno.land/std@0.106.0/hash/sha1.ts'
 export { escapeHtml } from 'https://deno.land/x/escape_html@1.0.0/mod.ts'
 export { vary } from 'https://deno.land/x/vary@1.0.0/mod.ts'
 export { isIP } from 'https://deno.land/x/isIP@1.0.0/mod.ts'
