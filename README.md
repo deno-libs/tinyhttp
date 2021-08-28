@@ -3,10 +3,8 @@
   <h1 align="center">tinyhttp</h1>
   
   [![nest badge][nest-badge]](https://nest.land/package/tinyhttp) [![GitHub Workflow Status][gh-actions-img]][github-actions]
-[![Codecov][codecov-badge]][codecov] [![][docs-badge]][docs] [![][code-quality-img]][code-quality]
+[![Codecov][codecov-badge]][codecov] [![][docs-badge]][docs] [![][code-quality-img]][code-quality] ![Dependency count][deps]
 </div>
-
-
 
 This is a [Deno](https://deno.land) port of [tinyhttp](https://github.com/talentlessguy/tinyhttp), 0-legacy, tiny &amp; fast web framework as a replacement of Express.
 
@@ -35,3 +33,4 @@ app.listen(3000, () => console.log(`Started on :3000`))
 [nest-badge]: https://img.shields.io/badge/publushed%20on-nest.land-B06892?style=for-the-badge
 [code-quality-img]: https://img.shields.io/codefactor/grade/github/deno-libs/tinyhttp?style=for-the-badge&color=B06892
 [code-quality]: https://www.codefactor.io/repository/github/deno-libs/tinyhttp
+[deps]: https://img.shields.io/endpoint?url=https%3A%2F%2Fdeno-visualizer.danopia.net%2Fshields%2Fdep-count%2Fhttps%2Fx.nest.land%2Ftinyhttp%400.1.23%2Fmod.ts&style=for-the-badge&color=B06892
