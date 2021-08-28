@@ -1,5 +1,5 @@
 import { format, parse } from 'https://deno.land/x/content_type@1.0.1/mod.ts'
-import { etag as eTag } from 'https://deno.land/x/opine@1.6.0/src/utils/etag.ts'
+import { etag as eTag } from 'https://deno.land/x/opine@1.7.2/src/utils/etag.ts'
 import { lookup } from '../../deps.ts'
 
 export const createETag = (body: Parameters<typeof eTag>[0]) => {

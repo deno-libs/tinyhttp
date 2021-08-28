@@ -11,7 +11,7 @@ import { redirect } from '../../extensions/res/redirect.ts'
 import { formatResponse } from '../../extensions/res/format.ts'
 import { attachment } from '../../extensions/res/download.ts'
 import { setCookie, clearCookie } from '../../extensions/res/cookie.ts'
-import * as path from 'https://deno.land/std@0.103.0/path/mod.ts'
+import * as path from 'https://deno.land/std@0.106.0/path/mod.ts'
 import type { Request } from '../../request.ts'
 
 const __dirname = new URL('.', import.meta.url).pathname

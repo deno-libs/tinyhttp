@@ -1,5 +1,5 @@
 import { App } from '../../mod.ts'
-import { Client } from 'https://deno.land/x/postgres@v0.11.3/mod.ts'
+import { Client } from 'https://deno.land/x/postgres@v0.12.0/mod.ts'
 import { json } from 'https://deno.land/x/parsec/mod.ts'
 
 const app = new App()

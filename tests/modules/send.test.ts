@@ -1,6 +1,6 @@
 import { describe, it, run, beforeAll, afterAll, expect } from 'https://deno.land/x/tincan@0.2.1/mod.ts'
-import * as path from 'https://deno.land/std@0.103.0/path/mod.ts'
-import * as fs from 'https://deno.land/std@0.103.0/node/fs.ts'
+import * as path from 'https://deno.land/std@0.106.0/path/mod.ts'
+import * as fs from 'https://deno.land/std@0.106.0/node/fs.ts'
 import { runServer } from '../util.ts'
 import { send, json, sendStatus, sendFile } from '../../extensions/res/send/mod.ts'
 

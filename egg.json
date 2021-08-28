@@ -8,7 +8,7 @@
   "files": ["./*.ts", "./utils/*.ts", "./extensions/**/*.ts", "README.md"],
   "checkFormat": false,
   "checkTests": true,
-  "checkInstallation": false,
+  "checkInstallation": true,
   "check": true,
   "unlisted": false,
   "ignore": []

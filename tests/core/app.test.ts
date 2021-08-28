@@ -3,9 +3,9 @@ import { App } from '../../app.ts'
 import { BindToSuperDeno, InitAppAndTest } from '../util.ts'
 import { renderFile as eta } from 'https://deno.land/x/eta@v1.12.3/mod.ts'
 import { EtaConfig } from 'https://deno.land/x/eta@v1.12.3/config.ts'
-import * as path from 'https://deno.land/std@0.103.0/path/mod.ts'
-import { readFile as readFileCb } from 'https://deno.land/std@0.103.0/node/fs.ts'
-import { promisify } from 'https://deno.land/std@0.103.0/node/util.ts'
+import * as path from 'https://deno.land/std@0.106.0/path/mod.ts'
+import { readFile as readFileCb } from 'https://deno.land/std@0.106.0/node/fs.ts'
+import { promisify } from 'https://deno.land/std@0.106.0/node/util.ts'
 
 const readFile = promisify(readFileCb)
 
