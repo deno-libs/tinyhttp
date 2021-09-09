@@ -1,4 +1,4 @@
-import { describe, it, run } from 'https://deno.land/x/tincan@0.2.1/mod.ts'
+import { describe, it, run } from 'https://deno.land/x/tincan@0.2.2/mod.ts'
 import { App } from '../../app.ts'
 
 import { BindToSuperDeno, InitAppAndTest } from '../util.ts'

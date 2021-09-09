@@ -1,4 +1,4 @@
-import { contentDisposition } from 'https://cdn.skypack.dev/@tinyhttp/content-disposition@2.0.0'
+import { contentDisposition } from 'https://cdn.skypack.dev/@tinyhttp/content-disposition@2'
 import { SendFileOptions, sendFile } from './send/sendFile.ts'
 import { extname } from 'https://deno.land/std@0.106.0/path/mod.ts'
 import { setContentType, setHeader } from './headers.ts'
