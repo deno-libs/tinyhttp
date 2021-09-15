@@ -222,7 +222,10 @@ export class App<Req extends THRequest = THRequest, Res extends ResponseState = 
 
     return res
   }
-  async listen(port: number = 3000, hostname = '0.0.0.0', cb?: () => void) {
+  async listen(port: number = 3000, hostnameOrCb?: string | (() => void), cb?: () => void) {
+    const hostname = typeof hostnameOrCb === 'string' ? hostnameOrCb : '0.0.0.0'
+    const callback = typeof hostnameOrCb === 'function' ? hostnameOrCb : cb
+
     const server = new Server({
       handler: async (req, conn) => {
         const { body, ...init } = this.handler(req as any)
@@ -231,22 +234,7 @@ export class App<Req extends THRequest = THRequest, Res extends ResponseState = 
       },
       addr: `${hostname}:${port}`
     })
-    cb?.()
+    callback?.()
     await server.listenAndServe()
   }
 }
-
-const app = new App()
-
-app.use((req, res, next) => {
-  console.log(req)
-  next()
-})
-
-app.get('/:test', (req, res) => {
-  console.log(req.params)
-
-  res.end('bruh')
-})
-
-app.listen(3000)
