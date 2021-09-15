@@ -1,17 +1,10 @@
-// deno-lint-ignore-file
-import { Router, serve, Server, rg, pushMiddleware } from './deps.ts'
-import { NextFunction, RHandler as Handler, Middleware, UseMethodParams } from './types.ts'
-import { onErrorHandler, ErrorHandler } from './onError.ts'
-import { setImmediate } from 'https://deno.land/std@0.106.0/node/timers.ts'
-import type { Request } from './request.ts'
-import type { Response } from './response.ts'
-import { getURLParams, getPathname } from './utils/parseUrl.ts'
-import { extendMiddleware } from './extend.ts'
-import * as path from 'https://deno.land/std@0.106.0/path/mod.ts'
-
-const lead = (x: string) => (x.charCodeAt(0) === 47 ? x : '/' + x)
-
-const mount = (fn: any) => (fn instanceof App ? fn.attach : fn)
+import { Router, Server, rg, NextFunction, setImmediate, pushMiddleware, UseMethodParams } from './deps.ts'
+import type { Middleware, Handler } from './deps.ts'
+import { getPathname, getURLParams } from './utils/parseUrl.ts'
+import { ErrorHandler, onErrorHandler } from './onError.ts'
+import type { THRequest } from './request.ts'
+import type { ResponseState } from './response.ts'
+import { extend } from './extend.ts'
 
 declare global {
   namespace tinyhttp {
@@ -22,22 +15,13 @@ declare global {
   }
 }
 
-export const renderTemplate =
-  <O = any, Res extends Response = Response>(res: Res, app: App) =>
-  (file: string, data?: Record<string, any>, options?: TemplateEngineOptions<O>): Response => {
-    app.render(
-      file,
-      data,
-      (err: unknown, html: unknown) => {
-        if (err) throw err
+export type AppConstructor<Req, Res> = Partial<{
+  noMatchHandler: Handler<Req>
+  onError: ErrorHandler
+  applyExtensions: (req: Req, res: Res, next: NextFunction) => void
+}>
 
-        res.send(html)
-      },
-      options
-    )
-
-    return res
-  }
+const mount = (fn: any) => (fn instanceof App ? fn.attach : fn)
 
 /**
  * Execute handler with passed `req` and `res`. Catches errors and resolves async handlers.
@@ -55,148 +39,25 @@ export const applyHandler =
     }
   }
 
-/**
- * tinyhttp App has a few settings for toggling features
- */
-export type AppSettings = Partial<
-  Record<'networkExtensions' | 'bindAppToReqRes' | 'enableReqRoute', boolean> &
-    Record<'subdomainOffset', number> &
-    Record<'xPoweredBy', string | boolean>
->
-/**
- * Function that processes the template
- */
-export type TemplateFunc<O> = (
-  path: string,
-  locals: Record<string, any>,
-  opts: TemplateEngineOptions<O>,
-  cb: (err: Error | null, html: unknown) => void
-) => void
-
-export type TemplateEngineOptions<O = any> = Partial<{
-  cache: boolean
-  ext: string
-  renderOptions: Partial<O>
-  viewsFolder: string
-  _locals: Record<string, any>
-}>
-
-export const getRouteFromApp = ({ middleware }: App, h: Handler) =>
-  middleware.find(({ handler }) => typeof handler === 'function' && handler.name === h.name)
-
-export type AppConstructor<Req, Res> = Partial<{
-  noMatchHandler: Handler<Req>
-  onError: ErrorHandler
-  settings: AppSettings
-  applyExtensions: (req: Req, res: Res, next: NextFunction) => void
-}>
-
-/**
- * `App` class - the starting point of tinyhttp app.
- *
- * With the `App` you can:
- * * use routing methods and `.use(...)`
- * * set no match (404) and error (500) handlers
- * * configure template engines
- * * store data in locals
- * * listen the http server on a specified port
- *
- * In case you use TypeScript, you can pass custom Request and Response interfaces as generic parameters.
- *
- * Example:
- *
- * ```ts
- * interface CoolReq extends Request {
- *  genericsAreDope: boolean
- * }
- *
- * const app = App<any, CoolReq, Response>()
- * ```
- */
-export class App<
-    RenderOptions = any,
-    Req extends Request = Request,
-    Res extends Response<RenderOptions> = Response<RenderOptions>
-  >
-  extends Router<App, Req, Res>
-  implements tinyhttp.Application
-{
+export class App<Req extends THRequest = THRequest, Res extends ResponseState = ResponseState> extends Router<
+  App,
+  Req,
+  Res
+> {
   middleware: Middleware<Req>[] = []
   locals: Record<string, string> = {}
   noMatchHandler: Handler
   onError: ErrorHandler
-  settings: AppSettings & Record<string, any>
-  engines: Record<string, TemplateFunc<RenderOptions>> = {}
-  applyExtensions?: (req: Req, res: Res, next: NextFunction) => void
   attach: (req: Req) => void
 
   mountpath = '/'
-
-  apps: Record<string, App> = {}
 
   constructor(options: AppConstructor<Req, Res> = {}) {
     super()
     this.onError = options?.onError || onErrorHandler
     this.noMatchHandler = options?.noMatchHandler || this.onError.bind(null, { code: 404 })
-    this.settings = options.settings || { xPoweredBy: true }
-    this.applyExtensions = options?.applyExtensions
+
     this.attach = (req) => setImmediate(this.handler.bind(this, req, undefined), req)
-    // this.#eventHandler = options.eventHandler
-  }
-
-  set(setting: string, value: any) {
-    this.settings[setting] = value
-    return this
-  }
-
-  enable(setting: string) {
-    this.settings[setting] = true
-    return this
-  }
-
-  disable(setting: string) {
-    this.settings[setting] = false
-    return this
-  }
-
-  /**
-   * Register a template engine with extension
-   */
-  engine(ext: string, fn: TemplateFunc<RenderOptions>) {
-    this.engines[ext] = fn
-
-    return this
-  }
-
-  /**
-   * Render a template
-   * @param file What to render
-   * @param data data that is passed to a template
-   * @param options Template engine options
-   * @param cb Callback that consumes error and html
-   */
-  render(
-    file: string,
-    data: Record<string, any> = {},
-    cb: (err: unknown, html: unknown) => void,
-    options: TemplateEngineOptions<RenderOptions> = {}
-  ) {
-    options.viewsFolder = options.viewsFolder || `${Deno.cwd()}/views`
-    options.ext = options.ext || file.slice(file.lastIndexOf('.') + 1) || 'ejs'
-
-    options._locals = options._locals || {}
-
-    let locals = { ...data, ...this.locals }
-
-    if (options._locals) locals = { ...locals, ...options._locals }
-
-    if (!file.endsWith(`.${options.ext}`)) file = `${file}.${options.ext}`
-
-    const dest = options.viewsFolder ? path.join(options.viewsFolder, file) : file
-
-    this.engines[options.ext](dest, locals, options.renderOptions || {}, cb)
-
-    return this
   }
 
   route(path: string): App {
@@ -252,7 +113,7 @@ export class App<
       for (const fn of fns) {
         if (fn instanceof App && fn.middleware?.length) {
           for (const mw of fn.middleware) {
-            handlerPaths.push(lead(base as string) + lead(mw.path!))
+            handlerPaths.push((base as string) + mw.path!)
             handlerFunctions.push(fn)
           }
         } else {
@@ -272,7 +133,8 @@ export class App<
 
     return this // chainable
   }
-  find(url: string) {
+
+  find(url: string): Middleware<Req, any>[] {
     return this.middleware.filter((m) => {
       m.regex = m.regex || (rg(m.path, m.type === 'mw') as { keys: string[]; pattern: RegExp })
 
@@ -287,27 +149,18 @@ export class App<
       )
     })
   }
-  /**
-   * Extends Req / Res objects, pushes 404 and 500 handlers, dispatches middleware
-   * @param req Req object
-   */
-  handler(req: Req, next?: NextFunction) {
-    let res = {
-      headers: new Headers({})
-    }
-    /* Set X-Powered-By header */
-    const { xPoweredBy } = this.settings
-    if (xPoweredBy) res.headers.set('X-Powered-By', typeof xPoweredBy === 'string' ? xPoweredBy : 'tinyhttp')
+  handler(req: Req, next?: NextFunction): ResponseState {
+    const res = { body: '', headers: new Headers({}), status: 200 } as ResponseState
 
-    const exts = this.applyExtensions || extendMiddleware<RenderOptions>(this as any)
-
-    req.originalUrl = req.url || req.originalUrl
-
+    req._url = req.url
+    req.originalUrl = req._url || req.originalUrl
     const pathname = getPathname(req.originalUrl)
 
     const matched = this.find(pathname)
 
-    const mw: Middleware[] = [
+    const exts = extend(this as any)
+
+    const mw: Middleware<Req, Res>[] = [
       {
         handler: exts,
         type: 'mw',
@@ -321,7 +174,7 @@ export class App<
         type: 'mw',
         handler: (req, res, next) => {
           if (req.method === 'HEAD') {
-            res.statusCode = 204
+            res.status = 204
             return res.end('')
           }
           next()
@@ -336,6 +189,10 @@ export class App<
       path: '/'
     })
 
+    let idx = 0
+
+    next = next || ((err: any) => (err ? this.onError(err, req) : loop()))
+
     const handle = (mw: Middleware<Req, Res>) => async (req: Req, res: Res, next: NextFunction) => {
       const { path = '/', handler, type, regex } = mw
 
@@ -345,45 +202,51 @@ export class App<
 
       if (path.includes(':')) {
         const first = Object.values(params)[0]
-        const url = req.url.slice(req.url.indexOf(first) + first?.length)
-        req.url = lead(url)
+        const url = req._url.slice(req._url.indexOf(first) + first?.length)
+        req._url = url
       } else {
-        req.url = lead(req.url.substring(path.length))
+        req._url = req._url.substring(path.length)
       }
 
-      if (!req.path) req.path = getPathname(req.url)
+      if (!req.path) req.path = getPathname(req._url)
 
-      if (this.settings?.enableReqRoute) req.route = getRouteFromApp(this as any, handler)
+      // if (this.settings?.enableReqRoute) req.route = getRouteFromApp(this as any, handler)
 
       if (type === 'route') req.params = getURLParams(regex!, pathname)
       await applyHandler<Req, Res>(handler as unknown as Handler<Req, Res>)(req, res, next)
     }
 
-    let idx = 0
-
-    next = next || ((err: any) => (err ? this.onError(err, req) : loop()))
-
     const loop = () => idx < mw.length && handle(mw[idx++])(req, res as unknown as Res, next as NextFunction)
 
     loop()
 
-    return res as Res
+    return res
   }
+  async listen(port: number = 3000, hostname = '0.0.0.0', cb?: () => void) {
+    const server = new Server({
+      handler: async (req, conn) => {
+        const { body, ...init } = this.handler(req as any)
 
-  /**
-   * Creates HTTP server and dispatches middleware
-   * @param port server listening port
-   * @param Server callback after server starts listening
-   * @param host server listening host
-   */
-  async listen(port: number, cb?: () => void, hostname = '0.0.0.0'): Promise<Server> {
-    const server = serve({ port, hostname })
-
+        return new Response(body, init)
+      },
+      addr: `${hostname}:${port}`
+    })
     cb?.()
-
-    for await (const req of server) {
-      this.attach(req as any)
-    }
-    return server
+    await server.listenAndServe()
   }
 }
+
+const app = new App()
+
+app.use((req, res, next) => {
+  console.log(req)
+  next()
+})
+
+app.get('/:test', (req, res) => {
+  console.log(req.params)
+
+  res.end('bruh')
+})
+
+app.listen(3000)

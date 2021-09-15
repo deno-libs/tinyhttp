@@ -1,33 +1,7 @@
-import { Request } from './request.ts'
-import type { NextFunction } from './deps.ts'
-import { ALL as STATUS_CODES } from 'https://deno.land/x/status@0.1.0/codes.ts'
-import { status } from 'https://deno.land/x/status@0.1.0/status.ts'
+export type ErrorHandler = (err: any, request: Request) => Response
 
-export type ServerError = Partial<{
-  code: number
-  status: number
-  message: string
-}>
+export const onErrorHandler: ErrorHandler = (err, req) => {
+  console.log(err)
 
-export type ErrorHandler = (err: ServerError, req: Request, next?: NextFunction) => void
-
-export const onErrorHandler: ErrorHandler = async (err: ServerError, req: Request) => {
-  const code = err.code || err.status
-
-  if (typeof err === 'string') {
-    await req.respond({
-      body: err,
-      status: 500
-    })
-  } else if (STATUS_CODES.includes(code!)) {
-    await req.respond({
-      body: status.pretty(code!).toString(),
-      status: code
-    })
-  } else {
-    req.respond({
-      status: 500,
-      body: err.message
-    })
-  }
+  return new Response('Bruh', { status: 500 })
 }

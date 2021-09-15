@@ -20,9 +20,9 @@ export type URLParams = {
 }
 
 export const getPathname = (u: string) => {
-  const end = u.indexOf('?')
+  const url = new URL(u)
 
-  return u.slice(0, end === -1 ? u.length : end)
+  return url.pathname
 }
 
 export const getQueryParams = (url = '/'): { [key: string]: string[] | string } =>
