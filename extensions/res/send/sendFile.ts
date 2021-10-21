@@ -1,8 +1,7 @@
-import { Req, Res } from '../../../deps.ts'
-import { isAbsolute, join, extname } from 'https://deno.land/std@0.106.0/path/mod.ts'
-import { contentType } from '../../../deps.ts'
+import { contentType, path as _path } from '../../../deps.ts'
+import { THRequest } from '../../../request.ts'
+import { THResponse } from '../../../response.ts'
 import { createETag } from '../utils.ts'
-import { send } from './send.ts'
 
 export type SendFileOptions = Partial<{
   root: string
@@ -23,13 +22,13 @@ export type SendFileOptions = Partial<{
  * @param res Response
  */
 export const sendFile =
-  <Request extends Req = Req, Response extends Res = Res>(req: Request, res: Response) =>
+  <Request extends THRequest = THRequest, Response extends THResponse = THResponse>(req: Request, res: Response) =>
   (path: string, opts: SendFileOptions = {}) => {
     const { root, headers = {}, encoding = 'utf-8', ...options } = opts
 
-    if (!isAbsolute(path) && !root) throw new TypeError('path must be absolute')
+    if (!_path.isAbsolute(path) && !root) throw new TypeError('path must be absolute')
 
-    const filePath = root ? join(root, path) : path
+    const filePath = root ? _path.join(root, path) : path
 
     const stats = Deno.statSync(filePath)
 
@@ -37,7 +36,7 @@ export const sendFile =
 
     headers['Last-Modified'] = stats.mtime!.toUTCString()
 
-    headers['Content-Type'] = contentType(extname(path)) || 'text/html'
+    headers['Content-Type'] = contentType(_path.extname(path)) || 'text/html'
 
     headers['ETag'] = createETag(stats)
 
@@ -57,8 +56,8 @@ export const sendFile =
       if (start >= stats.size || end >= stats.size) {
         res.status = 416
         res.headers?.set('Content-Range', `bytes */${stats.size}`)
-        req.respond({})
-        return res
+
+        res.end()
       }
       headers['Content-Range'] = `bytes ${start}-${end}/${stats.size}`
       headers['Content-Length'] = `${end - start + 1}`
@@ -69,9 +68,11 @@ export const sendFile =
 
     res.status = status
 
-    const file = Deno.openSync(filePath, { read: true, ...options })
+    const file = Deno.openSync(filePath, options)
 
-    send(req, res)(file)
+    res.send(file)
+
+    file.close()
 
     return res
   }

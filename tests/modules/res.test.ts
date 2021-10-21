@@ -1,4 +1,4 @@
-import { describe, it, run, expect } from 'https://deno.land/x/tincan@0.2.2/mod.ts'
+import { describe, it, run, expect } from 'https://deno.land/x/tincan@1.0.0/mod.ts'
 import { InitAppAndTest, runServer } from '../util.ts'
 import {
   setHeader,
@@ -11,8 +11,9 @@ import { redirect } from '../../extensions/res/redirect.ts'
 import { formatResponse } from '../../extensions/res/format.ts'
 import { attachment } from '../../extensions/res/download.ts'
 import { setCookie, clearCookie } from '../../extensions/res/cookie.ts'
-import * as path from 'https://deno.land/std@0.106.0/path/mod.ts'
-import type { Request } from '../../request.ts'
+import * as path from 'https://deno.land/std@0.112.0/path/mod.ts'
+import type { THRequest } from '../../request.ts'
+import { THResponse } from '../../response.ts'
 
 const __dirname = new URL('.', import.meta.url).pathname
 
@@ -142,7 +143,9 @@ describe('res.format(obj)', () => {
         res.status = err.status
         res.send(err.message)
       })({
-        text: (req: Request) => req.respond({ body: `Hello World` })
+        text: (_req: THRequest, res: THResponse) => {
+          res.send(`Hello World`)
+        }
       }).end()
     })
 
@@ -273,8 +276,8 @@ describe('res.location(url)', () => {
 
 describe('res.cookie(name, value, options)', () => {
   it('serializes the cookie and puts it in a Set-Cookie header', async () => {
-    const request = runServer((req, res) => {
-      setCookie(req, res)('hello', 'world').end()
+    const request = runServer((_req, res) => {
+      setCookie(res)('hello', 'world').end()
 
       expect(res.headers.get('Set-Cookie')).toBe('hello=world; Path=/')
     })
@@ -282,8 +285,8 @@ describe('res.cookie(name, value, options)', () => {
     await request.get('/').expect(200)
   })
   it('sets default path to "/" if not specified in options', async () => {
-    const request = runServer((req, res) => {
-      setCookie(req, res)('hello', 'world').end()
+    const request = runServer((_req, res) => {
+      setCookie(res)('hello', 'world').end()
 
       expect(res.headers.get('Set-Cookie')).toContain('Path=/')
     })
@@ -294,8 +297,8 @@ describe('res.cookie(name, value, options)', () => {
   it('should set "maxAge" and "expires" from options', async () => {
     const maxAge = 3600 * 24 * 365
 
-    const request = runServer((req, res) => {
-      setCookie(req, res)('hello', 'world', {
+    const request = runServer((_req, res) => {
+      setCookie(res)('hello', 'world', {
         maxAge
       }).end()
 
@@ -305,9 +308,9 @@ describe('res.cookie(name, value, options)', () => {
     await request.get('/').expect(200)
   })
   it('should append to Set-Cookie if called multiple times', async () => {
-    const request = runServer((req, res) => {
-      setCookie(req, res)('hello', 'world')
-      setCookie(req, res)('foo', 'bar').end()
+    const request = runServer((_req, res) => {
+      setCookie(res)('hello', 'world')
+      setCookie(res)('foo', 'bar').end()
     })
 
     await request.get('/').expect(200).expect('Set-Cookie', 'hello=world, foo=bar')

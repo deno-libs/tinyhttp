@@ -1,4 +1,4 @@
-import { describe, it, expect, run } from 'https://deno.land/x/tincan@0.2.2/mod.ts'
+import { describe, it, expect, run } from 'https://deno.land/x/tincan@1.0.0/mod.ts'
 import { getPathname, getQueryParams, getURLParams } from '../../utils/parseUrl.ts'
 import { rg } from '../../deps.ts'
 
@@ -34,10 +34,10 @@ describe('getURLParams(reqUrl, url)', () => {
 
 describe('getPathname(url)', () => {
   it('extracts pathname from string', () => {
-    expect(getPathname('/hello?world=42')).toBe('/hello')
+    expect(getPathname('http://0.0.0.0/hello?world=42')).toBe('/hello')
   })
   it('works with nested paths', () => {
-    expect(getPathname('/hello/world?num=42')).toBe('/hello/world')
+    expect(getPathname('http://0.0.0.0/hello/world?num=42')).toBe('/hello/world')
   })
 })
 

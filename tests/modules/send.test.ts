@@ -1,6 +1,6 @@
-import { describe, it, run, beforeAll, afterAll, expect } from 'https://deno.land/x/tincan@0.2.2/mod.ts'
-import * as path from 'https://deno.land/std@0.106.0/path/mod.ts'
-import * as fs from 'https://deno.land/std@0.106.0/node/fs.ts'
+import { describe, it, run, beforeAll, afterAll, expect } from 'https://deno.land/x/tincan@1.0.0/mod.ts'
+import * as path from 'https://deno.land/std@0.112.0/path/mod.ts'
+import * as fs from 'https://deno.land/std@0.112.0/node/fs.ts'
 import { runServer } from '../util.ts'
 import { send, json, sendStatus, sendFile } from '../../extensions/res/send/mod.ts'
 
@@ -8,17 +8,17 @@ const __dirname = new URL('.', import.meta.url).pathname
 
 describe('json(body)', () => {
   it('should send a json-stringified reply when an object is passed', async () => {
-    const request = runServer((req, res) => json(req, res)({ hello: 'world' }))
+    const request = runServer((_req, res) => json(res)({ hello: 'world' }))
 
     await request.get('/').expect({ hello: 'world' })
   })
   it('should set a content-type header properly', async () => {
-    const request = runServer((req, res) => json(req, res)({ hello: 'world' }))
+    const request = runServer((_req, res) => json(res)({ hello: 'world' }))
 
     await request.get('/').expect('content-type', 'application/json')
   })
   it('should send a null reply when an null is passed', async () => {
-    const request = runServer((req, res) => json(req, res)(null))
+    const request = runServer((_req, res) => json(res)(null))
 
     // @ts-ignore
     await request.get('/').expect(null)
@@ -97,7 +97,7 @@ describe('send(body)', () => {
 
 describe('sendStatus(status)', () => {
   it(`should send "I'm a teapot" when argument is 418`, async () => {
-    const request = runServer((req, res) => sendStatus(req, res)(418).end())
+    const request = runServer((_req, res) => sendStatus(res)(418).end())
 
     await request.get('/').expect(418)
   })

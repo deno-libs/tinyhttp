@@ -1,10 +1,11 @@
-import { Req, Res } from '../../../deps.ts'
+import type { THResponse } from '../../../response.ts'
+import type { THRequest } from '../../../request.ts'
 import { json } from './json.ts'
 import { createETag, setCharset } from '../utils.ts'
-import { end } from '../end.ts'
+import { end } from './end.ts'
 
 export const send =
-  <Request extends Req = Req, Response extends Res = Res>(req: Request, res: Response) =>
+  <Request extends THRequest = THRequest, Response extends THResponse = THResponse>(req: Request, res: Response) =>
   (body: any) => {
     let bodyToSend = body
 
@@ -41,25 +42,25 @@ export const send =
     }
 
     if (req.method === 'HEAD') {
-      end(req, res)(body)
+      end(res)(body)
       return res
     }
 
     if (typeof body === 'object') {
       if (body == null) {
-        end(req, res)('')
+        end(res)('')
         return res
       } else if (body instanceof Uint8Array || body instanceof File) {
         if (!res.headers?.get('Content-Type')) res.headers.set('content-type', 'application/octet-stream')
 
-        end(req, res)(body as Uint8Array)
+        end(res)(body)
       } else {
-        json(req, res)(bodyToSend)
+        json(res)(bodyToSend)
       }
     } else {
       if (typeof bodyToSend !== 'string') bodyToSend = (bodyToSend as string).toString()
 
-      end(req, res)(body)
+      end(res)(body)
     }
 
     return res

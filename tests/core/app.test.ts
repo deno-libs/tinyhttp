@@ -1,13 +1,11 @@
-import { describe, it, expect, run } from 'https://deno.land/x/tincan@0.2.2/mod.ts'
+import { describe, it, expect, run } from 'https://deno.land/x/tincan@1.0.0/mod.ts'
 import { App } from '../../app.ts'
 import { BindToSuperDeno, InitAppAndTest } from '../util.ts'
 import { renderFile as eta } from 'https://deno.land/x/eta@v1.12.3/mod.ts'
 import { EtaConfig } from 'https://deno.land/x/eta@v1.12.3/config.ts'
-import * as path from 'https://deno.land/std@0.106.0/path/mod.ts'
-import { readFile as readFileCb } from 'https://deno.land/std@0.106.0/node/fs.ts'
-import { promisify } from 'https://deno.land/std@0.106.0/node/util.ts'
-
-const readFile = promisify(readFileCb)
+import { path } from '../../deps.ts'
+import { readFile } from 'https://deno.land/std@0.112.0/node/fs/promises.ts'
+import { superdeno } from 'https://deno.land/x/superdeno@4.6.0/mod.ts'
 
 describe('App constructor', () => {
   it('app.locals are get and set', () => {
@@ -18,30 +16,22 @@ describe('App constructor', () => {
     expect(app.locals.hello).toBe('world')
   })
   it('Custom noMatchHandler works', async () => {
-    const { fetch } = InitAppAndTest(
-      (_req, _res, next) => {
-        next()
-      },
-      undefined,
-      {
-        noMatchHandler: (req) => {
-          req.respond({
-            status: 404,
-            body: `Oopsie! Page ${req.url} is lost.`
-          })
-        }
+    const app = new App(/* {
+      noMatchHandler: (req, res) => {
+        res.status = 404
+        res.body = `Oopsie! Page ${req.url} is lost.`
       }
-    )
+    } */)
 
-    await fetch.get('/').expect(404, 'Oopsie! Page / is lost.')
+    const request = superdeno(app._serverHandler!)
+
+    await request.get('/').expect(404, 'Oopsie! Page / is lost.')
   })
   it('Custom onError works', async () => {
     const app = new App({
-      onError: (err, req) => {
-        req.respond({
-          status: 500,
-          body: `Ouch, ${err} hurt me on ${req.url} page.`
-        })
+      onError: (err, req, res) => {
+        res.status = 500
+        res.body = `Ouch, ${err} hurt me on ${req.url} page.`
       }
     })
 
@@ -56,7 +46,11 @@ describe('App constructor', () => {
 describe('Template engines', () => {
   it('Works with eta out of the box', async () => {
     const app = new App<EtaConfig>({
-      onError: (err) => console.log(err)
+      onError: (err) => {
+        console.log(err)
+
+        return new Response('Internal Server Error', { status: 500 })
+      }
     })
 
     const pwd = Deno.cwd()

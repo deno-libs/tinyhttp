@@ -1,17 +1,21 @@
-import { describe, it, run } from 'https://deno.land/x/tincan@0.2.2/mod.ts'
+import { describe, it, run } from 'https://deno.land/x/tincan@1.0.0/mod.ts'
 import { App } from '../../app.ts'
 
 import { BindToSuperDeno, InitAppAndTest } from '../util.ts'
 
 describe('Request properties', () => {
   it('should have default HTTP Request properties', async () => {
-    const { fetch } = InitAppAndTest((req, res) => {
+    const app = new App()
+
+    app.use((req, res) => {
       res.json({
         url: req.url
       })
     })
 
-    await fetch.get('/').expect(200, { url: '/' })
+    const request = BindToSuperDeno(app)
+
+    await request.get('/').expect(200, { url: '/' })
   })
 
   describe('URL extensions', () => {

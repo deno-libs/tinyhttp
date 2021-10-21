@@ -1,8 +1,7 @@
-import { parseRange, ParseRangeOptions } from '../../deps.ts'
-import fresh from 'https://deno.land/x/fresh@v1.0.0/mod.ts'
+import { parseRange, ParseRangeOptions, fresh } from '../../deps.ts'
 import { is } from '../../utils/type_is.ts'
 import { THRequest } from '../../request.ts'
-import { ResponseState } from '../../response.ts'
+import { THResponse } from '../../response.ts'
 
 export const getRequestHeader =
   <Request extends THRequest = THRequest>(req: Request) =>
@@ -27,7 +26,7 @@ export const getRangeFromHeader =
     return parseRange(size, range, options)
   }
 
-export const getFreshOrStale = <Request extends THRequest = THRequest, Response extends ResponseState = ResponseState>(
+export const getFreshOrStale = <Request extends THRequest = THRequest, Response extends THResponse = THResponse>(
   req: Request,
   res: Response
 ) => {

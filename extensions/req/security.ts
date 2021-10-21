@@ -16,8 +16,8 @@ export const trustRemoteAddress = <Request extends THRequest = THRequest>(req: R
   return compile(val)
 }
 
-export const getProtocol = <Request extends THRequest = THRequest>(req: Request): Protocol => {
-  const proto = req.proto.includes('https') ? 'https' : 'http'
+export const getProtocol = <Request extends THRequest = THRequest>(req: Request): 'http' | 'https' => {
+  const proto = req.protocol?.includes('https') ? 'https' : 'http'
 
   const header = (req.headers.get('X-Forwarded-Proto') as string) ?? proto
   const index = header.indexOf(',')
@@ -44,13 +44,13 @@ export const getHostname = <Request extends THRequest = THRequest>(req: Request)
 
   return index !== -1 ? host.substring(0, index) : host
 }
-export const getIP = <Request extends Req = Req>(req: Request): string | undefined =>
+export const getIP = <Request extends THRequest = THRequest>(req: Request): string | undefined =>
   proxyaddr(req, trustRemoteAddress(req))?.replace(/^.*:/, '') // striping the redundant prefix addeded by OS to IPv4 address
 
-export const getIPs = <Request extends Req = Req>(req: Request): string[] | undefined =>
+export const getIPs = <Request extends THRequest = THRequest>(req: Request): string[] | undefined =>
   all(req, trustRemoteAddress(req))
 
-export const getSubdomains = <Request extends Req = Req>(req: Request, subdomainOffset = 2): string[] => {
+export const getSubdomains = <Request extends THRequest = THRequest>(req: Request, subdomainOffset = 2): string[] => {
   const hostname = getHostname(req)
 
   if (!hostname) return []

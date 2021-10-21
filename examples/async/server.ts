@@ -6,7 +6,7 @@ app.get('/', async (_, res) => {
   const decoder = new TextDecoder('utf-8')
   const file = await Deno.readFile(`test.txt`)
 
-  res.send(decoder.decode(file))
+  res.end(file)
 })
 
 app.listen(3000, () => console.log('Started on http://localhost:3000'))

@@ -1,12 +1,12 @@
 import { vary, encodeUrl, charset, lookup } from '../../deps.ts'
 import { THRequest } from '../../request.ts'
-import { ResponseState } from '../../response.ts'
+import { THResponse } from '../../response.ts'
 import { getRequestHeader } from '../req/headers.ts'
 
 const charsetRegExp = /;\s*charset\s*=/
 
 export const setHeader =
-  <Response extends ResponseState = ResponseState>(res: Response) =>
+  <Response extends THResponse = THResponse>(res: Response) =>
   (field: string | Record<string, string | number | string[]>, val?: string | number | readonly string[]): Response => {
     if (typeof field === 'string') {
       let value = Array.isArray(val) ? val.map(String) : String(val)
@@ -34,16 +34,13 @@ export const setHeader =
   }
 
 export const getResponseHeader =
-  <Response extends ResponseState = ResponseState>(res: Response) =>
+  <Response extends THResponse = THResponse>(res: Response) =>
   (field: string) => {
     return res.headers?.get(field)
   }
 
 export const setLocationHeader =
-  <Request extends THRequest = THRequest, Response extends ResponseState = ResponseState>(
-    req: Request,
-    res: Response
-  ) =>
+  <Request extends THRequest = THRequest, Response extends THResponse = THResponse>(req: Request, res: Response) =>
   (url: string): Response => {
     let loc = url
 
@@ -56,7 +53,7 @@ export const setLocationHeader =
   }
 
 export const setLinksHeader =
-  <Response extends ResponseState = ResponseState>(res: Response) =>
+  <Response extends THResponse = THResponse>(res: Response) =>
   (links: { [key: string]: string }): Response => {
     let link = res.headers?.get('Link') || ''
     if (link) link += ', '
@@ -72,7 +69,7 @@ export const setLinksHeader =
   }
 
 export const setVaryHeader =
-  <Response extends ResponseState = ResponseState>(res: Response) =>
+  <Response extends THResponse = THResponse>(res: Response) =>
   (field: string): Response => {
     vary(res.headers || new Headers({}), field)
 
@@ -80,7 +77,7 @@ export const setVaryHeader =
   }
 
 export const setContentType =
-  <Response extends ResponseState = ResponseState>(res: Response) =>
+  <Response extends THResponse = THResponse>(res: Response) =>
   (type: string): Response => {
     const ct = type.indexOf('/') === -1 ? lookup(type) : type
 

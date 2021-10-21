@@ -1,5 +1,5 @@
 import { etag } from '../../utils/etag.ts'
-import { describe, it, expect, run } from 'https://deno.land/x/tincan@0.2.2/mod.ts'
+import { describe, it, expect, run } from 'https://deno.land/x/tincan@1.0.0/mod.ts'
 
 describe('etag(body)', function () {
   it('should support strings', function () {

@@ -1,7 +1,7 @@
 import { App } from '../../mod.ts'
-import { MongoClient, Bson } from 'https://deno.land/x/mongo@v0.25.0/mod.ts'
+import { MongoClient, Bson } from 'https://deno.land/x/mongo@v0.27.0/mod.ts'
 import * as dotenv from 'https://deno.land/x/tiny_env@1.0.0/mod.ts'
-import { json } from 'https://deno.land/x/parsec/mod.ts'
+import { json } from 'https://deno.land/x/parsec@0.1.1/mod.ts'
 
 dotenv.load()
 
@@ -36,7 +36,7 @@ app.post('/notes', async (req, res, next) => {
     const { title, desc } = req.parsedBody!
     await coll.insertOne({ title, desc })
 
-    res.send(`Note with title of "${title}" has been added`)
+    res.end(`Note with title of "${title}" has been added`)
   } catch (err) {
     next(err)
   }
@@ -48,7 +48,7 @@ app.delete('/notes', async (req, res, next) => {
     const { id } = req.parsedBody!
     await coll.deleteOne({ _id: new Bson.ObjectId(id) })
 
-    res.send(`Note with id of ${id} has been deleted`)
+    res.end(`Note with id of ${id} has been deleted`)
   } catch (err) {
     next(err)
   }
@@ -59,7 +59,7 @@ app.put('/notes', async (req, res, next) => {
   try {
     const { title, desc, id } = req.parsedBody!
     await coll.updateOne({ _id: new Bson.ObjectId(id) }, { $set: { title, desc } })
-    res.send(`Note with title of ${title} has been updated`)
+    res.end(`Note with title of ${title} has been updated`)
   } catch (err) {
     next(err)
   }

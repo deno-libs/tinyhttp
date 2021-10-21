@@ -1,11 +1,11 @@
-import { parse } from 'https://deno.land/std@0.106.0/node/querystring.ts'
+import { qs } from '../deps.ts'
 
 type Regex = {
   keys: string[] | boolean
   pattern: RegExp
 }
 
-export const getURLParams = ({ pattern, keys }: Regex, reqUrl = '/'): URLParams => {
+export const getURLParams = ({ pattern, keys }: Regex, reqUrl = '/'): Record<string, string> => {
   const matches = pattern.exec(reqUrl)
 
   const params: Record<string, string> = {}
@@ -15,15 +15,10 @@ export const getURLParams = ({ pattern, keys }: Regex, reqUrl = '/'): URLParams 
   return params
 }
 
-export type URLParams = {
-  [key: string]: string
-}
-
 export const getPathname = (u: string) => {
   const url = new URL(u)
 
   return url.pathname
 }
 
-export const getQueryParams = (url = '/'): { [key: string]: string[] | string } =>
-  parse(url.slice(url.indexOf('?') + 1))
+export const getQueryParams = (url = '/'): qs.ParsedUrlQuery => qs.parse(url.slice(url.indexOf('?') + 1))

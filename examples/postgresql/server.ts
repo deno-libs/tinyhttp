@@ -1,6 +1,6 @@
 import { App } from '../../mod.ts'
-import { Client } from 'https://deno.land/x/postgres@v0.12.0/mod.ts'
-import { json } from 'https://deno.land/x/parsec/mod.ts'
+import { Client } from 'https://deno.land/x/postgres@v0.13.0/mod.ts'
+import { json } from 'https://deno.land/x/parsec@0.1.1/mod.ts'
 
 const app = new App()
 const port = parseInt(Deno.env.get('PORT') || '', 10) || 3000

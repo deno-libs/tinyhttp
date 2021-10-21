@@ -1,7 +1,7 @@
-import { ResponseState } from '../../../response.ts'
+import { THResponse } from '../../../response.ts'
 
 export const json =
-  <Response extends ResponseState = ResponseState>(res: Response) =>
+  <Response extends THResponse = THResponse>(res: Response) =>
   <T = unknown>(body: T): Response => {
     res.headers.set('Content-Type', 'application/json')
     if (typeof body === 'object' && body != null) res.end(JSON.stringify(body, null, 2))
@@ -9,7 +9,7 @@ export const json =
     else if (body == null) {
       res.headers.delete('Content-Length')
       res.headers.delete('Transfer-Encoding')
-      res.end(res)
+      res.end(undefined)
     }
 
     return res

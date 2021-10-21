@@ -1,8 +1,9 @@
 import { contentDisposition } from 'https://cdn.skypack.dev/@tinyhttp/content-disposition@2'
 import { SendFileOptions, sendFile } from './send/sendFile.ts'
-import { extname } from 'https://deno.land/std@0.106.0/path/mod.ts'
+import { extname } from 'https://deno.land/std@0.112.0/path/mod.ts'
 import { setContentType, setHeader } from './headers.ts'
-import { Req, Res } from '../../deps.ts'
+import { THRequest } from '../../request.ts'
+import { THResponse } from '../../response.ts'
 
 export type DownloadOptions = SendFileOptions &
   Partial<{
@@ -10,7 +11,7 @@ export type DownloadOptions = SendFileOptions &
   }>
 
 export const download =
-  <Request extends Req = Req, Response extends Res = Res>(req: Request, res: Response) =>
+  <Request extends THRequest = THRequest, Response extends THResponse = THResponse>(req: Request, res: Response) =>
   (path: string, filename?: string, options: DownloadOptions = {}): Response => {
     const name: string | null = filename as string
     let opts: DownloadOptions = options
@@ -36,7 +37,7 @@ export const download =
   }
 
 export const attachment =
-  <Response extends Res = Res>(res: Response) =>
+  <Response extends THResponse = THResponse>(res: Response) =>
   (filename?: string): Response => {
     if (filename) setContentType(res)(extname(filename))
 

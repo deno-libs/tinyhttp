@@ -1,6 +1,11 @@
 import { App } from '../../app.ts'
 
-const app = new App()
+const app = new App({
+  noMatchHandler: (req, res) => {
+    res.status = 404
+    res.body = `Oopsie! Page ${req.url} is lost.`
+  }
+})
 
 app
   .get('/', (req, res) => {

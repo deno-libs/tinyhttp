@@ -1,11 +1,17 @@
 import { formatResponse } from './format.ts'
 import { setLocationHeader } from './headers.ts'
-import { Req, Res, NextFunction } from '../../deps.ts'
+import { NextFunction } from '../../deps.ts'
 import { status as getStatus } from 'https://deno.land/x/status@0.1.0/status.ts'
 import { escapeHtml } from '../../deps.ts'
+import { THRequest } from '../../request.ts'
+import { THResponse } from '../../response.ts'
 
 export const redirect =
-  <Request extends Req = Req, Response extends Res = Res, Next extends NextFunction = NextFunction>(
+  <
+    Request extends THRequest = THRequest,
+    Response extends THResponse = THResponse,
+    Next extends NextFunction = NextFunction
+  >(
     req: Request,
     res: Response,
     next: Next
@@ -34,13 +40,14 @@ export const redirect =
 
     res.headers.set('Content-Length', body.length.toString())
 
-    if (req.method === 'HEAD') req.respond({ status })
-    else
-      req.respond({
-        body,
-        status,
-        ...res
-      })
+    res.status = status
+
+    if (req.method === 'HEAD') {
+      res.status = status
+      res.end()
+    } else {
+      res.end(body)
+    }
 
     return res
   }

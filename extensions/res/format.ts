@@ -2,7 +2,7 @@ import { Handler, NextFunction } from '../../deps.ts'
 import { normalizeType, normalizeTypes } from './utils.ts'
 import { setVaryHeader } from './headers.ts'
 import { getAccepts } from '../req/mod.ts'
-import { ResponseState } from '../../response.ts'
+import { THResponse } from '../../response.ts'
 import { THRequest } from '../../request.ts'
 
 export type FormatProps = {
@@ -10,7 +10,7 @@ export type FormatProps = {
 } & Record<string, Handler>
 
 export const formatResponse =
-  <Request extends THRequest = THRequest, Response extends ResponseState = ResponseState>(
+  <Request extends THRequest = THRequest, Response extends THResponse = THResponse>(
     req: Request,
     res: Response,
     next: NextFunction

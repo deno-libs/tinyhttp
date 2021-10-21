@@ -1,6 +1,5 @@
 import { App } from '../../mod.ts'
 import { getNumericDate, Payload, Header, create, verify } from 'https://deno.land/x/djwt@v2.2/mod.ts'
-import { readAll } from 'https://deno.land/std@0.106.0/io/util.ts'
 
 const SECRET = 'my_secret'
 
@@ -16,18 +15,19 @@ const header: Header = {
 
 const app = new App()
 
-app.get('/secret', async (req, _res) => {
-  req.respond({
-    body: await create(header, payload, SECRET)
-  })
+app.get('/secret', async (_req, res) => {
+  res.end(await create(header, payload, SECRET))
 })
 
-app.post('/protected', async (req, _res) => {
-  const jwt = new TextDecoder().decode(await readAll(req.body))
+app.post('/protected', async (req, res) => {
+  const jwt = await req.text()
 
   await verify(jwt, SECRET, 'HS256')
-    .then(() => req.respond({ body: 'Valid JWT\n' }))
-    .catch(() => req.respond({ body: 'Invalid JWT\n', status: 401 }))
+    .then(() => res.end('Valid JWT\n'))
+    .catch(() => {
+      res.status = 401
+      res.end('Invalid JWT\n')
+    })
 })
 
 await app.listen(3000)
