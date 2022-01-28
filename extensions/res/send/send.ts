@@ -10,10 +10,10 @@ export const send =
     let bodyToSend = body
 
     // in case of object - turn it to json
-    if (typeof body === 'object' && body !== null) {
+    if (typeof bodyToSend === 'object' && bodyToSend !== null) {
       bodyToSend = JSON.stringify(body, null, 2)
     } else {
-      if (typeof body === 'string') {
+      if (typeof bodyToSend === 'string') {
         // reflect this in content-type
         const type = res.headers?.get('Content-Type')
 
@@ -25,7 +25,7 @@ export const send =
 
     // populate ETag
     let etag: string | undefined
-    if (body && !res.headers?.get('etag') && (etag = createETag(bodyToSend as string))) {
+    if (bodyToSend && !res.headers?.get('etag') && (etag = createETag(bodyToSend as string))) {
       res.headers?.set('etag', etag)
     }
 
@@ -42,26 +42,22 @@ export const send =
     }
 
     if (req.method === 'HEAD') {
-      end(res)(body)
-      return res
+      return end(res)(bodyToSend)
     }
 
-    if (typeof body === 'object') {
+    if (typeof bodyToSend === 'object') {
       if (body == null) {
-        end(res)('')
-        return res
-      } else if (body instanceof Uint8Array || body instanceof File) {
+        return end(res)('')
+      } else if (bodyToSend instanceof Uint8Array || bodyToSend instanceof File) {
         if (!res.headers?.get('Content-Type')) res.headers.set('content-type', 'application/octet-stream')
 
-        end(res)(body)
+        return end(res)(bodyToSend)
       } else {
-        json(res)(bodyToSend)
+        return json(res)(bodyToSend)
       }
     } else {
       if (typeof bodyToSend !== 'string') bodyToSend = (bodyToSend as string).toString()
 
-      end(res)(body)
+      return end(res)(bodyToSend)
     }
-
-    return res
   }

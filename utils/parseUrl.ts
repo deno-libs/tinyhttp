@@ -21,4 +21,8 @@ export const getPathname = (u: string) => {
   return url.pathname
 }
 
-export const getQueryParams = (url = '/'): qs.ParsedUrlQuery => qs.parse(url.slice(url.indexOf('?') + 1))
+export interface ParsedUrlQuery {
+  [key: string]: string | string[] | undefined
+}
+
+export const getQueryParams = (url = '/'): ParsedUrlQuery => qs.parse(url.slice(url.indexOf('?') + 1))

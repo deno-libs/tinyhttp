@@ -7,8 +7,15 @@ import type { THResponse } from './response.ts'
 import { extendMiddleware } from './extend.ts'
 import { TemplateEngineOptions, TemplateFunc } from './utils/template.ts'
 import { AppSettings, AppConstructor } from './types.ts'
+import { getRouteFromApp } from './extensions/req/route.ts'
 
 const mount = (fn: any) => (fn instanceof App ? fn.attach : fn)
+
+/**
+ * Add leading slash if not present (e.g. path -> /path, /path -> /path)
+ * @param x
+ */
+const lead = (x: string) => (x.charCodeAt(0) === 47 ? x : '/' + x)
 
 declare global {
   namespace tinyhttp {
@@ -53,7 +60,7 @@ export class App<
 
   apps: Record<string, App> = {}
   _server?: Server
-  _serverHandler?: (req: Request, conn?: ConnInfo) => Promise<Response>
+  _serverHandler: (req: Request, conn?: ConnInfo) => Promise<Response>
 
   constructor(options: AppConstructor<Req, Res> = {}) {
     super()
@@ -62,6 +69,13 @@ export class App<
     this.settings = options.settings || { xPoweredBy: true }
     this.applyExtensions = options?.applyExtensions
     this.attach = (req) => setImmediate(this.handler.bind(this, req, undefined), req)
+
+    this._serverHandler = async (req: any, conn) => {
+      req.conn = conn
+      const { body, ...init } = this.handler(req)
+
+      return new Response(body, init)
+    }
   }
 
   set(setting: string, value: any) {
@@ -127,20 +141,15 @@ export class App<
     return app
   }
 
-  use(...args: UseMethodParams<Req, Res, App>) {
+  use(...args: UseMethodParams<Req, Res, App>): this {
     const base = args[0]
 
     const fns = args.slice(1).flat()
 
-    if (base instanceof App) {
-      // Set App parent to current App
-      // @ts-ignore
-      base.parent = this
-
-      // Mount on root
-      base.mountpath = '/'
-
-      this.apps['/'] = base
+    if (typeof base === 'function' || base instanceof App) {
+      fns.unshift(base)
+    } else if (Array.isArray(base)) {
+      fns.unshift(...base)
     }
 
     const path = typeof base === 'string' ? base : '/'
@@ -160,52 +169,45 @@ export class App<
       }
     }
 
-    if (base === '/') {
-      for (const fn of fns) super.use(base, mount(fn as Handler))
-    } else if (typeof base === 'function' || base instanceof App) {
-      super.use('/', [base, ...fns].map(mount))
-    } else if (Array.isArray(base)) {
-      super.use('/', [...base, ...fns].map(mount))
-    } else {
-      const handlerPaths = []
-      const handlerFunctions = []
-      for (const fn of fns) {
-        if (fn instanceof App && fn.middleware?.length) {
-          for (const mw of fn.middleware) {
-            handlerPaths.push((base as string) + mw.path!)
-            handlerFunctions.push(fn)
-          }
-        } else {
-          handlerPaths.push('')
+    const handlerPaths = []
+    const handlerFunctions = []
+    const handlerPathBase = path === '/' ? '' : lead(path)
+    for (const fn of fns) {
+      if (fn instanceof App && fn.middleware?.length) {
+        for (const mw of fn.middleware) {
+          handlerPaths.push(handlerPathBase + lead(mw.path!))
           handlerFunctions.push(fn)
         }
+      } else {
+        handlerPaths.push('')
+        handlerFunctions.push(fn)
       }
-      pushMiddleware(this.middleware)({
-        path: base as string,
-        regex,
-        type: 'mw',
-        handler: mount(handlerFunctions[0] as Handler),
-        handlers: handlerFunctions.slice(1).map(mount),
-        fullPaths: handlerPaths
-      })
     }
 
-    return this // chainable
+    pushMiddleware(this.middleware)({
+      path,
+      regex,
+      type: 'mw',
+      handler: mount(handlerFunctions[0] as Handler),
+      handlers: handlerFunctions.slice(1).map(mount),
+      fullPaths: handlerPaths
+    })
+
+    return this
   }
 
-  find(url: string): Middleware<Req, any>[] {
+  find(url: string): Middleware<Req, Res>[] {
     return this.middleware.filter((m) => {
-      m.regex = m.regex || (rg(m.path, m.type === 'mw') as { keys: string[]; pattern: RegExp })
+      // @ts-ignore
+      m.regex = m.regex || rg(m.path, m.type === 'mw')
 
-      let fullPathRegex: { keys: string[] | boolean; pattern: RegExp } | null
+      let fullPathRegex: any
 
       m.fullPath && typeof m.fullPath === 'string'
         ? (fullPathRegex = rg(m.fullPath, m.type === 'mw'))
         : (fullPathRegex = null)
 
-      return (
-        m.regex.pattern.test(url) && (m.type === 'mw' && fullPathRegex?.keys ? fullPathRegex.pattern.test(url) : true)
-      )
+      return m.regex!.pattern.test(url) && (m.type === 'mw' && fullPathRegex ? fullPathRegex.pattern.test(url) : true)
     })
   }
 
@@ -257,26 +259,25 @@ export class App<
 
     next = next || ((err: any) => (err ? this.onError(err, req, res) : loop()))
 
-    const handle = (mw: Middleware<Req, Res>) => async (req: Req, res: Res, next: NextFunction) => {
-      const { path = '/', handler, type, regex } = mw
+    const handle = (mw: Middleware) => async (req: Req, res: Res, next: NextFunction) => {
+      const { path, handler, regex } = mw
 
       const params = regex ? getURLParams(regex, pathname) : {}
 
-      if (type === 'route') req.params = params
+      req.params = { ...req.params, ...params }
 
-      if (path.includes(':')) {
+      if (path!.includes(':')) {
         const first = Object.values(params)[0]
-        const url = req._url.slice(req._url.indexOf(first) + first?.length)
-        req._url = url
+        const url = req.url.slice(req._url.indexOf(first) + first?.length)
+        req._url = lead(url)
       } else {
-        req._url = req._url.substring(path.length)
+        req._url = lead(req.url.substring(path!.length))
       }
 
-      if (!req.path) req.path = getPathname(req._url)
+      if (!req.path) req.path = getPathname(req.url)
 
-      // if (this.settings?.enableReqRoute) req.route = getRouteFromApp(this as any, handler)
+      if (this.settings?.enableReqRoute) req.route = getRouteFromApp(this as any, handler)
 
-      if (type === 'route') req.params = getURLParams(regex!, pathname)
       await applyHandler<Req, Res>(handler as unknown as Handler<Req, Res>)(req, res, next)
     }
 
@@ -290,16 +291,10 @@ export class App<
     const hostname = typeof hostnameOrCb === 'string' ? hostnameOrCb : '0.0.0.0'
     const callback = typeof hostnameOrCb === 'function' ? hostnameOrCb : cb
 
-    this._serverHandler = async (req: any, conn) => {
-      req.conn = conn
-      const { body, ...init } = this.handler(req)
-
-      return new Response(body, init)
-    }
-
     const server = new Server({
       handler: this._serverHandler,
-      addr: `${hostname}:${port}`
+      hostname,
+      port
     })
     this._server = server
     callback?.()

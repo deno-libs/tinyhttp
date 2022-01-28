@@ -1,5 +1,5 @@
 import { getFreePort } from 'https://deno.land/x/free_port@v1.2.0/mod.ts'
-import { superdeno } from 'https://deno.land/x/superdeno@4.6.0/mod.ts'
+import { superdeno } from 'https://deno.land/x/superdeno@4.7.2/mod.ts'
 import { Handler } from '../deps.ts'
 import { App, AppConstructor, THRequest, THResponse } from '../mod.ts'
 
@@ -8,7 +8,7 @@ const random = (min: number, max: number): number => Math.round(Math.random() * 
 export const randomPort = async () => await getFreePort(random(2048, 8064))
 
 export const BindToSuperDeno = <Req extends THRequest, Res extends THResponse>(app: App<unknown, Req, Res>) => {
-  return superdeno(app._server!)
+  return superdeno(app._serverHandler)
 }
 
 export const InitAppAndTest = (

@@ -16,12 +16,12 @@ describe('App constructor', () => {
     expect(app.locals.hello).toBe('world')
   })
   it('Custom noMatchHandler works', async () => {
-    const app = new App(/* {
+    const app = new App({
       noMatchHandler: (req, res) => {
         res.status = 404
-        res.body = `Oopsie! Page ${req.url} is lost.`
+        res.body = `Oopsie! Page ${req.path} is lost.`
       }
-    } */)
+    })
 
     const request = superdeno(app._serverHandler!)
 
@@ -31,7 +31,7 @@ describe('App constructor', () => {
     const app = new App({
       onError: (err, req, res) => {
         res.status = 500
-        res.body = `Ouch, ${err} hurt me on ${req.url} page.`
+        res.body = `Ouch, ${err} hurt me on ${req.path} page.`
       }
     })
 
@@ -120,15 +120,8 @@ describe('Routing', () => {
   })
 })
 
-describe('app.route(path)', () => {
+/* describe('app.route(path)', () => {
   it('app.route works properly', async () => {
-    const app = new App()
-
-    app.route('/').get((req, res) => res.end(req.url))
-
-    await BindToSuperDeno(app).get('/').expect(200)
-  })
-  it('app.route supports chaining route methods', async () => {
     const app = new App()
 
     app.route('/').get((req, res) => res.end(req.url))
@@ -140,12 +133,12 @@ describe('app.route(path)', () => {
 
     app
       .route('/')
-      .get((_, res) => res.send('GET request'))
-      .post((_, res) => res.send('POST request'))
+      .get((_, res) => (res.body = 'GET request'))
+      .post((_, res) => (res.body = 'POST request'))
 
     await BindToSuperDeno(app).post('/').expect(200, 'POST request')
   })
-})
+}) */
 
 describe('app.use(args)', () => {
   it('should chain middleware', () => {
@@ -196,7 +189,7 @@ describe('next(err?)', () => {
 
     app
       .use((req, _res, next) => {
-        app.locals['log'] = req.url
+        app.locals['log'] = req.path
         next()
       })
       .use((_req, res) => void res.json({ ...app.locals }))
@@ -207,7 +200,7 @@ describe('next(err?)', () => {
     const app = new App()
 
     app.use((req, res, next) => {
-      if (req.url === '/broken') {
+      if (req.path === '/broken') {
         next('Your appearance destroyed this world.')
       } else {
         res.send('Welcome back')
@@ -220,7 +213,7 @@ describe('next(err?)', () => {
     const app = new App()
 
     app.use((req, res, next) => {
-      if (req.url === '/broken') {
+      if (req.path === '/broken') {
         next(new Error('Your appearance destroyed this world.'))
       } else {
         res.send('Welcome back')
@@ -589,7 +582,7 @@ describe('Route handlers', () => {
         next()
       })
       .use((req, res) => {
-        res.send(req.parsedBody)
+        res.body = req.parsedBody
       })
 
     const request = BindToSuperDeno(app)
@@ -748,6 +741,12 @@ describe('Subapps', () => {
 
     const subApp = new App()
 
+    subApp.use('/', (req, res, next) => {
+      // console.log(req.url)
+
+      next()
+    })
+
     subApp.get('/', (_, res) => res.send('hit'))
 
     app.use('/users/:userID', subApp)
@@ -756,12 +755,14 @@ describe('Subapps', () => {
 
     await request.get('/users/123/').expect(200, 'hit')
   })
-  it('matches when mounted on params and on custom subapp route', async () => {
+  it('matches when mounted custom subapp route with params', async () => {
     const app = new App()
 
     const subApp = new App()
 
-    subApp.get('/route', (_, res) => res.send('hit'))
+    subApp.get('/route', (_, res) => {
+      res.send('hit')
+    })
 
     app.use('/users/:userID', subApp)
 

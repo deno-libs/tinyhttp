@@ -56,9 +56,10 @@ export const extendMiddleware =
 
     req.query = getQueryParams(req.url)
 
-    req.connection = {
-      remoteAddress: (req.conn.remoteAddr as Deno.NetAddr).hostname
-    }
+    if (req.conn)
+      req.connection = {
+        remoteAddress: (req.conn.remoteAddr as Deno.NetAddr).hostname
+      }
 
     req.get = getRequestHeader(req)
 

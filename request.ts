@@ -1,13 +1,14 @@
 import type { App } from './app.ts'
-import type { Middleware, qs, ConnInfo } from './deps.ts'
+import type { Middleware, ConnInfo } from './deps.ts'
 import type { AcceptsReturns, Protocol, Ranges } from './types.ts'
+import type { ParsedUrlQuery } from './utils/parseUrl.ts'
 
 export interface THRequest extends Request {
   _url: string
   conn: ConnInfo
   path: string
   originalUrl: string
-  query: qs.ParsedUrlQuery
+  query: ParsedUrlQuery
 
   app: App
   params: Record<string, any>
