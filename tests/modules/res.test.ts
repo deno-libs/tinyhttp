@@ -14,6 +14,7 @@ import { setCookie, clearCookie } from '../../extensions/res/cookie.ts'
 import * as path from 'https://deno.land/std@0.128.0/path/mod.ts'
 import type { THRequest } from '../../request.ts'
 import { THResponse } from '../../response.ts'
+import { toIMF } from 'https://deno.land/std@0.128.0/datetime/mod.ts'
 
 const __dirname = new URL('.', import.meta.url).pathname
 
@@ -279,16 +280,7 @@ describe('res.cookie(name, value, options)', () => {
     const request = runServer((_req, res) => {
       setCookie(res)('hello', 'world').end()
 
-      expect(res.headers.get('Set-Cookie')).toBe('hello=world; Path=/')
-    })
-
-    await request.get('/').expect(200)
-  })
-  it('sets default path to "/" if not specified in options', async () => {
-    const request = runServer((_req, res) => {
-      setCookie(res)('hello', 'world').end()
-
-      expect(res.headers.get('Set-Cookie')).toContain('Path=/')
+      expect(res.headers.get('Set-Cookie')).toBe('hello=world')
     })
 
     await request.get('/').expect(200)
@@ -297,12 +289,19 @@ describe('res.cookie(name, value, options)', () => {
   it('should set "maxAge" and "expires" from options', async () => {
     const maxAge = 3600 * 24 * 365
 
+    const expires = new Date()
+
+    expires.setFullYear(3000, 1, 1)
+
     const request = runServer((_req, res) => {
       setCookie(res)('hello', 'world', {
-        maxAge
+        maxAge,
+        expires
       }).end()
 
-      expect(res.headers.get('Set-Cookie')).toContain(`Max-Age=${maxAge / 1000}; Path=/; Expires=`)
+      console.log(res.headers.get('Set-Cookie'))
+
+      expect(res.headers.get('Set-Cookie')).toContain(`hello=world; Max-Age=${maxAge}; Expires=${toIMF(expires)}`)
     })
 
     await request.get('/').expect(200)
@@ -314,18 +313,6 @@ describe('res.cookie(name, value, options)', () => {
     })
 
     await request.get('/').expect(200).expect('Set-Cookie', 'hello=world, foo=bar')
-  })
-})
-
-describe('res.clearCookie(name, options)', () => {
-  it('sets path to "/" if not specified in options', async () => {
-    const request = runServer((_, res) => {
-      clearCookie(res)('cookie').end()
-
-      expect(res.headers.get('Set-Cookie')).toContain('Path=/;')
-    })
-
-    await request.get('/').expect(200)
   })
 })
 

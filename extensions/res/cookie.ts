@@ -2,7 +2,7 @@ import * as cookie from 'https://deno.land/std@0.128.0/http/cookie.ts'
 import { THResponse } from '../../response.ts'
 
 export const setCookie =
-  (res: Response) =>
+  <Response extends THResponse = THResponse>(res: Response) =>
   (name: string, value: string, options?: Omit<cookie.Cookie, 'value' | 'name'>): Response => {
     cookie.setCookie(res.headers, {
       value,
@@ -16,7 +16,7 @@ export const setCookie =
 export const clearCookie =
   <Response extends THResponse = THResponse>(res: Response) =>
   (name: string): Response => {
-    cookie.deleteCookie(res.headers, name)
+    cookie.deleteCookie(res.headers, name, { path: cookie.getCookies(res.headers)['Path'] || '/' })
 
     return res
   }
