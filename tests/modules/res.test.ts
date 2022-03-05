@@ -11,7 +11,7 @@ import { redirect } from '../../extensions/res/redirect.ts'
 import { formatResponse } from '../../extensions/res/format.ts'
 import { attachment } from '../../extensions/res/download.ts'
 import { setCookie, clearCookie } from '../../extensions/res/cookie.ts'
-import * as path from 'https://deno.land/std@0.112.0/path/mod.ts'
+import * as path from 'https://deno.land/std@0.128.0/path/mod.ts'
 import type { THRequest } from '../../request.ts'
 import { THResponse } from '../../response.ts'
 

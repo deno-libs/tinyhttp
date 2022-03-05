@@ -1,5 +1,5 @@
 import { App } from '../../mod.ts'
-import { MongoClient, Bson } from 'https://deno.land/x/mongo@v0.27.0/mod.ts'
+import { MongoClient, Bson } from 'https://deno.land/x/mongo@v0.29.2/mod.ts'
 import * as dotenv from 'https://deno.land/x/tiny_env@1.0.0/mod.ts'
 import { json } from 'https://deno.land/x/parsec@0.1.1/mod.ts'
 

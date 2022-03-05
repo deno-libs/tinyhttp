@@ -1,5 +1,5 @@
 import type { SendFileOptions, DownloadOptions } from './extensions/res/mod.ts'
-import type { Cookie } from 'https://deno.land/std@0.112.0/http/cookie.ts'
+import type { Cookie } from 'https://deno.land/std@0.128.0/http/cookie.ts'
 import type { FormatProps } from './extensions/res/format.ts'
 import type { TemplateEngineOptions } from './utils/template.ts'
 import type { App } from './app.ts'

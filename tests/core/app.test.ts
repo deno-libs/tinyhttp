@@ -4,8 +4,8 @@ import { BindToSuperDeno, InitAppAndTest } from '../util.ts'
 import { renderFile as eta } from 'https://deno.land/x/eta@v1.12.3/mod.ts'
 import { EtaConfig } from 'https://deno.land/x/eta@v1.12.3/config.ts'
 import { path } from '../../deps.ts'
-import { readFile } from 'https://deno.land/std@0.112.0/node/fs/promises.ts'
-import { superdeno } from 'https://deno.land/x/superdeno@4.6.0/mod.ts'
+import { readFile } from 'https://deno.land/std@0.128.0/node/fs/promises.ts'
+import { superdeno } from 'https://deno.land/x/superdeno@4.7.2/mod.ts'
 
 describe('App constructor', () => {
   it('app.locals are get and set', () => {
