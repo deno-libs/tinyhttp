@@ -12,6 +12,7 @@ export const send =
     // in case of object - turn it to json
     if (typeof bodyToSend === 'object' && bodyToSend !== null) {
       bodyToSend = JSON.stringify(body, null, 2)
+      res.headers?.set('Content-Type', 'application/json')
     } else {
       if (typeof bodyToSend === 'string') {
         // reflect this in content-type

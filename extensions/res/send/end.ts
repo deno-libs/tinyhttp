@@ -2,7 +2,7 @@ import type { THResponse } from '../../../response.ts'
 export const end = (res: THResponse) => (body: BodyInit | number | boolean | null | undefined) => {
   if (typeof body === 'number' || typeof body === 'boolean') body = body.toString()
 
-  if (body) res.body = body
+  if (body) res.bodyInit = body
 
   return res
 }

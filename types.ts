@@ -1,4 +1,4 @@
-import { Handler, NextFunction } from './deps.ts'
+import { Handler, NextFunction } from './router.ts'
 import { ErrorHandler } from './onError.ts'
 
 type AcceptsReturns = string | false | string[]
@@ -23,7 +23,7 @@ type AppSettings = Partial<
 >
 
 type AppConstructor<Req, Res> = Partial<{
-  noMatchHandler: Handler<Req, Res>
+  noMatchHandler: Handler
   onError: ErrorHandler
   applyExtensions: (req: Req, res: Res, next: NextFunction) => void
   settings: AppSettings
