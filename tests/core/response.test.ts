@@ -51,7 +51,7 @@ describe('Response methods', () => {
       res.sendStatus(418);
     });
 
-    await fetch.get('/').expect(418, "I'm a Teapot");
+    await fetch.get('/').expect(418, 'Im A Teapot');
   });
   it('res.location sends "Location" header', async () => {
     const { fetch } = InitAppAndTest((_req, res) => {
