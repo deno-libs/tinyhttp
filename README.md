@@ -6,9 +6,9 @@
 [![Codecov][codecov-badge]][codecov] [![][docs-badge]][docs] [![][code-quality-img]][code-quality] ![Dependency count][deps]
 </div>
 
-This is a [Deno](https://deno.land) port of [tinyhttp](https://github.com/talentlessguy/tinyhttp), 0-legacy, tiny &amp; fast web framework as a replacement of Express.
+> **WARNING!** The Deno port project is frozen for now. Please help us to move to native Deno http, see [#11](https://github.com/deno-libs/tinyhttp/issues/11)
 
-> **WARNING!** This port is very unstable and is not well tested yet. Wait for the v2 release of tinyhttp for a complete version (see [talentlessguy/tinyhttp#198](https://github.com/talentlessguy/tinyhttp/issues/198))
+This is a [Deno](https://deno.land) port of [tinyhttp](https://github.com/talentlessguy/tinyhttp), 0-legacy, tiny &amp; fast web framework as a replacement of Express.
 
 ## Example
 
