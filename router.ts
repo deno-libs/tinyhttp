@@ -1,14 +1,5 @@
 import type { THResponse } from './response.ts'
-
-export type NextFunction = (err?: any) => void
-
-export type Handler<Req extends Request = Request> = (
-  req: Req,
-  res: THResponse,
-  next: NextFunction
-) => void | Promise<void>
-
-export type Middleware<Req extends Request = Request> = { handler: Handler<Req>; pattern: URLPattern }
+import { Handler, Middleware } from './types.ts'
 
 export const METHODS = [
   'ACL',
@@ -43,10 +34,14 @@ export const METHODS = [
   'UNBIND',
   'UNLINK',
   'UNLOCK',
-  'UNSUBSCRIBE'
+  'UNSUBSCRIBE',
 ] as const
 
-type RouterArgs<Req extends Request = Request> = [pathname: string, handler: Handler<Req>, ...handlers: Handler<Req>[]]
+type RouterArgs<Req extends Request = Request> = [
+  pathname: string,
+  handler: Handler<Req>,
+  ...handlers: Handler<Req>[],
+]
 
 type RM<R> = (...args: RouterArgs) => R
 
@@ -54,9 +49,12 @@ type Method = typeof METHODS[number]
 
 type LowerCaseMethod = Lowercase<Method>
 
-export class Router<Req extends Request = Request> {
-  middleware: Middleware<Req>[] = []
-  routes: Record<string, Middleware<Req>[]> = {}
+export class Router<
+  Req extends Request = Request,
+  Res extends THResponse = THResponse,
+> {
+  middleware: Middleware<Req, Res>[] = []
+  routes: Record<string, Middleware<Req, Res>[]> = {}
 
   acl!: RM<this>
   bind!: RM<this>
@@ -96,7 +94,8 @@ export class Router<Req extends Request = Request> {
   constructor() {
     for (const m of METHODS) {
       this.routes[m] = []
-      this[m.toLowerCase() as LowerCaseMethod] = (...params: RouterArgs) => this.#add(m as Method, ...params)
+      this[m.toLowerCase() as LowerCaseMethod] = (...params: RouterArgs) =>
+        this.#add(m as Method, ...params)
     }
   }
 
@@ -108,14 +107,18 @@ export class Router<Req extends Request = Request> {
 
     this.routes[method].push({
       pattern,
-      handler
+      handler,
+      type: 'route',
+      path: pathname,
     })
 
     if (handlers) {
       handlers.forEach((h) =>
         this.middleware.push({
           pattern,
-          handler: h
+          handler: h,
+          type: 'route',
+          path: pathname,
         })
       )
     }
@@ -125,7 +128,7 @@ export class Router<Req extends Request = Request> {
   /**
    * Push middleware to the stack
    */
-  use(_pathname: string | Handler<Req>, ...handlers: Handler<Req>[]) {
+  use(_pathname: string | Handler<Req, Res>, ...handlers: Handler<Req, Res>[]) {
     let pathname: string
 
     if (typeof _pathname === 'string') {
@@ -137,17 +140,22 @@ export class Router<Req extends Request = Request> {
     // loose matching
     const pattern = new URLPattern({ pathname: `${pathname}*?` })
 
-    if (typeof _pathname === 'function')
+    if (typeof _pathname === 'function') {
       this.middleware.push({
         pattern,
-        handler: _pathname
+        handler: _pathname,
+        type: 'mw',
+        path: pathname,
       })
+    }
 
     if (handlers) {
       handlers.forEach((h) =>
         this.middleware.push({
           pattern,
-          handler: h
+          handler: h,
+          type: 'mw',
+          path: pathname,
         })
       )
     }

@@ -1,42 +1,41 @@
-import { STATUS_CODES } from 'https://deno.land/x/status@0.1.0/maps.ts'
-import { serve, ConnInfo } from 'https://deno.land/std@0.181.0/http/server.ts'
+import { ConnInfo, serve } from './deps.ts'
+import { Router } from './router.ts'
+import { THResponse } from './response.ts'
+import { extendMiddleware } from './extend.ts'
+import { THRequest } from './request.ts'
+import type { Middleware } from './types.ts'
 
-type Handler = (req: Request, res: {body?: BodyInit, init?: ResponseInit}, next: () => void) => void | Promise<void>
-
-interface Middleware {
-  method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE' | 'HEAD' | 'OPTIONS'
-  handler: Handler
-  path?: string
-  type: 'mw' | 'route'
-  pattern?: URLPattern
-  fullPath?: string
-}
-
-class App {
+export class App<RenderOptions = any> extends Router<Request, THResponse> {
   middleware: Middleware[]
   constructor() {
+    super()
     this.middleware = []
   }
-  use(path: string, handler: Handler) {
-    this.middleware.push({ handler, type: 'mw', path: path })
-  }
- async handler(_req: Request, connInfo: ConnInfo): Promise<Response> {
-    const req = _req.clone() as Request & { _connInfo: ConnInfo}
+
+  async handler(_req: Request, connInfo: ConnInfo): Promise<Response> {
+    const exts = extendMiddleware<RenderOptions>()
+
+    const req = _req.clone() as THRequest
     req._connInfo = connInfo
-    const res: {body?: BodyInit, init?: ResponseInit} = {}
+    const res: { _body?: BodyInit; _init?: ResponseInit } = {}
 
     let idx = 0
     const next = () => loop()
-    const mw =this.middleware
+    const mw = [{
+      handler: exts,
+      type: 'mw',
+      path: '/',
+    }, ...this.middleware]
 
-    const loop = async () => (idx < mw.length &&  await mw[idx++].handler(req, res, next))
+    const loop = async () => (idx < mw.length &&
+      await mw[idx++].handler(req, res as any, next))
 
     await loop()
 
-    return new Response(res.body, res.init)
+    return new Response(res._body, res._init)
   }
   async listen(port: number) {
-   await serve(app.handler.bind(this), {port})
+    await serve(app.handler.bind(this), { port })
   }
 }
 
@@ -48,7 +47,7 @@ app.use('/', (_req, _res, next) => {
 })
 
 app.use('/', (req, res) => {
-  res.body = req.url
+  res.end(req.url)
 })
 
 await app.listen(3000)

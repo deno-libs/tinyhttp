@@ -8,7 +8,7 @@ export type TemplateFunc<O> = (
   path: string,
   locals: Record<string, any>,
   opts: TemplateEngineOptions<O>,
-  cb: (err: Error | null, html: unknown) => void
+  cb: (err: Error | null, html: unknown) => void,
 ) => void
 
 export type TemplateEngineOptions<O = any> = Partial<{
@@ -21,7 +21,11 @@ export type TemplateEngineOptions<O = any> = Partial<{
 
 export const renderTemplate =
   <O = any, Res extends THResponse = THResponse>(res: Res, app: App) =>
-  (file: string, data?: Record<string, any>, options?: TemplateEngineOptions<O>): THResponse => {
+  (
+    file: string,
+    data?: Record<string, any>,
+    options?: TemplateEngineOptions<O>,
+  ): THResponse => {
     app.render(
       file,
       data,
@@ -30,7 +34,7 @@ export const renderTemplate =
 
         res.send(html)
       },
-      options
+      options,
     )
 
     return res

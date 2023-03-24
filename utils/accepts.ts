@@ -6,7 +6,7 @@
  * MIT Licensed
  */
 
-import { Negotiator, lookup } from '../deps.ts'
+import { lookup, Negotiator } from '../deps.ts'
 
 /**
  * Create a new Accepts object for the given headers.
@@ -74,7 +74,9 @@ export class Accepts {
     }
 
     const mimes = types.map(extToMime)
-    const accepts = this.negotiator.mediaTypes(mimes.filter((t) => t && validMime(t)) as string[])
+    const accepts = this.negotiator.mediaTypes(
+      mimes.filter((t) => t && validMime(t)) as string[],
+    )
     const first = accepts[0]
     return first ? types[mimes.indexOf(first)] : false
   }

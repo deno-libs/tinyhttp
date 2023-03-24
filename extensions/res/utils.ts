@@ -1,8 +1,8 @@
 import { format, parse } from 'https://deno.land/x/content_type@1.0.1/mod.ts'
-import { etag as eTag } from '../../utils/etag.ts'
-import { lookup } from '../../deps.ts'
+import { Entity, eTag } from '../../deps.ts'
+import { typeByExtension } from '../../deps.ts'
 
-export const createETag = (body: Parameters<typeof eTag>[0]) => {
+export const createETag = (body: Entity) => {
   return eTag(body, { weak: true })
 }
 
@@ -12,9 +12,6 @@ export function setCharset(type: string, charset: string) {
 
   return format(parsed)
 }
-
-export const normalizeType = (type: string) =>
-  ~type.indexOf('/') ? acceptParams(type) : { value: lookup(type), params: {} }
 
 export function acceptParams(str: string, index?: number) {
   const parts = str.split(/ *; */)
@@ -33,6 +30,11 @@ export function acceptParams(str: string, index?: number) {
 
   return ret
 }
+
+export const normalizeType = (type: string) =>
+  ~type.indexOf('/')
+    ? acceptParams(type)
+    : { value: typeByExtension(type), params: {} }
 
 export function normalizeTypes(types: string[]) {
   const ret = []

@@ -3,11 +3,15 @@ import { THResponse } from '../../response.ts'
 
 export const setCookie =
   <Response extends THResponse = THResponse>(res: Response) =>
-  (name: string, value: string, options?: Omit<cookie.Cookie, 'value' | 'name'>): Response => {
+  (
+    name: string,
+    value: string,
+    options?: Omit<cookie.Cookie, 'value' | 'name'>,
+  ): Response => {
     cookie.setCookie(res.headers, {
       value,
       name,
-      ...options
+      ...options,
     })
 
     return res
@@ -16,7 +20,9 @@ export const setCookie =
 export const clearCookie =
   <Response extends THResponse = THResponse>(res: Response) =>
   (name: string): Response => {
-    cookie.deleteCookie(res.headers, name, { path: cookie.getCookies(res.headers)['Path'] || '/' })
+    cookie.deleteCookie(res.headers, name, {
+      path: cookie.getCookies(res.headers)['Path'] || '/',
+    })
 
     return res
   }

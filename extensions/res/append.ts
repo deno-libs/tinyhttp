@@ -1,5 +1,5 @@
 import { THResponse } from '../../response.ts'
-import { setHeader, getResponseHeader } from './headers.ts'
+import { getResponseHeader, setHeader } from './headers.ts'
 
 export const append =
   <Response extends THResponse = THResponse>(res: Response) =>

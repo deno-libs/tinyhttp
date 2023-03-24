@@ -1,34 +1,37 @@
-import { parseRange, ParseRangeOptions, fresh } from '../../deps.ts'
+import { parseRange } from '../../deps.ts'
 import { is } from '../../utils/type_is.ts'
 import { THRequest } from '../../request.ts'
 import { THResponse } from '../../response.ts'
+import { fresh } from '../../utils/fresh.ts'
 
 export const getRequestHeader =
-  <Request extends THRequest = THRequest>(req: Request) =>
-  (header: string) => {
+  <Request extends THRequest = THRequest>(req: Request) => (header: string) => {
     const lc = header.toLowerCase()
 
     switch (lc) {
       case 'referer':
       case 'referrer':
-        return (req.headers.get('referrer') as string) || (req.headers.get('referer') as string)
+        return (req.headers.get('referrer') as string) ||
+          (req.headers.get('referer') as string)
       default:
         return req.headers.get(lc) as string
     }
   }
 export const getRangeFromHeader =
-  <Request extends THRequest = THRequest>(req: Request) =>
-  (size: number, options?: ParseRangeOptions) => {
+  <Request extends THRequest = THRequest>(req: Request) => () => {
     const range = getRequestHeader(req)('Range')
 
     if (!range) return
 
-    return parseRange(size, range, options)
+    return parseRange(range)
   }
 
-export const getFreshOrStale = <Request extends THRequest = THRequest, Response extends THResponse = THResponse>(
+export const getFreshOrStale = <
+  Request extends THRequest = THRequest,
+  Response extends THResponse = THResponse,
+>(
   req: Request,
-  res: Response
+  res: Response,
 ) => {
   const method = req.method
   const status = res.status || 200
@@ -42,18 +45,18 @@ export const getFreshOrStale = <Request extends THRequest = THRequest, Response 
       req.headers,
       new Headers({
         etag: res.headers.get('ETag')!,
-        'last-modified': res.headers.get('Last-Modified')!
-      })
+        'last-modified': res.headers.get('Last-Modified')!,
+      }),
     )
   }
 
   return false
 }
 
-export const checkIfXMLHttpRequest = <Request extends THRequest = THRequest>(req: Request) =>
-  req.headers?.get('X-Requested-With') === 'XMLHttpRequest'
+export const checkIfXMLHttpRequest = <Request extends THRequest = THRequest>(
+  req: Request,
+) => req.headers?.get('X-Requested-With') === 'XMLHttpRequest'
 
 export const reqIs =
   <Request extends THRequest = THRequest>(req: Request) =>
-  (...types: string[]) =>
-    is(req.headers?.get('content-type') as string, types)
+  (...types: string[]) => is(req.headers?.get('content-type') as string, types)

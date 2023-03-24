@@ -13,9 +13,11 @@ function stringify(
   value: unknown,
   replacer: JSONPOptions['replacer'],
   spaces: JSONPOptions['spaces'],
-  escape: JSONPOptions['escape']
+  escape: JSONPOptions['escape'],
 ) {
-  let json = replacer || spaces ? JSON.stringify(value, replacer, spaces) : JSON.stringify(value)
+  let json = replacer || spaces
+    ? JSON.stringify(value, replacer, spaces)
+    : JSON.stringify(value)
 
   if (escape) {
     json = json.replace(/[<>&]/g, (c) => {
@@ -41,37 +43,39 @@ function stringify(
  * @param res Response
  * @param app App
  */
-export const jsonp =
-  <Request extends THRequest = THRequest, Response extends THResponse = THResponse>(req: Request, res: Response) =>
-  (obj: unknown, opts: JSONPOptions = {}) => {
-    const val = obj
+export const jsonp = <
+  Request extends THRequest = THRequest,
+  Response extends THResponse = THResponse,
+>(req: Request, res: Response) =>
+(obj: unknown, opts: JSONPOptions = {}) => {
+  const val = obj
 
-    const { escape, replacer, spaces, callbackName = 'callback' } = opts
+  const { escape, replacer, spaces, callbackName = 'callback' } = opts
 
-    let body = stringify(val, replacer, spaces, escape)
+  let body = stringify(val, replacer, spaces, escape)
 
-    let callback = req.query[callbackName]
+  let callback = req.query[callbackName]
 
-    if (!res.headers?.get('Content-Type')) {
-      res.headers?.set('X-Content-Type-Options', 'nosniff')
-      res.headers?.set('Content-Type', 'application/json')
-    }
-
-    // jsonp
-    if (typeof callback === 'string' && callback.length !== 0) {
-      res.headers?.set('X-Content-Type-Options', 'nosniff')
-      res.headers?.set('Content-Type', 'text/javascript')
-
-      // restrict callback charset
-      callback = callback.replace(/[^[\]\w$.]/g, '')
-
-      // replace chars not allowed in JavaScript that are in JSON
-      body = body.replace(/\u2028/g, '\\u2028').replace(/\u2029/g, '\\u2029')
-
-      // the /**/ is a specific security mitigation for "Rosetta Flash JSONP abuse"
-      // the typeof check is just to reduce client error noise
-      body = `/**/ typeof ${callback} === 'function' && ${callback}(${body});`
-    }
-
-    return send(req, res)(body)
+  if (!res.headers?.get('Content-Type')) {
+    res.headers?.set('X-Content-Type-Options', 'nosniff')
+    res.headers?.set('Content-Type', 'application/json')
   }
+
+  // jsonp
+  if (typeof callback === 'string' && callback.length !== 0) {
+    res.headers?.set('X-Content-Type-Options', 'nosniff')
+    res.headers?.set('Content-Type', 'text/javascript')
+
+    // restrict callback charset
+    callback = callback.replace(/[^[\]\w$.]/g, '')
+
+    // replace chars not allowed in JavaScript that are in JSON
+    body = body.replace(/\u2028/g, '\\u2028').replace(/\u2029/g, '\\u2029')
+
+    // the /**/ is a specific security mitigation for "Rosetta Flash JSONP abuse"
+    // the typeof check is just to reduce client error noise
+    body = `/**/ typeof ${callback} === 'function' && ${callback}(${body});`
+  }
+
+  return send(req, res)(body)
+}

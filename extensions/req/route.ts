@@ -5,6 +5,8 @@ import { THResponse } from '../../response.ts'
 
 export const getRouteFromApp = (
   { middleware }: App,
-  h: Handler<THRequest, THResponse>
+  h: Handler<THRequest, THResponse>,
 ): Middleware<THRequest, THResponse> =>
-  middleware.find(({ handler }) => typeof handler === 'function' && handler.name === h.name)!
+  middleware.find(({ handler }) =>
+    typeof handler === 'function' && handler.name === h.name
+  )!

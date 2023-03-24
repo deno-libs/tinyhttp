@@ -1,4 +1,4 @@
-import { vary, encodeUrl, charset, lookup } from '../../deps.ts'
+import { charset, encodeUrl, lookup, vary } from '../../deps.ts'
 import { THRequest } from '../../request.ts'
 import { THResponse } from '../../response.ts'
 import { getRequestHeader } from '../req/headers.ts'
@@ -7,7 +7,10 @@ const charsetRegExp = /;\s*charset\s*=/
 
 export const setHeader =
   <Response extends THResponse = THResponse>(res: Response) =>
-  (field: string | Record<string, string | number | string[]>, val?: string | number | readonly string[]): Response => {
+  (
+    field: string | Record<string, string | number | string[]>,
+    val?: string | number | readonly string[],
+  ): Response => {
     if (typeof field === 'string') {
       let value = Array.isArray(val) ? val.map(String) : String(val)
 
@@ -39,18 +42,22 @@ export const getResponseHeader =
     return res.headers?.get(field)
   }
 
-export const setLocationHeader =
-  <Request extends THRequest = THRequest, Response extends THResponse = THResponse>(req: Request, res: Response) =>
-  (url: string): Response => {
-    let loc = url
+export const setLocationHeader = <
+  Request extends THRequest = THRequest,
+  Response extends THResponse = THResponse,
+>(req: Request, res: Response) =>
+(url: string): Response => {
+  let loc = url
 
-    // "back" is an alias for the referrer
-    if (url === 'back') loc = (getRequestHeader(req)('Referrer') as string) || '/'
-
-    // set location
-    res.headers.set('Location', encodeUrl(loc))
-    return res
+  // "back" is an alias for the referrer
+  if (url === 'back') {
+    loc = (getRequestHeader(req)('Referrer') as string) || '/'
   }
+
+  // set location
+  res.headers.set('Location', encodeUrl(loc))
+  return res
+}
 
 export const setLinksHeader =
   <Response extends THResponse = THResponse>(res: Response) =>
@@ -62,7 +69,7 @@ export const setLinksHeader =
       link +
         Object.keys(links)
           .map((rel) => '<' + links[rel] + '>; rel="' + rel + '"')
-          .join(', ')
+          .join(', '),
     )
 
     return res
