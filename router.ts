@@ -1,4 +1,4 @@
-import { HTTP_METHODS } from "./deps.ts";
+import { METHODS } from './constants.ts'
 import type { THResponse } from './response.ts'
 import type { Handler, Method, Middleware } from './types.ts'
 
@@ -50,9 +50,10 @@ export class Router<
   unlink!: RM<this>
   unlock!: RM<this>
   unsubscribe!: RM<this>
+  'm-search'!: RM<this>
 
   constructor() {
-    for (const m of HTTP_METHODS) {
+    for (const m of METHODS) {
       this[m.toLowerCase() as LowerCaseMethod] = (...params: RouterArgs) =>
         this.#add(m as Method, ...params)
     }
@@ -73,7 +74,7 @@ export class Router<
     if (handlers) {
       handlers.forEach((h) =>
         this.middleware.push({
-        method,
+          method,
           handler: h,
           type: 'route',
           path: pathname,
@@ -97,7 +98,6 @@ export class Router<
 
     if (typeof _pathname === 'function') {
       this.middleware.push({
-      
         handler: _pathname,
         type: 'mw',
         path: pathname,

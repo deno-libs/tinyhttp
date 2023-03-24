@@ -3,9 +3,7 @@ export { parse as parseRange } from 'https://deno.land/x/range_parser@1.1.0/pars
 export type { RangesSpecifier } from 'https://deno.land/x/range_parser@1.1.0/parse.ts'
 export { serve } from 'https://deno.land/std@0.181.0/http/server.ts'
 export type { ConnInfo } from 'https://deno.land/std@0.181.0/http/server.ts'
-export { default as eTag } from 'https://deno.land/x/etag@0.2.0/mod.ts'
-export type { Entity } from 'https://deno.land/x/etag@0.2.0/mod.d.ts'
 export { typeByExtension } from 'https://deno.land/std@0.181.0/media_types/type_by_extension.ts'
 export { contentType } from 'https://deno.land/std@0.181.0/media_types/content_type.ts'
 export * as path from 'https://deno.land/std@0.181.0/path/mod.ts'
-export {HTTP_METHODS} from "https://deno.land/x/oak_commons@0.3.1/method.ts";
+export { default as eTag } from 'https://esm.sh/etag@1.8.1'

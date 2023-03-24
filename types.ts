@@ -1,13 +1,9 @@
 import type { ServeInit } from './deps.ts'
 import { THResponse } from './response.ts'
 
-import { HTTP_METHODS } from './deps.ts'
+import { METHODS } from './constants.ts'
 
-
-
-type Method = typeof HTTP_METHODS[number]
-
-
+type Method = typeof METHODS[number]
 
 type AcceptsReturns = string | false | string[]
 
@@ -29,7 +25,7 @@ type AppConstructor<Req, Res> = Partial<{
   settings: AppSettings
 }>
 
-type NextFunction = () => void
+type NextFunction = (e?: unknown) => void
 
 type Handler<
   Req extends Request = Request,
@@ -50,13 +46,33 @@ type Middleware<
   method?: Method
 }
 
+type TemplateEngineOptions<O = any> = Partial<{
+  cache: boolean
+  ext: string
+  renderOptions: Partial<O>
+  viewsFolder: string
+  _locals: Record<string, any>
+}>
+
+/**
+ * Function that processes the template
+ */
+type TemplateFunc<O> = (
+  path: string,
+  locals: Record<string, any>,
+  opts: TemplateEngineOptions<O>,
+  cb: (err: Error | null, html: unknown) => void,
+) => void
+
 export type {
   AcceptsReturns,
   AppConstructor,
   AppSettings,
   Handler,
+  Method,
   Middleware,
   NextFunction,
   Protocol,
-  Method
+  TemplateEngineOptions,
+  TemplateFunc,
 }

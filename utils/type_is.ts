@@ -206,7 +206,7 @@ function normalizeType(value: string): string | null {
 function tryNormalizeType(value: string): string | null {
   try {
     return normalizeType(value)
-  } catch (err) {
+  } catch {
     return null
   }
 }
