@@ -1,4 +1,4 @@
-import * as cookie from 'https://deno.land/std@0.130.0/http/cookie.ts'
+import * as cookie from 'https://deno.land/std@0.181.0/http/cookie.ts'
 import { THResponse } from '../../response.ts'
 
 export const setCookie =
