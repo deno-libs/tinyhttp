@@ -1,15 +1,15 @@
 import type { ServeInit } from './deps.ts'
 import { THResponse } from './response.ts'
 
-type AcceptsReturns = string | false | string[]
+import { HTTP_METHODS } from './deps.ts'
 
-interface Ranges extends Array<Range> {
-  type: string
-}
-interface Range {
-  start: number
-  end: number
-}
+
+
+type Method = typeof HTTP_METHODS[number]
+
+
+
+type AcceptsReturns = string | false | string[]
 
 type Protocol = 'http' | 'https'
 
@@ -45,9 +45,9 @@ type Middleware<
   Res extends THResponse = THResponse,
 > = {
   handler: Handler<Req, Res>
-  pattern: URLPattern
   type: 'mw' | 'route'
   path: string
+  method?: Method
 }
 
 export type {
@@ -58,6 +58,5 @@ export type {
   Middleware,
   NextFunction,
   Protocol,
-  Range,
-  Ranges,
+  Method
 }

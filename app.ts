@@ -11,7 +11,19 @@ export class App<RenderOptions = any> extends Router<Request, THResponse> {
     super()
     this.middleware = []
   }
+  find(url: string) {
+    const {pathname} = new URL(url)
+    const result = this.middleware.filter((mw) => {
+      if (mw.type === 'mw') {
+        return pathname.startsWith(mw.path)
+      } else {
+        const pattern = new URLPattern({pathname: mw.path })
+        return pattern.test(url)
+      }
+    })
 
+    return result
+  }
   async handler(_req: Request, connInfo: ConnInfo): Promise<Response> {
     const exts = extendMiddleware<RenderOptions>()
 
@@ -19,14 +31,13 @@ export class App<RenderOptions = any> extends Router<Request, THResponse> {
     req._connInfo = connInfo
     const res: { _body?: BodyInit; _init?: ResponseInit } = {}
 
-    let idx = 0
-    const next = () => loop()
     const mw = [{
       handler: exts,
       type: 'mw',
       path: '/',
-    }, ...this.middleware]
-
+    }, ...this.find(req.url).filter(x => req.method === 'HEAD' || (x.method ? x.method === req.method : true))]
+    let idx = 0
+    const next = () => loop()
     const loop = async () => (idx < mw.length &&
       await mw[idx++].handler(req, res as any, next))
 
@@ -42,12 +53,14 @@ export class App<RenderOptions = any> extends Router<Request, THResponse> {
 const app = new App()
 
 app.use('/', (_req, _res, next) => {
-  console.log('hey')
+  console.log('kek')
   next()
 })
 
-app.use('/', (req, res) => {
+app.get('/hello', (req, res) => {
+
   res.end(req.url)
 })
+
 
 await app.listen(3000)

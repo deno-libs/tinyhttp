@@ -8,3 +8,4 @@ export type { Entity } from 'https://deno.land/x/etag@0.2.0/mod.d.ts'
 export { typeByExtension } from 'https://deno.land/std@0.181.0/media_types/type_by_extension.ts'
 export { contentType } from 'https://deno.land/std@0.181.0/media_types/content_type.ts'
 export * as path from 'https://deno.land/std@0.181.0/path/mod.ts'
+export {HTTP_METHODS} from "https://deno.land/x/oak_commons@0.3.1/method.ts";

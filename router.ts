@@ -1,60 +1,20 @@
+import { HTTP_METHODS } from "./deps.ts";
 import type { THResponse } from './response.ts'
-import { Handler, Middleware } from './types.ts'
-
-export const METHODS = [
-  'ACL',
-  'BIND',
-  'CHECKOUT',
-  'CONNECT',
-  'COPY',
-  'DELETE',
-  'GET',
-  'HEAD',
-  'LINK',
-  'LOCK',
-  'MERGE',
-  'MKACTIVITY',
-  'MKCALENDAR',
-  'MKCOL',
-  'MOVE',
-  'NOTIFY',
-  'OPTIONS',
-  'PATCH',
-  'POST',
-  'PROPFIND',
-  'PROPPATCH',
-  'PURGE',
-  'PUT',
-  'REBIND',
-  'REPORT',
-  'SEARCH',
-  'SOURCE',
-  'SUBSCRIBE',
-  'TRACE',
-  'UNBIND',
-  'UNLINK',
-  'UNLOCK',
-  'UNSUBSCRIBE',
-] as const
+import type { Handler, Method, Middleware } from './types.ts'
 
 type RouterArgs<Req extends Request = Request> = [
   pathname: string,
   handler: Handler<Req>,
   ...handlers: Handler<Req>[],
 ]
-
-type RM<R> = (...args: RouterArgs) => R
-
-type Method = typeof METHODS[number]
-
 type LowerCaseMethod = Lowercase<Method>
+type RM<R> = (...args: RouterArgs) => R
 
 export class Router<
   Req extends Request = Request,
   Res extends THResponse = THResponse,
 > {
   middleware: Middleware<Req, Res>[] = []
-  routes: Record<string, Middleware<Req, Res>[]> = {}
 
   acl!: RM<this>
   bind!: RM<this>
@@ -92,8 +52,7 @@ export class Router<
   unsubscribe!: RM<this>
 
   constructor() {
-    for (const m of METHODS) {
-      this.routes[m] = []
+    for (const m of HTTP_METHODS) {
       this[m.toLowerCase() as LowerCaseMethod] = (...params: RouterArgs) =>
         this.#add(m as Method, ...params)
     }
@@ -103,10 +62,9 @@ export class Router<
     const pathname = params[0]
     const handler = params[1]
     const handlers = params.slice(2) as Handler[]
-    const pattern = new URLPattern({ pathname })
 
-    this.routes[method].push({
-      pattern,
+    this.middleware.push({
+      method,
       handler,
       type: 'route',
       path: pathname,
@@ -115,7 +73,7 @@ export class Router<
     if (handlers) {
       handlers.forEach((h) =>
         this.middleware.push({
-          pattern,
+        method,
           handler: h,
           type: 'route',
           path: pathname,
@@ -137,12 +95,9 @@ export class Router<
       pathname = '/'
     }
 
-    // loose matching
-    const pattern = new URLPattern({ pathname: `${pathname}*?` })
-
     if (typeof _pathname === 'function') {
       this.middleware.push({
-        pattern,
+      
         handler: _pathname,
         type: 'mw',
         path: pathname,
@@ -152,7 +107,6 @@ export class Router<
     if (handlers) {
       handlers.forEach((h) =>
         this.middleware.push({
-          pattern,
           handler: h,
           type: 'mw',
           path: pathname,

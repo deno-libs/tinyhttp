@@ -459,6 +459,7 @@
     "https://deno.land/x/isx@1.0.0-beta.24/object.ts": "5db91aee7a43c52ab83e9fdc65378f40de7e4fb2616fec9a8022bb742720f64b",
     "https://deno.land/x/isx@1.0.0-beta.24/strings.ts": "9893f0cd45965d33590ddbf9ec3dd10ac8055dfdd0d725bca04faa89c200d982",
     "https://deno.land/x/isx@1.0.0-beta.24/top_types.ts": "06f5a2b201019b48c6066631428d5d2a5a267b4aa663bb43301e29a6b8b9e7be",
+    "https://deno.land/x/oak_commons@0.3.1/method.ts": "03cf8b4b3439d6b172fa9e127b3f7ed38478e2454fdc3e373adaf3b45badcaa3",
     "https://deno.land/x/prelude_js@1.0.0-beta.3/deps.ts": "8a8002b53623cfbf38b95ec23802f0580634546f3cc65875251ba80e28fe64aa",
     "https://deno.land/x/prelude_js@1.0.0-beta.3/lists.ts": "7c320f4d314d32e6aadb0c9d3739d188afa84966b0fb918ac3b7b35b76713fb0",
     "https://deno.land/x/prelude_js@1.0.0-beta.3/mod.ts": "d077acf8b674b18d0decd83885de7a00360a448a8a141ae4335671b2c83c914e",
