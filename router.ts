@@ -73,32 +73,40 @@ const createMiddlewareFromRoute = <
   method?: Method
 }) => {
   return ({
-  method,
-  handler: handler || (path as Handler),
-  path: typeof path === 'string' ? path : '/',
-  fullPath: typeof path === 'string' ? fullPath : path,
-})}
+    method,
+    handler: handler || (path as Handler),
+    path: typeof path === 'string' ? path : '/',
+    fullPath: typeof path === 'string' ? fullPath : path,
+  })
+}
 
 /**
  * Push wares to a middleware array
  * @param mw Middleware arrays
  */
 export const pushMiddleware =
-  < Req extends THRequest = THRequest,
-  Res extends THResponse = THResponse>(mw: Middleware<Req, Res>[]) =>
+  <Req extends THRequest = THRequest, Res extends THResponse = THResponse>(
+    mw: Middleware<Req, Res>[],
+  ) =>
   ({
     path,
     handler,
     method,
     handlers,
     type,
-    fullPaths
+    fullPaths,
   }: MethodHandler<Req, Res> & {
     method?: Method
     handlers?: RouterHandler<Req, Res>[]
     fullPaths?: string[]
   }): void => {
-    const m = createMiddlewareFromRoute<Req, Res>({ path, handler, method, type, fullPath: fullPaths?.[0] })
+    const m = createMiddlewareFromRoute<Req, Res>({
+      path,
+      handler,
+      method,
+      type,
+      fullPath: fullPaths?.[0],
+    })
 
     let waresFromHandlers: { handler: Handler<Req, Res> }[] = []
     let idx = 1
@@ -110,7 +118,7 @@ export const pushMiddleware =
           handler,
           method,
           type,
-          fullPath: fullPaths == null ? undefined : fullPaths[idx++]
+          fullPath: fullPaths == null ? undefined : fullPaths[idx++],
         })
       )
     }

@@ -6,11 +6,7 @@ const app = new App()
 
 app.get('/', (req, res) => void res.send(`Hello World from ${req.protocol}`))
 
-await serveTls(async (_req, connInfo) => {
-  const req = _req.clone() as THRequest
-  req.conn = connInfo
-  return await app.handler(req)
-}, {
+await serveTls(app.handler, {
   port: 3000,
   onError: app.onError,
   certFile: './cert.pem',

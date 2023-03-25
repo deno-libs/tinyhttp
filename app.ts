@@ -56,7 +56,7 @@ export class App<
     this.middleware = []
     this.onError = options?.onError || onErrorHandler
     this.notFound = options?.noMatchHandler || notFound
-    this.attach = (req, res) => this.handler(req, res)
+    this.attach = (req, res) => this.#prepare.bind(this, req, res)()
   }
   /**
    * Render a template
@@ -116,7 +116,7 @@ export class App<
     const handlerPaths = []
     const handlerFunctions = []
     const handlerPathBase = path === '/' ? '' : lead(path)
-    
+
     for (const fn of fns) {
       if (fn instanceof App && fn.middleware?.length) {
         for (const mw of fn.middleware) {
@@ -158,12 +158,10 @@ export class App<
    * Extends Req / Res objects, pushes 404 and 500 handlers, dispatches middleware
    * @param req Request object
    */
-  async handler(
+  async #prepare(
     req: Req,
     res: { _init?: ResponseInit } = { _init: {} },
-    _next?: NextFunction,
   ) {
-    
     const exts = extendMiddleware<RenderOptions>(this as unknown as App)
 
     const matched = this.#find(req.url).filter((x) =>
@@ -201,12 +199,28 @@ export class App<
       await applyHandler<Req, Res>(mw[idx++].handler)(
         req,
         res as Res,
-        _next || next,
+        next,
       ))
 
     await loop()
 
     if (err) throw err // so that serve catches it
+  }
+  handler = async (_req: Request, connInfo: ConnInfo) => {
+    const req = _req.clone() as Req
+    req.conn = connInfo
+    const res = {
+      _init: {
+        headers: new Headers({
+          'X-Powered-By': typeof this.settings.xPoweredBy === 'string'
+            ? this.settings.xPoweredBy
+            : 'tinyhttp',
+        }),
+      },
+      _body: undefined,
+    }
+    await this.#prepare(req, res)
+    return new Response(res._body, res._init)
   }
   /**
    * Creates HTTP server and dispatches middleware
@@ -215,22 +229,7 @@ export class App<
    * @param host server listening host
    */
   async listen(port: number, cb?: () => void, hostname?: string) {
-    await serve(async (_req, connInfo) => {
-      const req = _req.clone() as Req
-      req.conn = connInfo
-      const res = {
-        _init: {
-          headers: new Headers({
-            'X-Powered-By': typeof this.settings.xPoweredBy === 'string'
-              ? this.settings.xPoweredBy
-              : 'tinyhttp',
-          }),
-        },
-        _body: undefined,
-      }
-      await this.handler(req, res)
-      return new Response(res._body, res._init)
-    }, {
+    await serve(this.handler, {
       port,
       onListen: cb,
       hostname,
