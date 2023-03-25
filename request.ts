@@ -9,7 +9,7 @@ export interface THRequest extends Request {
   protocol: string
   xhr: boolean
   hostname?: string
-  ip: string
+  ip?: string
   ips?: string[]
   subdomains?: string[]
   accepts: (...types: string[]) => AcceptsReturns

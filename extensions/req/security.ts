@@ -59,12 +59,11 @@ export const getHostname = <Request extends THRequest = THRequest>(
 }
 export const getIP = <Request extends THRequest = THRequest>(
   req: Request,
-): string | undefined =>
-  proxyaddr(req, trustRemoteAddress(req))?.replace(/^.*:/, '') // striping the redundant prefix addeded by OS to IPv4 address
+) => proxyaddr(req, trustRemoteAddress(req))?.replace(/^.*:/, '') // striping the redundant prefix addeded by OS to IPv4 address
 
 export const getIPs = <Request extends THRequest = THRequest>(
   req: Request,
-): string[] | undefined => all(req, trustRemoteAddress(req))
+): string[] => all(req, trustRemoteAddress(req))
 
 export const getSubdomains = <Request extends THRequest = THRequest>(
   req: Request,

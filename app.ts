@@ -97,7 +97,7 @@ export class App<
    * @param req Request object
    */
   async handler(_req: Request, connInfo: ConnInfo): Promise<Response> {
-    const exts = extendMiddleware<RenderOptions>()
+    const exts = extendMiddleware<RenderOptions>(app)
 
     const req = _req.clone() as Req
     req.conn = connInfo
@@ -170,6 +170,7 @@ export class App<
 const app = new App()
 
 app.use((req, res, next) => {
+  console.log(req.subdomains)
   next()
 })
 await app.listen(3000)
