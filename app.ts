@@ -169,7 +169,7 @@ export class App<
 
 const app = new App()
 
-app.get('/',(req, res, next) => {
+app.get('/', (req, res, next) => {
   res.redirect('/re')
 })
 app.get('/re', (req, res) => void res.send('redir'))

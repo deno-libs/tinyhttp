@@ -12,19 +12,22 @@ import {
   reqIs,
 } from './extensions/req/mod.ts'
 import {
+  append,
   attachment,
   end,
   formatResponse,
   json,
+  redirect,
   send,
   sendFile,
   sendStatus,
-  status,
   setLinksHeader,
-  setLocationHeader,redirect,setVaryHeader
+  setLocationHeader,
+  setVaryHeader,
+  status,
 } from './extensions/res/mod.ts'
 import type { THRequest } from './request.ts'
-import type { THResponse } from './response.ts'
+import { renderTemplate, THResponse } from './response.ts'
 import type { NextFunction, Protocol } from './types.ts'
 
 /**
@@ -63,6 +66,8 @@ export const extendMiddleware = <EngineOptions>(app: App<EngineOptions>) =>
   res.links = setLinksHeader(res)
   res.vary = setVaryHeader(res)
   res.redirect = redirect(req, res, next)
+  res.append = append(res)
+  res.render = renderTemplate<EngineOptions>(res, app)
 
   next()
 }
