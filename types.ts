@@ -43,8 +43,9 @@ type Middleware<
 > = {
   handler: Handler<Req, Res>
   type: 'mw' | 'route'
-  path: string
+  path?: string
   method?: Method
+  fullPath?: string
 }
 
 type TemplateEngineOptions<O = any> = Partial<{

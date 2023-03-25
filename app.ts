@@ -1,5 +1,5 @@
 import { ConnInfo, path, serve, ServeInit } from './deps.ts'
-import { Router } from './router.ts'
+import { pushMiddleware, Router, UseMethodParams } from './router.ts'
 import { THResponse } from './response.ts'
 import { extendMiddleware } from './extend.ts'
 import { THRequest } from './request.ts'
@@ -13,6 +13,12 @@ import type {
   TemplateFunc,
 } from './types.ts'
 import { onErrorHandler } from './onError.ts'
+
+/**
+ * Add leading slash if not present (e.g. path -> /path, /path -> /path)
+ * @param x
+ */
+const lead = (x: string) => (x.charCodeAt(0) === 47 ? x : '/' + x)
 
 const applyHandler =
   <Req extends THRequest = THRequest, Res extends THResponse = THResponse>(
@@ -29,23 +35,28 @@ const applyHandler =
 const notFound: Handler = (req, res) =>
   void res.status(404).send(`Cannot ${req.method} ${new URL(req.url).pathname}`)
 
+const mount = (fn: App | Handler) => (fn instanceof App ? fn.attach : fn)
+
 export class App<
   RenderOptions = any,
   Req extends THRequest = THRequest,
   Res extends THResponse<RenderOptions> = THResponse<RenderOptions>,
-> extends Router<Req, Res> {
+> extends Router<App, Req, Res> {
   middleware: Middleware<Req, Res>[]
   settings: AppSettings & Record<string, any>
   locals: Record<string, string> = {}
   engines: Record<string, TemplateFunc<RenderOptions>> = {}
   onError: ServeInit['onError']
   notFound: Handler<Req, Res>
+  attach: (req: Req, res: Res, next: NextFunction) => void
+
   constructor(options: AppConstructor<Req, Res> = {}) {
     super()
     this.settings = options.settings || { xPoweredBy: true }
     this.middleware = []
     this.onError = options?.onError || onErrorHandler
     this.notFound = options?.noMatchHandler || notFound
+    this.attach = (req, res) => this.handler(req, res)
   }
   /**
    * Render a template
@@ -79,13 +90,64 @@ export class App<
 
     return this
   }
-  find(url: string) {
-    const { pathname } = new URL(url)
-    const result = this.middleware.filter((mw) => {
-      if (mw.type === 'mw') {
-        return pathname.startsWith(mw.path)
+  use(...args: UseMethodParams<Req, Res, App>): this {
+    const base = args[0]
+
+    const fns = args.slice(1).flat()
+
+    if (typeof base === 'function' || base instanceof App) {
+      fns.unshift(base)
+    } else if (Array.isArray(base)) {
+      fns.unshift(...base)
+    }
+
+    const path = typeof base === 'string' ? base : '/'
+
+    for (const fn of fns) {
+      if (fn instanceof App) {
+        fn.mountpath = path
+
+        this.apps[path] = fn
+
+        fn.parent = this as any
+      }
+    }
+
+    const handlerPaths = []
+    const handlerFunctions = []
+    const handlerPathBase = path === '/' ? '' : lead(path)
+    
+    for (const fn of fns) {
+      if (fn instanceof App && fn.middleware?.length) {
+        for (const mw of fn.middleware) {
+          handlerPaths.push(handlerPathBase + lead(mw.path!))
+          handlerFunctions.push(fn)
+          mw.fullPath = handlerPathBase + lead(mw.path!) // hotfix
+        }
       } else {
-        const pattern = new URLPattern({ pathname: mw.path })
+        handlerPaths.push('')
+        handlerFunctions.push(fn)
+      }
+    }
+    pushMiddleware(this.middleware)({
+      path,
+      type: 'mw',
+      handler: mount(handlerFunctions[0] as Handler),
+      // @ts-ignore
+      handlers: handlerFunctions.slice(1).map(mount),
+      fullPaths: handlerPaths,
+    })
+
+    return this
+  }
+  #find(url: string) {
+    const { pathname } = new URL(url)
+    const result = this.middleware.filter((m) => {
+      const path = m.fullPath || m.path
+      if (m.type === 'mw') {
+        return pathname.startsWith(path!)
+      } else {
+        const pattern = new URLPattern({ pathname: path })
         return pattern.test(url)
       }
     })
@@ -96,23 +158,15 @@ export class App<
    * Extends Req / Res objects, pushes 404 and 500 handlers, dispatches middleware
    * @param req Request object
    */
-  async handler(_req: Request, connInfo: ConnInfo): Promise<Response> {
+  async handler(
+    req: Req,
+    res: { _init?: ResponseInit } = { _init: {} },
+    _next?: NextFunction,
+  ) {
+    
     const exts = extendMiddleware<RenderOptions>(this as unknown as App)
 
-    const req = _req.clone() as Req
-    req.conn = connInfo
-
-    const res: Pick<Res, '_body' | '_init'> = {
-      _init: {
-        headers: new Headers({
-          'X-Powered-By': typeof this.settings.xPoweredBy === 'string'
-            ? this.settings.xPoweredBy
-            : 'tinyhttp',
-        }),
-      },
-    }
-
-    const matched = this.find(req.url).filter((x) =>
+    const matched = this.#find(req.url).filter((x) =>
       req.method === 'HEAD' || (x.method ? x.method === req.method : true)
     )
 
@@ -124,6 +178,7 @@ export class App<
       },
       ...matched,
     ]
+
     if (matched[0] != null) {
       mw.push({
         type: 'mw',
@@ -143,13 +198,15 @@ export class App<
       return loop()
     }
     const loop = async () => (idx < mw.length &&
-      await applyHandler<Req, Res>(mw[idx++].handler)(req, res as Res, next))
+      await applyHandler<Req, Res>(mw[idx++].handler)(
+        req,
+        res as Res,
+        _next || next,
+      ))
 
     await loop()
 
     if (err) throw err // so that serve catches it
-
-    return new Response(res._body, res._init)
   }
   /**
    * Creates HTTP server and dispatches middleware
@@ -158,7 +215,22 @@ export class App<
    * @param host server listening host
    */
   async listen(port: number, cb?: () => void, hostname?: string) {
-    await serve(this.handler.bind(this), {
+    await serve(async (_req, connInfo) => {
+      const req = _req.clone() as Req
+      req.conn = connInfo
+      const res = {
+        _init: {
+          headers: new Headers({
+            'X-Powered-By': typeof this.settings.xPoweredBy === 'string'
+              ? this.settings.xPoweredBy
+              : 'tinyhttp',
+          }),
+        },
+        _body: undefined,
+      }
+      await this.handler(req, res)
+      return new Response(res._body, res._init)
+    }, {
       port,
       onListen: cb,
       hostname,

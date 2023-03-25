@@ -59,7 +59,13 @@ export interface THResponse<O = any, B = any> {
   ): THResponse<O, B>
   clearCookie(name: string): THResponse<O, B>
   location(url: string): THResponse<O, B>
-  header(field:string | Record<string, string | number | string[]>, val?: string | number | readonly string[]): THResponse<O, B>
-  set(field: string | Record<string, string | number | string[]>, val?: string | number | readonly string[]): THResponse<O, B>
+  header(
+    field: string | Record<string, string | number | string[]>,
+    val?: string | number | readonly string[],
+  ): THResponse<O, B>
+  set(
+    field: string | Record<string, string | number | string[]>,
+    val?: string | number | readonly string[],
+  ): THResponse<O, B>
   get(field: string): string | null
 }
