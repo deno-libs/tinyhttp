@@ -1,4 +1,4 @@
-import { ConnInfo, path, serve, ServeInit } from './deps.ts'
+import { ConnInfo, path, ServeInit } from './deps.ts'
 import { pushMiddleware, Router, UseMethodParams } from './router.ts'
 import { THResponse } from './response.ts'
 import { extendMiddleware } from './extend.ts'
@@ -46,7 +46,7 @@ export class App<
   settings: AppSettings & Record<string, any>
   locals: Record<string, string> = {}
   engines: Record<string, TemplateFunc<RenderOptions>> = {}
-  onError: ServeInit['onError']
+  onError: (err: unknown) => Response | Promise<Response>
   notFound: Handler<Req, Res>
   attach: (req: Req, res: Res, next: NextFunction) => void
 
@@ -67,7 +67,7 @@ export class App<
    */
   render(
     file: string,
-    data: Record<string, any> = {},
+    data: Record<string, unknown> = {},
     cb: (err: unknown, html: unknown) => void,
     options: TemplateEngineOptions<RenderOptions> = {},
   ) {
@@ -190,7 +190,7 @@ export class App<
     }
     mw.push({ type: 'mw', handler: this.notFound, path: '/' })
 
-    let idx = 0, err: unknown | null = null
+    let idx = 0, err
     const next: NextFunction = (error) => {
       if (error) err = error
       return loop()
@@ -203,12 +203,11 @@ export class App<
       ))
 
     await loop()
-
-    if (err) throw err // so that serve catches it
+    if (err) throw err
   }
-  handler = async (_req: Request, connInfo: ConnInfo) => {
+  handler = async (_req: Request, connInfo?: ConnInfo) => {
     const req = _req.clone() as Req
-    req.conn = connInfo
+    req.conn = connInfo!
     const res = {
       _init: {
         headers: new Headers({
@@ -219,7 +218,11 @@ export class App<
       },
       _body: undefined,
     }
-    await this.#prepare(req, res)
+    try {
+      await this.#prepare(req, res)
+    } catch (e) {
+      return this.onError(e)
+    }
     return new Response(res._body, res._init)
   }
   /**
@@ -229,11 +232,17 @@ export class App<
    * @param host server listening host
    */
   async listen(port: number, cb?: () => void, hostname?: string) {
-    await serve(this.handler, {
-      port,
-      onListen: cb,
-      hostname,
-      onError: this.onError,
-    })
+    const listener = Deno.listen({ hostname, port })
+    for await (const conn of listener) {
+      ;(async () => {
+        const requests = Deno.serveHttp(conn)
+        for await (const { request, respondWith } of requests) {
+          const response = await this.handler(request, conn)
+          if (response) {
+            respondWith(response)
+          }
+        }
+      })
+    }
   }
 }

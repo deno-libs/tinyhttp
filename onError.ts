@@ -1,7 +1,6 @@
 import { STATUS_CODES } from './constants.ts'
-import { ServeInit } from './deps.ts'
 
-export const onErrorHandler: ServeInit['onError'] = (err) => {
+export const onErrorHandler = (err: unknown) => {
   if (err instanceof Error) console.error(err)
 
   const error = err as Error & { code?: number; status?: number }

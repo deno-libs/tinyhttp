@@ -10,7 +10,7 @@ export const randomPort = async () => await getFreePort(random(2048, 8064))
 export const BindToSuperDeno = <Req extends THRequest, Res extends THResponse>(
   app: App<unknown, Req, Res>,
 ) => {
-  return superdeno(app.listen)
+  return superdeno(app.handler)
 }
 
 export const InitAppAndTest = (

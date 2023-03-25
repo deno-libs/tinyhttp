@@ -1,7 +1,6 @@
 export type { ServeInit } from 'https://deno.land/std@0.181.0/http/server.ts'
 export { parse as parseRange } from 'https://deno.land/x/range_parser@1.1.0/parse.ts'
 export type { RangesSpecifier } from 'https://deno.land/x/range_parser@1.1.0/parse.ts'
-export { serve } from 'https://deno.land/std@0.181.0/http/server.ts'
 export type { ConnInfo } from 'https://deno.land/std@0.181.0/http/server.ts'
 export { typeByExtension } from 'https://deno.land/std@0.181.0/media_types/type_by_extension.ts'
 export { getCharset } from 'https://deno.land/std@0.181.0/media_types/get_charset.ts'
