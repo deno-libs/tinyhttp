@@ -233,16 +233,15 @@ export class App<
    */
   async listen(port: number, cb?: () => void, hostname?: string) {
     const listener = Deno.listen({ hostname, port })
+    cb?.()
     for await (const conn of listener) {
-      ;(async () => {
-        const requests = Deno.serveHttp(conn)
-        for await (const { request, respondWith } of requests) {
-          const response = await this.handler(request, conn)
-          if (response) {
-            respondWith(response)
-          }
+      const requests = Deno.serveHttp(conn)
+      for await (const { request, respondWith } of requests) {
+        const response = await this.handler(request, conn)
+        if (response) {
+          respondWith(response)
         }
-      })
+      }
     }
   }
 }
