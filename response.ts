@@ -1,4 +1,5 @@
 import { App } from './app.ts'
+import { SetCookieOptions } from './extensions/res/cookie.ts'
 import { DownloadOptions } from './extensions/res/download.ts'
 import { FormatProps } from './extensions/res/format.ts'
 import type { SendFileOptions } from './extensions/res/send/sendFile.ts'
@@ -52,4 +53,10 @@ export interface THResponse<O = any, B = any> {
   status(status: number): THResponse<O, B>
   sendStatus(statusCode: number): THResponse<O, B>
   append(field: string, value: unknown): THResponse<O, B>
+  cookie(
+    name: string,
+    value: string | Record<string, unknown>,
+    options?: SetCookieOptions
+  ): THResponse<O, B>
+  clearCookie(name: string): THResponse<O, B>
 }

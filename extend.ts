@@ -25,6 +25,8 @@ import {
   setLocationHeader,
   setVaryHeader,
   status,
+  setCookie,
+  clearCookie
 } from './extensions/res/mod.ts'
 import type { THRequest } from './request.ts'
 import { renderTemplate, THResponse } from './response.ts'
@@ -68,6 +70,8 @@ export const extendMiddleware = <EngineOptions>(app: App<EngineOptions>) =>
   res.redirect = redirect(req, res, next)
   res.append = append(res)
   res.render = renderTemplate<EngineOptions>(res, app)
+  res.cookie = setCookie(res)
+  res.clearCookie = clearCookie(res)
 
   next()
 }
