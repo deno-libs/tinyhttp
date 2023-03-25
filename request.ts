@@ -1,7 +1,25 @@
 import type { ConnInfo, RangesSpecifier } from './deps.ts'
+import type { AcceptsReturns, Protocol } from './types.ts'
 
 export interface THRequest extends Request {
-  _connInfo: ConnInfo
-  fresh: boolean
+  conn: ConnInfo
   range: () => -1 | -2 | RangesSpecifier | undefined
+  query: URLSearchParams
+  params: Record<string, string>
+  protocol: string
+  xhr: boolean
+  hostname?: string
+  ip: string
+  ips?: string[]
+  subdomains?: string[]
+  accepts: (...types: string[]) => AcceptsReturns
+  acceptsEncodings: (...encodings: string[]) => AcceptsReturns
+  acceptsCharsets: (...charsets: string[]) => AcceptsReturns
+  acceptsLanguages: (...languages: string[]) => AcceptsReturns
+  is: (...types: string[]) => string | boolean
+  cookies?: any
+  signedCookies?: any
+  secret?: string | string[]
+  fresh?: boolean
+  stale?: boolean
 }

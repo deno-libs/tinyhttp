@@ -1,4 +1,4 @@
-import { charset, encodeUrl, lookup, vary } from '../../deps.ts'
+import { encodeUrl, getCharset, typeByExtension, vary } from '../../deps.ts'
 import { THRequest } from '../../request.ts'
 import { THResponse } from '../../response.ts'
 import { getRequestHeader } from '../req/headers.ts'
@@ -21,13 +21,13 @@ export const setHeader =
         }
 
         if (!charsetRegExp.test(value)) {
-          const ch = charset(value.split(';')[0])
+          const ch = getCharset(value.split(';')[0])
 
           if (typeof ch === 'string') value += '; charset=' + ch.toLowerCase()
         }
       }
 
-      res.headers.set(field, value as string)
+      res._init.headers.set(field, value as string)
     } else {
       for (const key in field) {
         setHeader(res)(key, field[key] as string)
@@ -39,14 +39,14 @@ export const setHeader =
 export const getResponseHeader =
   <Response extends THResponse = THResponse>(res: Response) =>
   (field: string) => {
-    return res.headers?.get(field)
+    return res._init.headers?.get(field)
   }
 
 export const setLocationHeader = <
-  Request extends THRequest = THRequest,
-  Response extends THResponse = THResponse,
->(req: Request, res: Response) =>
-(url: string): Response => {
+  Req extends THRequest = THRequest,
+  Res extends THResponse = THResponse,
+>(req: Req, res: Res) =>
+(url: string): Res => {
   let loc = url
 
   // "back" is an alias for the referrer
@@ -55,16 +55,16 @@ export const setLocationHeader = <
   }
 
   // set location
-  res.headers.set('Location', encodeUrl(loc))
+  res._init.headers.set('Location', encodeUrl(loc))
   return res
 }
 
 export const setLinksHeader =
   <Response extends THResponse = THResponse>(res: Response) =>
   (links: { [key: string]: string }): Response => {
-    let link = res.headers?.get('Link') || ''
+    let link = res._init.headers?.get('Link') || ''
     if (link) link += ', '
-    res.headers.set(
+    res._init.headers.set(
       'Link',
       link +
         Object.keys(links)
@@ -78,7 +78,7 @@ export const setLinksHeader =
 export const setVaryHeader =
   <Response extends THResponse = THResponse>(res: Response) =>
   (field: string): Response => {
-    vary(res.headers || new Headers({}), field)
+    vary(res._init.headers || new Headers({}), field)
 
     return res
   }
@@ -86,7 +86,7 @@ export const setVaryHeader =
 export const setContentType =
   <Response extends THResponse = THResponse>(res: Response) =>
   (type: string): Response => {
-    const ct = type.indexOf('/') === -1 ? lookup(type) : type
+    const ct = type.indexOf('/') === -1 ? typeByExtension(type) : type
 
     setHeader(res)('Content-Type', ct)
 

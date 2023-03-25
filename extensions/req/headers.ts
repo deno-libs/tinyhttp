@@ -34,7 +34,7 @@ export const getFreshOrStale = <
   res: Response,
 ) => {
   const method = req.method
-  const status = res.status || 200
+  const status = res._init?.status || 200
 
   // GET or HEAD for weak freshness validation only
   if (method !== 'GET' && method !== 'HEAD') return false
@@ -44,8 +44,8 @@ export const getFreshOrStale = <
     return fresh(
       req.headers,
       new Headers({
-        etag: res.headers.get('ETag')!,
-        'last-modified': res.headers.get('Last-Modified')!,
+        etag: res._init.headers.get('ETag')!,
+        'last-modified': res._init.headers.get('Last-Modified')!,
       }),
     )
   }

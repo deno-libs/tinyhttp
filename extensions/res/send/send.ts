@@ -14,15 +14,15 @@ export const send = <
   // in case of object - turn it to json
   if (typeof bodyToSend === 'object' && bodyToSend !== null) {
     bodyToSend = JSON.stringify(body, null, 2)
-    res.headers?.set('Content-Type', 'application/json')
+    res._init.headers?.set('Content-Type', 'application/json')
   } else {
     if (typeof bodyToSend === 'string') {
       // reflect this in content-type
-      const type = res.headers?.get('Content-Type')
+      const type = res._init.headers?.get('Content-Type')
 
       if (type && typeof type === 'string') {
-        res.headers?.set('Content-Type', setCharset(type, 'utf-8'))
-      } else {res.headers?.set(
+        res._init.headers?.set('Content-Type', setCharset(type, 'utf-8'))
+      } else {res._init.headers?.set(
           'Content-Type',
           setCharset('text/html', 'utf-8'),
         )}
@@ -32,20 +32,20 @@ export const send = <
   // populate ETag
   let etag: string | undefined
   if (
-    bodyToSend && !res.headers?.get('etag') &&
+    bodyToSend && !res._init.headers?.get('etag') &&
     (etag = createETag(bodyToSend as string))
   ) {
-    res.headers?.set('etag', etag)
+    res._init.headers?.set('etag', etag)
   }
 
   // freshness
-  if (req.fresh) res.status = 304
+  if (req.fresh) res._init.status = 304
 
   // strip irrelevant headers
-  if (res.status === 204 || res.status === 304) {
-    res.headers?.delete('Content-Type')
-    res.headers?.delete('Content-Length')
-    res.headers?.delete('Transfer-Encoding')
+  if (res._init.status === 204 || res._init.status === 304) {
+    res._init.headers?.delete('Content-Type')
+    res._init.headers?.delete('Content-Length')
+    res._init.headers?.delete('Transfer-Encoding')
     bodyToSend = ''
   }
 
@@ -59,8 +59,8 @@ export const send = <
     } else if (
       bodyToSend instanceof Uint8Array || bodyToSend instanceof File
     ) {
-      if (!res.headers?.get('Content-Type')) {
-        res.headers.set('content-type', 'application/octet-stream')
+      if (!res._init.headers?.get('Content-Type')) {
+        res._init.headers.set('content-type', 'application/octet-stream')
       }
 
       return end(res)(bodyToSend)

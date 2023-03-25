@@ -1,10 +1,10 @@
 import { formatResponse } from './format.ts'
 import { setLocationHeader } from './headers.ts'
-import { NextFunction } from '../../deps.ts'
 import { status as getStatus } from 'https://deno.land/x/status@0.1.0/status.ts'
 import { escapeHtml } from '../../deps.ts'
 import { THRequest } from '../../request.ts'
 import { THResponse } from '../../response.ts'
+import { NextFunction } from '../../types.ts'
 
 export const redirect = <
   Request extends THRequest = THRequest,
@@ -20,7 +20,7 @@ export const redirect = <
 
   let body = ''
 
-  address = setLocationHeader(req, res)(address).headers?.get(
+  address = setLocationHeader(req, res)(address)._init.headers.get(
     'Location',
   ) as string
 
@@ -41,12 +41,12 @@ export const redirect = <
     },
   })
 
-  res.headers.set('Content-Length', body.length.toString())
+  res._init.headers.set('Content-Length', body.length.toString())
 
-  res.status = status
+  res._init.status = status
 
   if (req.method === 'HEAD') {
-    res.status = status
+    res._init.status = status
     res.end()
   } else {
     res.end(body)

@@ -56,15 +56,15 @@ export const jsonp = <
 
   let callback = req.query[callbackName]
 
-  if (!res.headers?.get('Content-Type')) {
-    res.headers?.set('X-Content-Type-Options', 'nosniff')
-    res.headers?.set('Content-Type', 'application/json')
+  if (!res._init.headers?.get('Content-Type')) {
+    res._init.headers?.set('X-Content-Type-Options', 'nosniff')
+    res._init.headers?.set('Content-Type', 'application/json')
   }
 
   // jsonp
   if (typeof callback === 'string' && callback.length !== 0) {
-    res.headers?.set('X-Content-Type-Options', 'nosniff')
-    res.headers?.set('Content-Type', 'text/javascript')
+    res._init.headers?.set('X-Content-Type-Options', 'nosniff')
+    res._init.headers?.set('Content-Type', 'text/javascript')
 
     // restrict callback charset
     callback = callback.replace(/[^[\]\w$.]/g, '')

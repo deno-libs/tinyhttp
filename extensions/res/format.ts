@@ -39,7 +39,7 @@ export const formatResponse = <
   setVaryHeader(res)('Accept')
 
   if (key) {
-    res.headers?.set('Content-Type', normalizeType(key).value || '')
+    res._init.headers?.set('Content-Type', normalizeType(key).value || '')
 
     obj[key](req, res, next)
   } else if (fn) {

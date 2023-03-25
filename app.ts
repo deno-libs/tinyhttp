@@ -13,6 +13,7 @@ import type {
   TemplateFunc,
 } from './types.ts'
 import { onErrorHandler } from './onError.ts'
+import { reqIs } from './extensions/req/headers.ts'
 
 const applyHandler =
   <Req extends Request = Request, Res extends THResponse = THResponse>(
@@ -95,9 +96,9 @@ export class App<
     const exts = extendMiddleware<RenderOptions>()
 
     const req = _req.clone() as Req
-    req._connInfo = connInfo
+    req.conn = connInfo
 
-    const res: { _body?: BodyInit; _init?: ResponseInit } = {
+    const res: Pick<Res, '_body' | '_init'> = {
       _init: {
         headers: new Headers({
           'X-Powered-By': typeof this.settings.xPoweredBy === 'string'
@@ -124,8 +125,7 @@ export class App<
         type: 'mw',
         handler: (req, res, next) => {
           if (req.method === 'HEAD') {
-            res.status = 204
-            res.end('')
+            res.status(204).end('')
           } else next()
         },
         path: '/',
@@ -161,3 +161,10 @@ export class App<
     })
   }
 }
+
+const app = new App()
+
+app.use((req, _res, next) => {
+  next()
+})
+await app.listen(3000)

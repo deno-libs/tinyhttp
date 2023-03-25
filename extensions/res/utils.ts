@@ -1,5 +1,5 @@
 import { format, parse } from 'https://deno.land/x/content_type@1.0.1/mod.ts'
-import {  eTag } from '../../deps.ts'
+import { eTag } from '../../deps.ts'
 import { typeByExtension } from '../../deps.ts'
 
 export const createETag = (body: string | Buffer | eTag.StatsLike) => {

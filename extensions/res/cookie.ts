@@ -8,7 +8,7 @@ export const setCookie =
     value: string,
     options?: Omit<cookie.Cookie, 'value' | 'name'>,
   ): Response => {
-    cookie.setCookie(res.headers, {
+    cookie.setCookie(res._init.headers, {
       value,
       name,
       ...options,
@@ -20,8 +20,8 @@ export const setCookie =
 export const clearCookie =
   <Response extends THResponse = THResponse>(res: Response) =>
   (name: string): Response => {
-    cookie.deleteCookie(res.headers, name, {
-      path: cookie.getCookies(res.headers)['Path'] || '/',
+    cookie.deleteCookie(res._init.headers, name, {
+      path: cookie.getCookies(res._init.headers)['Path'] || '/',
     })
 
     return res

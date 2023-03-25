@@ -61,8 +61,8 @@ export const sendFile = <
     const start = (options.start = parseInt(x, 10) || 0)
 
     if (start >= stats.size || end >= stats.size) {
-      res.status = 416
-      res.headers?.set('Content-Range', `bytes */${stats.size}`)
+      res._init.status = 416
+      res._init.headers?.set('Content-Range', `bytes */${stats.size}`)
 
       res.end()
     }
@@ -71,9 +71,9 @@ export const sendFile = <
     headers['Accept-Ranges'] = 'bytes'
   }
 
-  for (const [k, v] of Object.entries(headers)) res.headers?.set(k, v)
+  for (const [k, v] of Object.entries(headers)) res._init.headers?.set(k, v)
 
-  res.status = status
+  res._init.status = status
 
   const file = Deno.openSync(filePath, options)
 

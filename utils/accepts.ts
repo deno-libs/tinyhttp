@@ -6,7 +6,7 @@
  * MIT Licensed
  */
 
-import { lookup, Negotiator } from '../deps.ts'
+import { Negotiator, typeByExtension } from '../deps.ts'
 
 /**
  * Create a new Accepts object for the given headers.
@@ -152,7 +152,7 @@ export class Accepts {
  */
 
 function extToMime(type: string): string | undefined {
-  return type.indexOf('/') === -1 ? lookup(type) : type
+  return type.indexOf('/') === -1 ? typeByExtension(type) : type
 }
 
 /**
