@@ -59,4 +59,5 @@ export interface THResponse<O = any, B = any> {
     options?: SetCookieOptions
   ): THResponse<O, B>
   clearCookie(name: string): THResponse<O, B>
+  location(url: string): THResponse<O, B>
 }

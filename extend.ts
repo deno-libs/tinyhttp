@@ -72,6 +72,7 @@ export const extendMiddleware = <EngineOptions>(app: App<EngineOptions>) =>
   res.render = renderTemplate<EngineOptions>(res, app)
   res.cookie = setCookie(res)
   res.clearCookie = clearCookie(res)
+  res.location = setLocationHeader(req, res)
 
   next()
 }
