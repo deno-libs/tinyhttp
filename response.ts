@@ -3,14 +3,13 @@ import { SetCookieOptions } from './extensions/res/cookie.ts'
 import { DownloadOptions } from './extensions/res/download.ts'
 import { FormatProps } from './extensions/res/format.ts'
 import type { SendFileOptions } from './extensions/res/send/sendFile.ts'
-import { THRequest } from './request.ts'
 import type { TemplateEngineOptions } from './types.ts'
 
 export const renderTemplate =
   <O, Res extends THResponse = THResponse>(res: Res, app: App) =>
   (
     file: string,
-    data?: Record<string, any>,
+    data?: Record<string, unknown>,
     options?: TemplateEngineOptions<O>,
   ): THResponse => {
     app.render(
@@ -35,7 +34,7 @@ export interface THResponse<O = any, B = any> {
   links(links: { [key: string]: string }): THResponse<O, B>
   render(
     file: string,
-    data?: Record<string, any>,
+    data?: Record<string, unknown>,
     options?: TemplateEngineOptions<O>,
   ): THResponse<O, B>
   vary(field: string): THResponse<O, B>
@@ -46,7 +45,7 @@ export interface THResponse<O = any, B = any> {
     path: string,
     filename: string,
     options?: DownloadOptions,
-    cb?: (err?: any) => void,
+    cb?: (err?: unknown) => void,
   ): THResponse<O, B>
   attachment(filename?: string): THResponse<O, B>
   json(body: B): THResponse<O, B>
@@ -56,8 +55,11 @@ export interface THResponse<O = any, B = any> {
   cookie(
     name: string,
     value: string | Record<string, unknown>,
-    options?: SetCookieOptions
+    options?: SetCookieOptions,
   ): THResponse<O, B>
   clearCookie(name: string): THResponse<O, B>
   location(url: string): THResponse<O, B>
+  header(field:string | Record<string, string | number | string[]>, val?: string | number | readonly string[]): THResponse<O, B>
+  set(field: string | Record<string, string | number | string[]>, val?: string | number | readonly string[]): THResponse<O, B>
+  get(field: string): string | null
 }

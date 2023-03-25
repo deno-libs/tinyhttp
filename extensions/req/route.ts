@@ -1,5 +1,5 @@
 import { App } from '../../app.ts'
-import { Handler, Middleware } from '../../deps.ts'
+import { Handler, Middleware } from '../../types.ts'
 import { THRequest } from '../../request.ts'
 import { THResponse } from '../../response.ts'
 

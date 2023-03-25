@@ -15,7 +15,7 @@ import type {
 import { onErrorHandler } from './onError.ts'
 
 const applyHandler =
-  <Req extends Request = Request, Res extends THResponse = THResponse>(
+  <Req extends THRequest = THRequest, Res extends THResponse = THResponse>(
     h: Handler<Req, Res>,
   ) =>
   async (req: Req, res: Res, next: NextFunction) => {
@@ -97,7 +97,7 @@ export class App<
    * @param req Request object
    */
   async handler(_req: Request, connInfo: ConnInfo): Promise<Response> {
-    const exts = extendMiddleware<RenderOptions>(app)
+    const exts = extendMiddleware<RenderOptions>(this as unknown as App)
 
     const req = _req.clone() as Req
     req.conn = connInfo
@@ -166,11 +166,3 @@ export class App<
     })
   }
 }
-
-const app = new App()
-
-app.get('/', (req, res, next) => {
-  res.redirect('/re')
-})
-app.get('/re', (req, res) => void res.send('redir'))
-await app.listen(3000)

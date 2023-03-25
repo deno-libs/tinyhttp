@@ -17,9 +17,11 @@ export interface THRequest extends Request {
   acceptsCharsets: (...charsets: string[]) => AcceptsReturns
   acceptsLanguages: (...languages: string[]) => AcceptsReturns
   is: (...types: string[]) => string | boolean
+  get: (header: string) => string | string[] | undefined
   cookies?: any
   signedCookies?: any
   secret?: string | string[]
   fresh?: boolean
   stale?: boolean
+  secure: boolean
 }

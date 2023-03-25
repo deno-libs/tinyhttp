@@ -2,6 +2,7 @@ import type { ServeInit } from './deps.ts'
 import { THResponse } from './response.ts'
 
 import { METHODS } from './constants.ts'
+import { THRequest } from './request.ts'
 
 type Method = typeof METHODS[number]
 
@@ -28,7 +29,7 @@ type AppConstructor<Req, Res> = Partial<{
 type NextFunction = (e?: unknown) => void
 
 type Handler<
-  Req extends Request = Request,
+  Req extends THRequest = THRequest,
   Res extends THResponse = THResponse,
 > = (
   req: Req,
@@ -37,7 +38,7 @@ type Handler<
 ) => void | Promise<void>
 
 type Middleware<
-  Req extends Request = Request,
+  Req extends THRequest = THRequest,
   Res extends THResponse = THResponse,
 > = {
   handler: Handler<Req, Res>

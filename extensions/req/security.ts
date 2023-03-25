@@ -25,7 +25,7 @@ export const trustRemoteAddress = <Request extends THRequest = THRequest>(
 export const getProtocol = <Request extends THRequest = THRequest>(
   req: Request,
 ): 'http' | 'https' => {
-  const proto = req.protocol?.includes('https') ? 'https' : 'http'
+  const proto = new URL(req.url).protocol?.includes('https') ? 'https' : 'http'
 
   const header = (req.headers.get('X-Forwarded-Proto') as string) ?? proto
   const index = header.indexOf(',')
@@ -40,23 +40,20 @@ export const getProtocol = <Request extends THRequest = THRequest>(
     : header.trim()) as Protocol
 }
 
-export const getHostname = <Request extends THRequest = THRequest>(
-  req: Request,
-): string | undefined => {
+export const getHostname = (req: THRequest): string | undefined => {
   let host: string = req.headers.get('X-Forwarded-Host') as string
 
   if (!host || !trustRemoteAddress(req)) {
-    host = (req.headers.get('Host') as string) ||
-      (req.conn.remoteAddr as Deno.NetAddr).hostname
+    host = req.headers.get('Host') as string
   }
-
-  if (!host) return
+  if (!host) return new URL(req.url).hostname
 
   // IPv6 literal support
   const index = host.indexOf(':', host[0] === '[' ? host.indexOf(']') + 1 : 0)
 
   return index !== -1 ? host.substring(0, index) : host
 }
+
 export const getIP = <Request extends THRequest = THRequest>(
   req: Request,
 ) => proxyaddr(req, trustRemoteAddress(req))?.replace(/^.*:/, '') // striping the redundant prefix addeded by OS to IPv4 address

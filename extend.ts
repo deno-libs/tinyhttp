@@ -1,4 +1,5 @@
 import { App } from './app.ts'
+import { getRequestHeader } from './extensions/req/headers.ts'
 import {
   checkIfXMLHttpRequest,
   getAccepts,
@@ -6,14 +7,18 @@ import {
   getAcceptsEncodings,
   getAcceptsLanguages,
   getFreshOrStale,
+  getHostname,
   getIP,
   getIPs,
+  getProtocol,
   getSubdomains,
   reqIs,
 } from './extensions/req/mod.ts'
+import { getResponseHeader, setHeader } from './extensions/res/headers.ts'
 import {
   append,
   attachment,
+  clearCookie,
   end,
   formatResponse,
   json,
@@ -21,16 +26,15 @@ import {
   send,
   sendFile,
   sendStatus,
+  setCookie,
   setLinksHeader,
   setLocationHeader,
   setVaryHeader,
   status,
-  setCookie,
-  clearCookie
 } from './extensions/res/mod.ts'
 import type { THRequest } from './request.ts'
 import { renderTemplate, THResponse } from './response.ts'
-import type { NextFunction, Protocol } from './types.ts'
+import type { NextFunction } from './types.ts'
 
 /**
  * Extends Request and Response objects with custom properties and methods
@@ -41,7 +45,6 @@ export const extendMiddleware = <EngineOptions>(app: App<EngineOptions>) =>
   res: THResponse<EngineOptions>,
   next: NextFunction,
 ): void => {
-  const u = new URL(req.url)
   // Request
   req.accepts = getAccepts(req)
   req.acceptsCharsets = getAcceptsCharsets(req)
@@ -49,12 +52,15 @@ export const extendMiddleware = <EngineOptions>(app: App<EngineOptions>) =>
   req.acceptsLanguages = getAcceptsLanguages(req)
   req.is = reqIs(req)
   req.xhr = checkIfXMLHttpRequest(req)
-  req.protocol = u.protocol.slice(0, u.protocol.length - 1) as Protocol
+  req.protocol = getProtocol(req)
+  req.hostname = getHostname(req)
+  req.secure = req.protocol === 'https'
   // req.fresh = getFreshOrStale(req, res)
   // req.stale = !req.fresh
   req.ip = getIP(req)
   req.ips = getIPs(req)
   req.subdomains = getSubdomains(req, app.settings.subdomainOffset)
+  req.get = getRequestHeader(req)
 
   // Response
   res.end = end(res)
@@ -73,6 +79,9 @@ export const extendMiddleware = <EngineOptions>(app: App<EngineOptions>) =>
   res.cookie = setCookie(res)
   res.clearCookie = clearCookie(res)
   res.location = setLocationHeader(req, res)
+  res.get = getResponseHeader(res)
+  res.header = setHeader(res)
+  res.set = setHeader(res)
 
   next()
 }

@@ -1,8 +1,9 @@
 import { METHODS } from './constants.ts'
+import { THRequest } from './request.ts'
 import type { THResponse } from './response.ts'
 import type { Handler, Method, Middleware } from './types.ts'
 
-type RouterArgs<Req extends Request = Request> = [
+type RouterArgs<Req extends THRequest = THRequest> = [
   pathname: string,
   handler: Handler<Req>,
   ...handlers: Handler<Req>[],
@@ -11,7 +12,7 @@ type LowerCaseMethod = Lowercase<Method>
 type RM<R> = (...args: RouterArgs) => R
 
 export class Router<
-  Req extends Request = Request,
+  Req extends THRequest = THRequest,
   Res extends THResponse = THResponse,
 > {
   middleware: Middleware<Req, Res>[] = []
