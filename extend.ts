@@ -38,7 +38,7 @@ export const extendMiddleware = <EngineOptions>() =>
   req.acceptsLanguages = getAcceptsLanguages(req)
   req.is = reqIs(req)
   req.xhr = checkIfXMLHttpRequest(req)
-  req.protocol = u.protocol
+  req.protocol = u.protocol.slice(0, u.protocol.length - 1)
   // req.fresh = getFreshOrStale(req, res)
   // req.stale = !req.fresh
 

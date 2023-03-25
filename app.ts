@@ -13,7 +13,6 @@ import type {
   TemplateFunc,
 } from './types.ts'
 import { onErrorHandler } from './onError.ts'
-import { reqIs } from './extensions/req/headers.ts'
 
 const applyHandler =
   <Req extends Request = Request, Res extends THResponse = THResponse>(
@@ -27,6 +26,9 @@ const applyHandler =
     }
   }
 
+const notFound: Handler = (req, res) =>
+  void res.status(404).send(`Cannot ${req.method} ${new URL(req.url).pathname}`)
+
 export class App<
   RenderOptions = any,
   Req extends THRequest = THRequest,
@@ -37,11 +39,13 @@ export class App<
   locals: Record<string, string> = {}
   engines: Record<string, TemplateFunc<RenderOptions>> = {}
   onError: ServeInit['onError']
+  notFound: Handler<Req, Res>
   constructor(options: AppConstructor<Req, Res> = {}) {
     super()
     this.settings = options.settings || { xPoweredBy: true }
     this.middleware = []
     this.onError = options?.onError || onErrorHandler
+    this.notFound = options?.noMatchHandler || notFound
   }
   /**
    * Render a template
@@ -131,6 +135,7 @@ export class App<
         path: '/',
       })
     }
+    mw.push({ type: 'mw', handler: this.notFound, path: '/' })
 
     let idx = 0, err: unknown | null = null
     const next: NextFunction = (error) => {
@@ -142,7 +147,7 @@ export class App<
 
     await loop()
 
-    if (err) throw err
+    if (err) throw err // so that serve catches it
 
     return new Response(res._body, res._init)
   }
@@ -164,7 +169,7 @@ export class App<
 
 const app = new App()
 
-app.use((req, _res, next) => {
+app.use((req, res, next) => {
   next()
 })
 await app.listen(3000)
