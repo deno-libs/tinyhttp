@@ -169,8 +169,8 @@ export class App<
 
 const app = new App()
 
-app.use((req, res, next) => {
-  console.log(req.subdomains)
-  next()
+app.get('/',(req, res, next) => {
+  res.redirect('/re')
 })
+app.get('/re', (req, res) => void res.send('redir'))
 await app.listen(3000)

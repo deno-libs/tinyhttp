@@ -20,10 +20,12 @@ import {
   sendFile,
   sendStatus,
   status,
+  setLinksHeader,
+  setLocationHeader,redirect,setVaryHeader
 } from './extensions/res/mod.ts'
 import type { THRequest } from './request.ts'
 import type { THResponse } from './response.ts'
-import type { NextFunction } from './types.ts'
+import type { NextFunction, Protocol } from './types.ts'
 
 /**
  * Extends Request and Response objects with custom properties and methods
@@ -42,7 +44,7 @@ export const extendMiddleware = <EngineOptions>(app: App<EngineOptions>) =>
   req.acceptsLanguages = getAcceptsLanguages(req)
   req.is = reqIs(req)
   req.xhr = checkIfXMLHttpRequest(req)
-  req.protocol = u.protocol.slice(0, u.protocol.length - 1)
+  req.protocol = u.protocol.slice(0, u.protocol.length - 1) as Protocol
   // req.fresh = getFreshOrStale(req, res)
   // req.stale = !req.fresh
   req.ip = getIP(req)
@@ -58,6 +60,9 @@ export const extendMiddleware = <EngineOptions>(app: App<EngineOptions>) =>
   res.attachment = attachment(res)
   res.format = formatResponse(req, res, next)
   res.status = status(res)
+  res.links = setLinksHeader(res)
+  res.vary = setVaryHeader(res)
+  res.redirect = redirect(req, res, next)
 
   next()
 }

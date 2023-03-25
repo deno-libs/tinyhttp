@@ -6,7 +6,7 @@ export interface THRequest extends Request {
   range: () => -1 | -2 | RangesSpecifier | undefined
   query: URLSearchParams
   params: Record<string, string>
-  protocol: string
+  protocol: Protocol
   xhr: boolean
   hostname?: string
   ip?: string
