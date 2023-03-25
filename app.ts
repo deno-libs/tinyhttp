@@ -43,7 +43,7 @@ export class App<
   Res extends THResponse<RenderOptions> = THResponse<RenderOptions>,
 > extends Router<App, Req, Res> {
   middleware: Middleware<Req, Res>[]
-  settings: AppSettings & Record<string, any>
+  settings: AppSettings & Record<string, unknown>
   locals: Record<string, string> = {}
   engines: Record<string, TemplateFunc<RenderOptions>> = {}
   onError: (err: unknown) => Response | Promise<Response>
@@ -133,7 +133,7 @@ export class App<
       path,
       type: 'mw',
       handler: mount(handlerFunctions[0] as Handler),
-      // @ts-ignore
+      // @ts-ignore type conflict
       handlers: handlerFunctions.slice(1).map(mount),
       fullPaths: handlerPaths,
     })

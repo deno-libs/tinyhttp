@@ -53,7 +53,7 @@ type TemplateEngineOptions<O = any> = Partial<{
   ext: string
   renderOptions: Partial<O>
   viewsFolder: string
-  _locals: Record<string, any>
+  _locals: Record<string, unknown>
 }>
 
 /**
@@ -61,7 +61,7 @@ type TemplateEngineOptions<O = any> = Partial<{
  */
 type TemplateFunc<O> = (
   path: string,
-  locals: Record<string, any>,
+  locals: Record<string, unknown>,
   opts: TemplateEngineOptions<O>,
   cb: (err: Error | null, html: unknown) => void,
 ) => void
