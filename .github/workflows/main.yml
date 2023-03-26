@@ -12,12 +12,12 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - uses: denoland/setup-deno@v1
         with:
           deno-version: v1.x
-      # - name: Cache Dependencies
-      # run: deno cache deps.ts
+      - name: Cache Dependencies
+        run: deno cache deps.ts
       - name: Run tests
         run: deno test --coverage=coverage --unstable -A
       - name: Create coverage report
