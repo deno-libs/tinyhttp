@@ -13,7 +13,8 @@
   },
   "test": {
     "files":{
-      "include": ["./tests/"]
+      "include": ["./tests/"],
+      "exclude": ["./tests/util.ts"]
     }
   }
 }
