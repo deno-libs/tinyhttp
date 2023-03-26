@@ -1,7 +1,6 @@
 import { formatResponse } from './format.ts'
 import { setLocationHeader } from './headers.ts'
-import { status as getStatus } from 'https://deno.land/x/status@0.1.0/status.ts'
-import { escapeHtml } from '../../deps.ts'
+import { escapeHtml, getStatus } from '../../deps.ts'
 import { THRequest } from '../../request.ts'
 import { THResponse } from '../../response.ts'
 import { NextFunction } from '../../types.ts'

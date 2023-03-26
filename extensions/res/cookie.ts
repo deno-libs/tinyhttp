@@ -1,4 +1,4 @@
-import * as cookie from 'https://deno.land/std@0.181.0/http/cookie.ts'
+import { cookie } from '../../deps.ts'
 import { THResponse } from '../../response.ts'
 
 export type SetCookieOptions = Omit<cookie.Cookie, 'value' | 'name'>

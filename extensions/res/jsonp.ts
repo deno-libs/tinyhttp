@@ -54,7 +54,7 @@ export const jsonp = <
 
   let body = stringify(val, replacer, spaces, escape)
 
-  let callback = req.query[callbackName]
+  let callback = req.query.get(callbackName)
 
   if (!res._init.headers?.get('Content-Type')) {
     res._init.headers?.set('X-Content-Type-Options', 'nosniff')

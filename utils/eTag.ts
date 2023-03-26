@@ -1,5 +1,4 @@
-import { encode } from 'https://deno.land/std@0.181.0/encoding/base64.ts'
-
+import { base64 } from '../deps.ts'
 const encoder = new TextEncoder()
 
 const entityTag = async (entity: string): Promise<string> => {
@@ -10,7 +9,7 @@ const entityTag = async (entity: string): Promise<string> => {
     // generate hash
     const data = encoder.encode(entity)
     const buf = await crypto.subtle.digest('SHA-1', data)
-    const hash = encode(buf).slice(0, 27)
+    const hash = base64.encode(buf).slice(0, 27)
     const len = data.byteLength
 
     return '"' + len.toString(16) + '-' + hash + '"'

@@ -1,9 +1,9 @@
-import { contentDisposition } from 'https://esm.sh/@tinyhttp/content-disposition@2.0.8'
+
 import { sendFile, SendFileOptions } from './send/sendFile.ts'
-import { extname } from 'https://deno.land/std@0.181.0/path/mod.ts'
 import { setContentType, setHeader } from './headers.ts'
 import { THRequest } from '../../request.ts'
 import { THResponse } from '../../response.ts'
+import { contentDisposition, extname } from "../../deps.ts";
 
 export type DownloadOptions =
   & SendFileOptions
@@ -12,14 +12,14 @@ export type DownloadOptions =
   }>
 
 export const download = <
-  Request extends THRequest = THRequest,
-  Response extends THResponse = THResponse,
->(req: Request, res: Response) =>
-(
+  Req extends THRequest = THRequest,
+  Res extends THResponse = THResponse,
+>(req: Req, res: Res) =>
+async (
   path: string,
   filename?: string,
   options: DownloadOptions = {},
-): Response => {
+): Promise<Res> => {
   const name: string | null = filename as string
   let opts: DownloadOptions = options
 
@@ -42,7 +42,7 @@ export const download = <
 
   // send file
 
-  return sendFile<Request, Response>(req, res)(path, opts) as Response
+  return await sendFile<Req, Res>(req, res)(path, opts)
 }
 
 export const attachment =

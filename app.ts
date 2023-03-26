@@ -1,4 +1,4 @@
-import { ConnInfo, path } from './deps.ts'
+import { path } from './deps.ts'
 import { pushMiddleware, Router, UseMethodParams } from './router.ts'
 import { THResponse } from './response.ts'
 import { extendMiddleware } from './extend.ts'
@@ -220,7 +220,7 @@ export class App<
     await loop()
     if (err) throw err
   }
-  handler = async (_req: Request, connInfo?: ConnInfo) => {
+  handler = async (_req: Request, connInfo?: Deno.Conn) => {
     const req = _req.clone() as Req
     req.conn = connInfo!
     const res = {
@@ -249,6 +249,7 @@ export class App<
   async listen(port: number, cb?: () => void, hostname?: string) {
     const listener = Deno.listen({ hostname, port })
     cb?.()
+    
     for await (const conn of listener) {
       const requests = Deno.serveHttp(conn)
       for await (const { request, respondWith } of requests) {

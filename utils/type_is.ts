@@ -6,9 +6,7 @@
  * MIT Licensed
  */
 
-import { typeByExtension } from '../deps.ts'
-import { parse } from 'https://deno.land/x/content_type@1.0.1/mod.ts'
-import { test } from 'https://deno.land/x/media_typer@1.0.1/mod.ts'
+import { mediaTyper, parseMediaType, typeByExtension } from '../deps.ts'
 
 /**
  * Compare a `value` content-type with `types`.
@@ -188,9 +186,9 @@ function mimeMatch(expected: string, actual: string): boolean {
  */
 function normalizeType(value: string): string | null {
   // parse the type
-  const type = parse(value).type
+  const type = parseMediaType(value)[0]
 
-  if (!test(type)) {
+  if (!mediaTyper.test(type)) {
     return null
   }
 

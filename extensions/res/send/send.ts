@@ -8,7 +8,7 @@ export const send = <
   Request extends THRequest = THRequest,
   Response extends THResponse = THResponse,
 >(req: Request, res: Response) =>
-(body: any) => {
+async (body: any) => {
   let bodyToSend = body
 
   // in case of object - turn it to json
@@ -21,10 +21,10 @@ export const send = <
       const type = res._init.headers?.get('Content-Type')
 
       if (type && typeof type === 'string') {
-        res._init.headers?.set('Content-Type', setCharset(type, 'utf-8'))
+        res._init.headers?.set('Content-Type', setCharset(type))
       } else {res._init.headers?.set(
           'Content-Type',
-          setCharset('text/html', 'utf-8'),
+          setCharset('text/html'),
         )}
     }
   }
@@ -33,7 +33,7 @@ export const send = <
   let etag: string | undefined
   if (
     bodyToSend && !res._init.headers?.get('etag') &&
-    (etag = createETag(bodyToSend as string))
+    (etag = await createETag(bodyToSend as string))
   ) {
     res._init.headers?.set('etag', etag)
   }
