@@ -1,33 +1,80 @@
-import { NextFunction, Handler as RHandler, Middleware, UseMethodParams, Method } from './deps.ts'
-import type { Request, Response } from './mod.ts'
+import { THResponse } from './response.ts'
 
-type QueryParams = {
-  [key: string]: string | string[]
-}
+import { METHODS } from './constants.ts'
+import { THRequest } from './request.ts'
+
+type Method = typeof METHODS[number]
 
 type AcceptsReturns = string | false | string[]
 
 type Protocol = 'http' | 'https'
 
-interface Ranges extends Array<Range> {
-  type: string
-}
-interface Range {
-  start: number
-  end: number
+/**
+ * tinyhttp App has a few settings for toggling features
+ */
+type AppSettings = Partial<
+  & Record<'networkExtensions' | 'bindAppToReqRes' | 'enableReqRoute', boolean>
+  & Record<'subdomainOffset', number>
+  & Record<'xPoweredBy', string | boolean>
+>
+
+type AppConstructor<Req, Res> = Partial<{
+  noMatchHandler: Handler
+  onError: (err: unknown) => Response | Promise<Response>
+  applyExtensions: (req: Req, res: Res, next: NextFunction) => void
+  settings: AppSettings
+}>
+
+type NextFunction = (e?: unknown) => void
+
+type Handler<
+  Req extends THRequest = THRequest,
+  Res extends THResponse = THResponse,
+> = (
+  req: Req,
+  res: Res,
+  next: NextFunction,
+) => void | Promise<void>
+
+type Middleware<
+  Req extends THRequest = THRequest,
+  Res extends THResponse = THResponse,
+> = {
+  handler: Handler<Req, Res>
+  type: 'mw' | 'route'
+  path?: string
+  method?: Method
+  fullPath?: string
+  pattern?: URLPattern
 }
 
-export type Handler<Req = Request> = RHandler<Req, Response>
+type TemplateEngineOptions<O = any> = Partial<{
+  cache: boolean
+  ext: string
+  renderOptions: Partial<O>
+  viewsFolder: string
+  _locals: Record<string, unknown>
+}>
+
+/**
+ * Function that processes the template
+ */
+type TemplateFunc<O> = (
+  path: string,
+  locals: Record<string, unknown>,
+  opts: TemplateEngineOptions<O>,
+  cb: (err: Error | null, html: unknown) => void,
+) => void
 
 export type {
-  QueryParams,
   AcceptsReturns,
-  Protocol,
-  Range,
-  Ranges,
+  AppConstructor,
+  AppSettings,
+  Handler,
   Method,
-  NextFunction,
-  RHandler,
   Middleware,
-  UseMethodParams
+  NextFunction,
+  Protocol,
+  TemplateEngineOptions,
+  TemplateFunc,
 }

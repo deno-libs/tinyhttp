@@ -1,33 +1,12 @@
-import { Request } from './request.ts'
-import type { NextFunction } from './deps.ts'
-import { ALL as STATUS_CODES } from 'https://deno.land/x/status@0.1.0/codes.ts'
-import { status } from 'https://deno.land/x/status@0.1.0/status.ts'
+import { STATUS_CODES } from './constants.ts'
 
-export type ServerError = Partial<{
-  code: number
-  status: number
-  message: string
-}>
+export const onErrorHandler = (err: unknown) => {
+  if (err instanceof Error) console.error(err)
 
-export type ErrorHandler = (err: ServerError, req: Request, next?: NextFunction) => void
+  const error = err as Error & { code?: number; status?: number }
 
-export const onErrorHandler: ErrorHandler = async (err: ServerError, req: Request) => {
-  const code = err.code || err.status
-
-  if (typeof err === 'string') {
-    await req.respond({
-      body: err,
-      status: 500
-    })
-  } else if (STATUS_CODES.includes(code!)) {
-    await req.respond({
-      body: status.pretty(code!).toString(),
-      status: code
-    })
-  } else {
-    req.respond({
-      status: 500,
-      body: err.message
-    })
-  }
+  if (typeof err === 'string') return new Response(err, { status: 500 })
+  else if (error.code! in STATUS_CODES) {
+    return new Response(STATUS_CODES[error.code!], { status: error.code })
+  } else return new Response(error.message, { status: 500 })
 }

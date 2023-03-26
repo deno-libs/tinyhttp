@@ -1,40 +1,30 @@
-// deno-lint-ignore-file
-import { ServerRequest } from 'https://deno.land/std@0.106.0/http/server.ts'
-import { App } from './app.ts'
-import { QueryParams, Ranges, Protocol, AcceptsReturns, Middleware } from './types.ts'
+import type { ConnInfo, RangesSpecifier } from './deps.ts'
+import type { AcceptsReturns, Middleware, Protocol } from './types.ts'
 
-export interface Request<Body = Record<string, unknown>> extends ServerRequest, tinyhttp.Request {
+export interface THRequest extends Request {
+  _urlObject: URL
   path: string
-  originalUrl: string
-  query: QueryParams
-
-  app: App
-  params: Record<string, any>
-  get: (header: string) => string | string[] | null
+  conn: ConnInfo
+  range: () => -1 | -2 | RangesSpecifier | undefined
+  query: URLSearchParams
+  params: Record<string, string>
+  protocol: Protocol
   xhr: boolean
-  fresh?: boolean
-  stale?: boolean
+  hostname?: string
+  ip?: string
+  ips?: string[]
+  subdomains?: string[]
   accepts: (...types: string[]) => AcceptsReturns
   acceptsEncodings: (...encodings: string[]) => AcceptsReturns
   acceptsCharsets: (...charsets: string[]) => AcceptsReturns
   acceptsLanguages: (...languages: string[]) => AcceptsReturns
-  range: (size: number, options?: any) => -1 | -2 | Ranges | undefined
-  route?: Middleware | undefined
   is: (...types: string[]) => string | boolean
-
-  hostname: string | undefined
-  ip?: string
-  ips?: string[]
-  protocol?: Protocol
-  subdomains?: string[]
-  secure?: boolean
-
+  get: (header: string) => string | string[] | undefined
   cookies?: any
   signedCookies?: any
-
-  connection: {
-    remoteAddress: string
-  }
-
-  parsedBody?: Body
+  secret?: string | string[]
+  fresh?: boolean
+  stale?: boolean
+  secure: boolean
+  route?: Middleware
 }

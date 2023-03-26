@@ -6,9 +6,7 @@
  * MIT Licensed
  */
 
-import { lookup } from '../deps.ts'
-import { parse } from 'https://deno.land/x/content_type@1.0.1/mod.ts'
-import { test } from 'https://deno.land/x/media_typer@1.0.1/mod.ts'
+import { mediaTyper, parseMediaType, typeByExtension } from '../deps.ts'
 
 /**
  * Compare a `value` content-type with `types`.
@@ -39,7 +37,7 @@ export function is(mediaType: string, types?: string[]): boolean | string {
 
   let type
   for (i = 0; i < types.length; i++) {
-    const normalized = normalize((type = types[i]))
+    const normalized = normalize(type = types[i])
     if (normalized && mimeMatch(normalized, val)) {
       return type[0] === '+' || type.indexOf('*') !== -1 ? val : type
     }
@@ -59,7 +57,8 @@ export function is(mediaType: string, types?: string[]): boolean | string {
  * @return {Boolean}
  */
 export function hasBody(header: Headers): boolean {
-  return header.get('transfer-encoding') !== null || !isNaN(parseInt(header.get('content-length') || '', 10))
+  return header.get('transfer-encoding') !== null ||
+    !isNaN(parseInt(header.get('content-length') || '', 10))
 }
 
 /**
@@ -87,7 +86,10 @@ export function hasBody(header: Headers): boolean {
  * @return {String|false|null}
  */
 
-export function typeofrequest(header: Headers, types_?: string[]): null | boolean | string {
+export function typeofrequest(
+  header: Headers,
+  types_?: string[],
+): null | boolean | string {
   const types = types_
 
   // no body
@@ -132,7 +134,7 @@ export const normalize = function normalize(type: string): string | undefined {
     return '*/*' + type
   }
 
-  return type.indexOf('/') === -1 ? lookup(type) : type
+  return type.indexOf('/') === -1 ? typeByExtension(type) : type
 }
 
 /**
@@ -163,7 +165,8 @@ function mimeMatch(expected: string, actual: string): boolean {
   if (expectedParts[1].substr(0, 2) === '*+') {
     return (
       expectedParts[1].length <= actualParts[1].length + 1 &&
-      expectedParts[1].substr(1) === actualParts[1].substr(1 - expectedParts[1].length)
+      expectedParts[1].substr(1) ===
+        actualParts[1].substr(1 - expectedParts[1].length)
     )
   }
 
@@ -183,9 +186,9 @@ function mimeMatch(expected: string, actual: string): boolean {
  */
 function normalizeType(value: string): string | null {
   // parse the type
-  const type = parse(value).type
+  const type = parseMediaType(value)[0]
 
-  if (!test(type)) {
+  if (!mediaTyper.test(type)) {
     return null
   }
 
@@ -201,7 +204,7 @@ function normalizeType(value: string): string | null {
 function tryNormalizeType(value: string): string | null {
   try {
     return normalizeType(value)
-  } catch (err) {
+  } catch {
     return null
   }
 }

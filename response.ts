@@ -1,41 +1,71 @@
-// deno-lint-ignore-file
-
-import { Res as ServerResponse } from './deps.ts'
+import { App } from './app.ts'
+import { SetCookieOptions } from './extensions/res/cookie.ts'
+import { DownloadOptions } from './extensions/res/download.ts'
+import { FormatProps } from './extensions/res/format.ts'
 import type { SendFileOptions } from './extensions/res/send/sendFile.ts'
-import type { TemplateEngineOptions, App } from './app.ts'
-import type { FormatProps } from './extensions/res/format.ts'
-import type { DownloadOptions } from './extensions/res/download.ts'
-import { Cookie } from 'https://deno.land/std@0.106.0/http/cookie.ts'
+import type { TemplateEngineOptions } from './types.ts'
 
-export interface Response<O = any> extends ServerResponse, tinyhttp.Response {
-  headers: Headers
-  app: App
-  send(body: unknown): Response
-  sendFile(path: string, options?: SendFileOptions, cb?: (err?: any) => void): Response
-  end(body?: unknown): Response
-  json(body: unknown): Response
-  sendStatus(status: number): Response
-  setHeader(
+export const renderTemplate =
+  <O, Res extends THResponse = THResponse>(res: Res, app: App) =>
+  (
+    file: string,
+    data?: Record<string, unknown>,
+    options?: TemplateEngineOptions<O>,
+  ): THResponse => {
+    app.render(
+      file,
+      data ? { ...data, ...res.locals } : res.locals,
+      (err: unknown, html: unknown) => {
+        if (err) throw err
+        res.send(html)
+      },
+      options,
+    )
+    return res
+  }
+
+export interface THResponse<O = any, B = any> {
+  _body?: BodyInit
+  _init: ResponseInit & { headers: Headers }
+  locals: Record<string, unknown>
+  send(body: B): THResponse<O, B>
+  sendFile(path: string, opts?: SendFileOptions): Promise<THResponse<O, B>>
+  end(body?: BodyInit): THResponse<O, B>
+  links(links: { [key: string]: string }): THResponse<O, B>
+  render(
+    file: string,
+    data?: Record<string, unknown>,
+    options?: TemplateEngineOptions<O>,
+  ): THResponse<O, B>
+  vary(field: string): THResponse<O, B>
+  format(obj: FormatProps): THResponse<O, B>
+  redirect(url: string, status?: number): THResponse<O, B>
+  type(type: string): THResponse<O, B>
+  download(
+    path: string,
+    filename: string,
+    options?: DownloadOptions,
+    cb?: (err?: unknown) => void,
+  ): THResponse<O, B>
+  attachment(filename?: string): THResponse<O, B>
+  json(body: B): THResponse<O, B>
+  status(status: number): THResponse<O, B>
+  sendStatus(statusCode: number): THResponse<O, B>
+  append(field: string, value: unknown): THResponse<O, B>
+  cookie(
+    name: string,
+    value: string | Record<string, unknown>,
+    options?: SetCookieOptions,
+  ): THResponse<O, B>
+  clearCookie(name: string): THResponse<O, B>
+  location(url: string): THResponse<O, B>
+  header(
     field: string | Record<string, string | number | string[]>,
-    val?: string | number | readonly string[]
-  ): Response
-  set(field: string | Record<string, string | number | string[]>, val?: string | number | readonly string[]): Response
-  location(url: string): Response
-  status: number
-  get(field: string): string | null | undefined
-  append(field: string, value: any): Response
-  render(file: string, data?: Record<string, any>, options?: TemplateEngineOptions<O>): Response
-  links(links: { [key: string]: string }): Response
-  type(type: string): Response
-  format(obj: FormatProps): Response
-  vary(field: string): Response
-  locals: Record<string, any>
-  download(path: string, filename: string, options?: DownloadOptions, cb?: (err?: any) => void): Response
-  attachment(filename?: string): Response
-
-  cookie(name: string, value: string | Record<string, unknown>, options?: Omit<Cookie, 'name' | 'value'>): Response
-  clearCookie(name: string): Response
-  jsonp(obj: any): Response
-
-  redirect(url: string, status?: number): Response
+    val?: string | number | readonly string[],
+  ): THResponse<O, B>
+  set(
+    field: string | Record<string, string | number | string[]>,
+    val?: string | number | readonly string[],
+  ): THResponse<O, B>
+  get(field: string): string | null
 }

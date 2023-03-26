@@ -1,6 +1,6 @@
-import { Req, Res } from '../../deps.ts'
 import { send } from './send/send.ts'
-import { QueryParams } from '../../types.ts'
+import type { THRequest } from '../../request.ts'
+import { THResponse } from '../../response.ts'
 
 export type JSONPOptions = Partial<{
   escape: boolean
@@ -13,9 +13,11 @@ function stringify(
   value: unknown,
   replacer: JSONPOptions['replacer'],
   spaces: JSONPOptions['spaces'],
-  escape: JSONPOptions['escape']
+  escape: JSONPOptions['escape'],
 ) {
-  let json = replacer || spaces ? JSON.stringify(value, replacer, spaces) : JSON.stringify(value)
+  let json = replacer || spaces
+    ? JSON.stringify(value, replacer, spaces)
+    : JSON.stringify(value)
 
   if (escape) {
     json = json.replace(/[<>&]/g, (c) => {
@@ -35,35 +37,34 @@ function stringify(
   return json
 }
 
-type R = Req & { query: QueryParams }
-
 /**
  * Send JSON response with JSONP callback support
  * @param req Request
  * @param res Response
  * @param app App
  */
-export const jsonp = <Request extends R = R, Response extends Res = Res>(req: Request, res: Response) => (
-  obj: unknown,
-  opts: JSONPOptions = {}
-) => {
+export const jsonp = <
+  Request extends THRequest = THRequest,
+  Response extends THResponse = THResponse,
+>(req: Request, res: Response) =>
+(obj: unknown, opts: JSONPOptions = {}) => {
   const val = obj
 
   const { escape, replacer, spaces, callbackName = 'callback' } = opts
 
   let body = stringify(val, replacer, spaces, escape)
 
-  let callback = req.query[callbackName]
+  let callback = req.query.get(callbackName)
 
-  if (!res.headers?.get('Content-Type')) {
-    res.headers?.set('X-Content-Type-Options', 'nosniff')
-    res.headers?.set('Content-Type', 'application/json')
+  if (!res._init.headers?.get('Content-Type')) {
+    res._init.headers?.set('X-Content-Type-Options', 'nosniff')
+    res._init.headers?.set('Content-Type', 'application/json')
   }
 
   // jsonp
   if (typeof callback === 'string' && callback.length !== 0) {
-    res.headers?.set('X-Content-Type-Options', 'nosniff')
-    res.headers?.set('Content-Type', 'text/javascript')
+    res._init.headers?.set('X-Content-Type-Options', 'nosniff')
+    res._init.headers?.set('Content-Type', 'text/javascript')
 
     // restrict callback charset
     callback = callback.replace(/[^[\]\w$.]/g, '')

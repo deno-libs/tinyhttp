@@ -1,3 +1,0 @@
-<p>Hello from <%= it.name %></p>
-
-<p>Async func: <%= await it.func() %></p>

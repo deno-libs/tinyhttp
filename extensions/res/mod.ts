@@ -1,4 +1,3 @@
-export * from './end.ts'
 export * from './send/mod.ts'
 export * from './append.ts'
 export * from './format.ts'

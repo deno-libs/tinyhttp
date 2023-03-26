@@ -1,110 +1,88 @@
-import type { NextFunction } from './deps.ts'
-import { App, renderTemplate } from './app.ts'
-import { Request } from './request.ts'
+import { App } from './app.ts'
+import { getRequestHeader } from './extensions/req/headers.ts'
 import {
-  getRequestHeader,
-  getFreshOrStale,
+  checkIfXMLHttpRequest,
   getAccepts,
   getAcceptsCharsets,
   getAcceptsEncodings,
   getAcceptsLanguages,
-  checkIfXMLHttpRequest,
+  getFreshOrStale,
   getHostname,
   getIP,
   getIPs,
   getProtocol,
   getSubdomains,
-  getRangeFromHeader,
-  reqIs
+  reqIs,
 } from './extensions/req/mod.ts'
+import { getResponseHeader, setHeader } from './extensions/res/headers.ts'
 import {
-  send,
-  json,
-  sendStatus,
-  setHeader,
-  setLocationHeader,
-  end,
-  sendFile,
-  getResponseHeader,
   append,
-  setLinksHeader,
-  setContentType,
-  formatResponse,
-  setVaryHeader,
   attachment,
-  download,
-  setCookie,
   clearCookie,
-  redirect
+  end,
+  formatResponse,
+  json,
+  redirect,
+  send,
+  sendFile,
+  sendStatus,
+  setCookie,
+  setLinksHeader,
+  setLocationHeader,
+  setVaryHeader,
+  status,
 } from './extensions/res/mod.ts'
-import { getQueryParams } from './utils/parseUrl.ts'
-import { Response } from './response.ts'
+import type { THRequest } from './request.ts'
+import { renderTemplate, THResponse } from './response.ts'
+import type { NextFunction } from './types.ts'
 
-export const extendMiddleware =
-  <RenderOptions = unknown, Req extends Request = Request, Res extends Response = Response>(app: App) =>
-  (req: Req, res: Res, next: NextFunction) => {
-    const { settings } = app
+/**
+ * Extends Request and Response objects with custom properties and methods
+ */
+export const extendMiddleware = <EngineOptions>(app: App<EngineOptions>) =>
+(
+  req: THRequest,
+  res: THResponse<EngineOptions>,
+  next: NextFunction,
+): void => {
+  // Request
+  req.accepts = getAccepts(req)
+  req.path = req._urlObject.pathname
+  req.acceptsCharsets = getAcceptsCharsets(req)
+  req.acceptsEncodings = getAcceptsEncodings(req)
+  req.acceptsLanguages = getAcceptsLanguages(req)
+  req.is = reqIs(req)
+  req.xhr = checkIfXMLHttpRequest(req)
+  req.protocol = getProtocol(req)
+  req.hostname = getHostname(req)
+  req.secure = req.protocol === 'https'
+  // req.fresh = getFreshOrStale(req, res)
+  // req.stale = !req.fresh
+  req.ip = getIP(req)
+  req.ips = getIPs(req)
+  req.subdomains = getSubdomains(req, app.settings.subdomainOffset)
+  req.get = getRequestHeader(req)
 
-    res.locals = res.locals || Object.create(null)
+  // Response
+  res.end = end(res)
+  res.send = send(req, res)
+  res.sendFile = sendFile(req, res)
+  res.json = json(res)
+  res.sendStatus = sendStatus(res)
+  res.attachment = attachment(res)
+  res.format = formatResponse(req, res, next)
+  res.status = status(res)
+  res.links = setLinksHeader(res)
+  res.vary = setVaryHeader(res)
+  res.redirect = redirect(req, res, next)
+  res.append = append(res)
+  res.render = renderTemplate<EngineOptions>(res, app)
+  res.cookie = setCookie(res)
+  res.clearCookie = clearCookie(res)
+  res.location = setLocationHeader(req, res)
+  res.get = getResponseHeader(res)
+  res.header = setHeader(res)
+  res.set = setHeader(res)
 
-    // Request extensions
-    if (settings?.bindAppToReqRes) {
-      req.app = app
-      res.app = app
-    }
-
-    req.query = getQueryParams(req.url)
-
-    req.connection = {
-      remoteAddress: (req.conn.remoteAddr as Deno.NetAddr).hostname
-    }
-
-    req.get = getRequestHeader(req)
-
-    req.accepts = getAccepts<Req>(req)
-    req.acceptsCharsets = getAcceptsCharsets<Req>(req)
-    req.acceptsEncodings = getAcceptsEncodings<Req>(req)
-    req.acceptsLanguages = getAcceptsLanguages<Req>(req)
-
-    req.range = getRangeFromHeader(req)
-    req.xhr = checkIfXMLHttpRequest(req)
-    req.is = reqIs(req)
-
-    if (settings?.networkExtensions) {
-      req.protocol = getProtocol<Req>(req)
-      req.secure = req.protocol === 'https'
-      req.hostname = getHostname<Req>(req)
-      req.subdomains = getSubdomains<Req>(req, settings.subdomainOffset)
-      req.ip = getIP<Req>(req)
-      req.ips = getIPs<Req>(req)
-    }
-
-    // Response extensions
-
-    res.end = end(req, res)
-    res.send = send<Req, Res>(req, res)
-    res.sendFile = sendFile<Req, Res>(req, res)
-    res.sendStatus = sendStatus(req, res)
-    res.json = json<Req, Res>(req, res)
-    res.setHeader = setHeader<Res>(res)
-    res.set = setHeader<Res>(res)
-    res.location = setLocationHeader<Req, Res>(req, res)
-    res.get = getResponseHeader<Res>(res)
-    res.append = append<Res>(res)
-    res.render = renderTemplate<RenderOptions, Res>(res, app)
-    res.links = setLinksHeader<Res>(res)
-    res.redirect = redirect<Req, Res, NextFunction>(req, res, next)
-    res.type = setContentType<Res>(res)
-    res.format = formatResponse<Req, Res>(req, res, next)
-    res.vary = setVaryHeader<Res>(res)
-    res.download = download<Req, Res>(req, res)
-    res.attachment = attachment<Res>(res)
-
-    res.cookie = setCookie<Req, Res>(req, res)
-    res.clearCookie = clearCookie<Res>(res)
-
-    Object.defineProperty(req, 'fresh', { get: getFreshOrStale.bind(null, req, res), configurable: true })
-    req.stale = !req.fresh
-
-    next?.()
-  }
+  next()
+}

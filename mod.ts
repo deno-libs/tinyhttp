@@ -1,4 +1,4 @@
 export * from './app.ts'
-export * from './types.ts'
-export * from './request.ts'
-export * from './response.ts'
+export type { AppConstructor, Handler } from './types.ts'
+export type { THRequest } from './request.ts'
+export type { THResponse } from './response.ts'

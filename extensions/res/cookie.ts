@@ -1,22 +1,30 @@
-import { Req, Res } from '../../deps.ts'
-import * as cookie from 'https://deno.land/std@0.106.0/http/cookie.ts'
+import { cookie } from '../../deps.ts'
+import { THResponse } from '../../response.ts'
+
+export type SetCookieOptions = Omit<cookie.Cookie, 'value' | 'name'>
 
 export const setCookie =
-  <Request extends Req = Req, Response extends Res = Res>(_: Request, res: Response) =>
-  (name: string, value: string, options?: Omit<cookie.Cookie, 'value' | 'name'>): Response => {
-    cookie.setCookie(res, {
+  <Response extends THResponse = THResponse>(res: Response) =>
+  (
+    name: string,
+    value: string,
+    options?: SetCookieOptions,
+  ): Response => {
+    cookie.setCookie(res._init.headers, {
       value,
       name,
-      ...options
+      ...options,
     })
 
     return res
   }
 
 export const clearCookie =
-  <Response extends Res = Res>(res: Response) =>
+  <Response extends THResponse = THResponse>(res: Response) =>
   (name: string): Response => {
-    cookie.deleteCookie(res, name)
+    cookie.deleteCookie(res._init.headers, name, {
+      path: cookie.getCookies(res._init.headers)['Path'] || '/',
+    })
 
     return res
   }
