@@ -17,7 +17,7 @@ export const supertest = (app: App) => {
   return {
     text: async (
       { url = '/', params = {} }: { url?: string; params?: RequestInit } = {},
-      cb: (x: any) => void,
+      cb: (x: any, res: Response) => void,
     ) => {
       setTimeout(async () => {
         const res = await fetch(
@@ -25,7 +25,7 @@ export const supertest = (app: App) => {
           params,
         )
         const text = await res.text()
-        cb(text)
+        cb(text, res)
         Deno.close(conn.rid + 1)
         listener.close()
       })
@@ -34,7 +34,7 @@ export const supertest = (app: App) => {
     },
     json: async (
       { url = '/', params = {} }: { url?: string; params?: RequestInit } = {},
-      cb: (x: any) => void,
+      cb: (x: any, res: Response) => void,
     ) => {
       setTimeout(async () => {
         const res = await fetch(
@@ -42,7 +42,7 @@ export const supertest = (app: App) => {
           params,
         )
         const text = await res.json()
-        cb(text)
+        cb(text, res)
         Deno.close(conn.rid + 1)
         listener.close()
       })

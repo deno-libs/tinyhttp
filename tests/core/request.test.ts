@@ -128,10 +128,11 @@ describe('Request properties', () => {
 
   it('req.xhr is false because of node-superagent', async () => {
     const { request } = initAppAndTest((req, res) => {
-      res.send(`XMLHttpRequest: ${req.xhr ? 'yes' : 'no'}`)
+      res.end(`XMLHttpRequest: ${req.xhr ? 'yes' : 'no'}`)
     })
 
-    await request.text({}, (text) => {
+    await request.text({}, (text, res) => {
+      expect(res.status).toEqual(200)
       expect(text).toEqual(`XMLHttpRequest: no`)
     })
   })
