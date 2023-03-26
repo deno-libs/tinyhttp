@@ -28,7 +28,7 @@ export interface THResponse<O = any, B = any> {
   _body?: BodyInit
   _init: ResponseInit & { headers: Headers }
   locals: Record<string, unknown>
-  send(body: B): THResponse<O, B>
+  send(body: B): Promise<THResponse<O, B>>
   sendFile(path: string, opts?: SendFileOptions): Promise<THResponse<O, B>>
   end(body?: BodyInit): THResponse<O, B>
   links(links: { [key: string]: string }): THResponse<O, B>
