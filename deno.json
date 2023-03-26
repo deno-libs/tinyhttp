@@ -10,5 +10,10 @@
   },
   "tasks": {
     "test": "deno test --allow-net --allow-read --allow-write --coverage=coverage"
+  },
+  "test": {
+    "files":{
+      "include": ["./tests/**/*.test.ts"]
+    }
   }
 }
