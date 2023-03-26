@@ -1,10 +1,10 @@
-import type { ConnInfo, RangesSpecifier } from './deps.ts'
+import type { RangesSpecifier } from './deps.ts'
 import type { AcceptsReturns, Middleware, Protocol } from './types.ts'
 
 export interface THRequest extends Request {
   _urlObject: URL
   path: string
-  conn: ConnInfo
+  conn: Deno.Conn
   range: () => -1 | -2 | RangesSpecifier | undefined
   query: URLSearchParams
   params: Record<string, string>
