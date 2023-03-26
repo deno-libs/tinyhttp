@@ -126,13 +126,15 @@ describe('Request properties', () => {
   //   })
   // })
 
-  // it('req.xhr is false because of node-superagent', async () => {
-  //   const { request } = initAppAndTest((req, res) => {
-  //     res.send(`XMLHttpRequest: ${req.xhr ? 'yes' : 'no'}`)
-  //   })
+  it('req.xhr is false because of node-superagent', async () => {
+    const { request } = initAppAndTest((req, res) => {
+      res.send(`XMLHttpRequest: ${req.xhr ? 'yes' : 'no'}`)
+    })
 
-  //   await fetch.get('/').expect(200, `XMLHttpRequest: no`)
-  // })
+    await request.text({}, (text) => {
+      expect(text).toEqual(`XMLHttpRequest: no`)
+    })
+  })
 
   // it('req.path is the URL but without query parameters', async () => {
   //   const { request } = initAppAndTest((req, res) => {

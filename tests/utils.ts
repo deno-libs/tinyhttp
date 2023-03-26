@@ -6,8 +6,8 @@ import { AppConstructor, Handler } from '../types.ts'
 export const supertest = (app: App) => {
   const listener = Deno.listen({ port: 8080, hostname: 'localhost' })
 
-  const serve = async () => {
-    const conn = await listener.accept()
+  const serve = async (conn: Deno.Conn) => {
+    
     const requests = Deno.serveHttp(conn)
     const { request, respondWith } = (await requests.nextRequest())!
     const response = await app.handler(request, conn)
@@ -17,20 +17,22 @@ export const supertest = (app: App) => {
   }
   return {
     text: async (
-      opts: { url: string; params?: RequestInit } = { url: '/' },
-      cb: (x: string) => void,
+      { url = '/', params = {} }: { url?: string; params?: RequestInit } = {},
+      cb: (x: any) => void,
     ) => {
+      
       setTimeout(async () => {
         const res = await fetch(
-          `http://localhost:8080/${opts.url}`,
-          opts.params,
+          `http://localhost:8080/${url}`,
+          params,
         )
         const text = await res.text()
         cb(text)
-        Deno.close(8)
+        Deno.close(conn.rid + 1)
         listener.close()
       })
-      await serve()
+      const conn = await listener.accept()
+      await serve(conn)
     },
     json: async (
       { url = '/', params = {} }: { url?: string; params?: RequestInit } = {},
@@ -43,10 +45,11 @@ export const supertest = (app: App) => {
         )
         const text = await res.json()
         cb(text)
-        Deno.close(8)
+        Deno.close(conn.rid + 1)
         listener.close()
       })
-      await serve()
+      const conn = await listener.accept()
+      await serve(conn)
     },
   }
 }
