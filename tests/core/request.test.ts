@@ -1,4 +1,4 @@
-import { initAppAndTest } from '../utils.ts'
+import { initAppAndTest } from '../util.ts'
 import {
   describe,
   expect,
