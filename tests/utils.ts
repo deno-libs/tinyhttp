@@ -1,19 +1,57 @@
-import { getFreePort } from 'https://deno.land/x/free_port@v1.2.0/mod.ts'
-import { superdeno } from 'https://deno.land/x/superdeno@4.8.0/mod.ts'
-import { App, AppConstructor, Handler, THRequest, THResponse } from '../mod.ts'
+import { App } from '../app.ts'
+import { THRequest } from '../request.ts'
+import { THResponse } from '../response.ts'
+import { AppConstructor, Handler } from '../types.ts'
 
-const random = (min: number, max: number): number =>
-  Math.round(Math.random() * (max - min)) + min
+export const supertest = (app: App) => {
+  const listener = Deno.listen({ port: 8080, hostname: 'localhost' })
 
-export const randomPort = async () => await getFreePort(random(2048, 8064))
-
-export const BindToSuperDeno = <Req extends THRequest, Res extends THResponse>(
-  app: App<unknown, Req, Res>,
-) => {
-  return superdeno(app.handler)
+  const serve = async () => {
+    const conn = await listener.accept()
+    const requests = Deno.serveHttp(conn)
+    const { request, respondWith } = (await requests.nextRequest())!
+    const response = await app.handler(request, conn)
+    if (response) {
+      respondWith(response)
+    }
+  }
+  return {
+    text: async (
+      opts: { url: string; params?: RequestInit } = { url: '/' },
+      cb: (x: string) => void,
+    ) => {
+      setTimeout(async () => {
+        const res = await fetch(
+          `http://localhost:8080/${opts.url}`,
+          opts.params,
+        )
+        const text = await res.text()
+        cb(text)
+        Deno.close(8)
+        listener.close()
+      })
+      await serve()
+    },
+    json: async (
+      { url = '/', params = {} }: { url?: string; params?: RequestInit } = {},
+      cb: (x: any) => void,
+    ) => {
+      setTimeout(async () => {
+        const res = await fetch(
+          `http://localhost:8080/${url}`,
+          params,
+        )
+        const text = await res.json()
+        cb(text)
+        Deno.close(8)
+        listener.close()
+      })
+      await serve()
+    },
+  }
 }
 
-export const InitAppAndTest = (
+export const initAppAndTest = (
   handler: Handler,
   route = '/',
   settings: AppConstructor<Request, THResponse> = {},
@@ -23,15 +61,5 @@ export const InitAppAndTest = (
 
   app[method](route, handler)
 
-  return { fetch: BindToSuperDeno(app), app }
-}
-
-export const runServer = (h: Handler) => {
-  const app = new App()
-
-  app.use(h)
-
-  const request = BindToSuperDeno(app)
-
-  return request
+  return { request: supertest(app), app }
 }
