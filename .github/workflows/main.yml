@@ -16,8 +16,8 @@ jobs:
       - uses: denoland/setup-deno@v1
         with:
           deno-version: v1.x
-      - name: Cache Dependencies
-        run: deno cache deps.ts
+      # - name: Cache Dependencies
+      # run: deno cache deps.ts
       - name: Run tests
         run: deno test --coverage=coverage --unstable -A
       - name: Create coverage report
