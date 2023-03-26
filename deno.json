@@ -13,7 +13,7 @@
   },
   "test": {
     "files":{
-      "include": ["./tests/**/*.test.ts"]
+      "include": ["./tests/"]
     }
   }
 }
