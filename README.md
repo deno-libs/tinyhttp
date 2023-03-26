@@ -6,8 +6,6 @@
 [![Codecov][codecov-badge]][codecov] [![][docs-badge]][docs] [![][code-quality-img]][code-quality] ![Dependency count][deps]
 </div>
 
-> **WARNING!** The Deno port project is frozen for now. Please help us to move to native Deno http, see [#11](https://github.com/deno-libs/tinyhttp/issues/11)
-
 This is a [Deno](https://deno.land) port of [tinyhttp](https://github.com/talentlessguy/tinyhttp), 0-legacy, tiny &amp; fast web framework as a replacement of Express.
 
 ## Example
