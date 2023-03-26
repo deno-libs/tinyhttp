@@ -33,6 +33,7 @@ export type MethodHandler<
   handler?: Handler<Req, Res>
   type: 'mw' | 'route'
   fullPath?: string
+  pattern?: URLPattern
 }
 
 export type RouterHandler<
@@ -95,6 +96,7 @@ export const pushMiddleware =
     handlers,
     type,
     fullPaths,
+    pattern,
   }: MethodHandler<Req, Res> & {
     method?: Method
     handlers?: RouterHandler<Req, Res>[]
@@ -106,6 +108,7 @@ export const pushMiddleware =
       method,
       type,
       fullPath: fullPaths?.[0],
+      pattern,
     })
 
     let waresFromHandlers: { handler: Handler<Req, Res> }[] = []
@@ -119,11 +122,14 @@ export const pushMiddleware =
           method,
           type,
           fullPath: fullPaths == null ? undefined : fullPaths[idx++],
+          pattern,
         })
       )
     }
 
-    for (const mdw of [m, ...waresFromHandlers]) mw.push({ ...mdw, type })
+    for (const mdw of [m, ...waresFromHandlers]) {
+      mw.push({ ...mdw, type, pattern })
+    }
   }
 
 export class Router<
@@ -189,6 +195,7 @@ export class Router<
       handlers: handlers.slice(1),
       method,
       type: 'route',
+      pattern: new URLPattern({ pathname: args[0] as string }),
     })
 
     return this

@@ -1,9 +1,9 @@
 import { format, parse } from 'https://deno.land/x/content_type@1.0.1/mod.ts'
-import { eTag } from '../../deps.ts'
+import { eTag } from '../../utils/eTag.ts'
 import { typeByExtension } from '../../deps.ts'
 
-export const createETag = (body: string | Buffer | eTag.StatsLike) => {
-  return eTag(body, { weak: true })
+export const createETag = async (body: string | Deno.FileInfo) => {
+  return await eTag(body, { weak: true })
 }
 
 export function setCharset(type: string, charset: string) {

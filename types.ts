@@ -1,4 +1,3 @@
-import type { ServeInit } from './deps.ts'
 import { THResponse } from './response.ts'
 
 import { METHODS } from './constants.ts'
@@ -21,7 +20,7 @@ type AppSettings = Partial<
 
 type AppConstructor<Req, Res> = Partial<{
   noMatchHandler: Handler
-  onError: ServeInit['onError']
+  onError: (err: unknown) => Response | Promise<Response>
   applyExtensions: (req: Req, res: Res, next: NextFunction) => void
   settings: AppSettings
 }>
@@ -46,6 +45,7 @@ type Middleware<
   path?: string
   method?: Method
   fullPath?: string
+  pattern?: URLPattern
 }
 
 type TemplateEngineOptions<O = any> = Partial<{

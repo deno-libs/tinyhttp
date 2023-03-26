@@ -1,7 +1,9 @@
 import type { ConnInfo, RangesSpecifier } from './deps.ts'
-import type { AcceptsReturns, Protocol } from './types.ts'
+import type { AcceptsReturns, Middleware, Protocol } from './types.ts'
 
 export interface THRequest extends Request {
+  _urlObject: URL
+  path: string
   conn: ConnInfo
   range: () => -1 | -2 | RangesSpecifier | undefined
   query: URLSearchParams
@@ -24,4 +26,5 @@ export interface THRequest extends Request {
   fresh?: boolean
   stale?: boolean
   secure: boolean
+  route?: Middleware
 }

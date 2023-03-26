@@ -1,12 +1,9 @@
-import { App } from '../../app.ts'
 import { Handler, Middleware } from '../../types.ts'
-import { THRequest } from '../../request.ts'
-import { THResponse } from '../../response.ts'
 
 export const getRouteFromApp = (
-  { middleware }: App,
-  h: Handler<THRequest, THResponse>,
-): Middleware<THRequest, THResponse> =>
+  middleware: Middleware[],
+  h: Handler,
+): Middleware =>
   middleware.find(({ handler }) =>
     typeof handler === 'function' && handler.name === h.name
   )!

@@ -47,6 +47,7 @@ export const extendMiddleware = <EngineOptions>(app: App<EngineOptions>) =>
 ): void => {
   // Request
   req.accepts = getAccepts(req)
+  req.path = req._urlObject.pathname
   req.acceptsCharsets = getAcceptsCharsets(req)
   req.acceptsEncodings = getAcceptsEncodings(req)
   req.acceptsLanguages = getAcceptsLanguages(req)

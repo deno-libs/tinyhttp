@@ -1,5 +1,5 @@
 import { getFreePort } from 'https://deno.land/x/free_port@v1.2.0/mod.ts'
-import { superdeno } from 'https://deno.land/x/superdeno@4.4.0/mod.ts'
+import { superdeno } from 'https://deno.land/x/superdeno@4.8.0/mod.ts'
 import { App, AppConstructor, Handler, THRequest, THResponse } from '../mod.ts'
 
 const random = (min: number, max: number): number =>

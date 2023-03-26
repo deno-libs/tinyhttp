@@ -26,7 +26,7 @@ export const sendFile = <
   Request extends THRequest = THRequest,
   Response extends THResponse = THResponse,
 >(req: Request, res: Response) =>
-(path: string, opts: SendFileOptions = {}) => {
+async (path: string, opts: SendFileOptions = {}) => {
   const { root, headers = {}, encoding = 'utf-8', ...options } = opts
 
   if (!_path.isAbsolute(path) && !root) {
@@ -35,7 +35,7 @@ export const sendFile = <
 
   const filePath = root ? _path.join(root, path) : path
 
-  const stats = Deno.statSync(filePath)
+  const stats = await Deno.stat(filePath)
 
   headers['Content-Encoding'] = encoding
 
@@ -43,7 +43,7 @@ export const sendFile = <
 
   headers['Content-Type'] = contentType(_path.extname(path)) || 'text/html'
 
-  headers['ETag'] = createETag(stats)
+  headers['ETag'] = await createETag(stats)
 
   headers['Content-Length'] = `${stats.size}`
 
@@ -75,7 +75,7 @@ export const sendFile = <
 
   res._init.status = status
 
-  const file = Deno.openSync(filePath, options)
+  const file = await Deno.open(filePath, options)
 
   res.send(file)
 

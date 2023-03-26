@@ -1,4 +1,4 @@
-import { ConnInfo, path, ServeInit } from './deps.ts'
+import { ConnInfo, path } from './deps.ts'
 import { pushMiddleware, Router, UseMethodParams } from './router.ts'
 import { THResponse } from './response.ts'
 import { extendMiddleware } from './extend.ts'
@@ -13,6 +13,7 @@ import type {
   TemplateFunc,
 } from './types.ts'
 import { onErrorHandler } from './onError.ts'
+import { getRouteFromApp } from './extensions/req/route.ts'
 
 /**
  * Add leading slash if not present (e.g. path -> /path, /path -> /path)
@@ -140,15 +141,13 @@ export class App<
 
     return this
   }
-  #find(url: string) {
-    const { pathname } = new URL(url)
+  #find(url: URL) {
     const result = this.middleware.filter((m) => {
       const path = m.fullPath || m.path
       if (m.type === 'mw') {
-        return pathname.startsWith(path!)
+        return url.pathname.startsWith(path!)
       } else {
-        const pattern = new URLPattern({ pathname: path })
-        return pattern.test(url)
+        return m.pattern!.test(url)
       }
     })
 
@@ -162,9 +161,9 @@ export class App<
     req: Req,
     res: { _init?: ResponseInit } = { _init: {} },
   ) {
+    req._urlObject = new URL(req.url)
     const exts = extendMiddleware<RenderOptions>(this as unknown as App)
-
-    const matched = this.#find(req.url).filter((x) =>
+    const matched = this.#find(req._urlObject).filter((x) =>
       req.method === 'HEAD' || (x.method ? x.method === req.method : true)
     )
 
@@ -190,17 +189,33 @@ export class App<
     }
     mw.push({ type: 'mw', handler: this.notFound, path: '/' })
 
-    let idx = 0, err
+    const handle =
+      (mw: Middleware<Req, Res>) =>
+      async (req: Req, res: Res, next: NextFunction) => {
+        const { handler, type, pattern } = mw
+
+        const params =
+          type === 'route' && pattern?.exec(req.url)?.pathname.groups || {}
+
+        req.params = params
+
+        if (this.settings?.enableReqRoute) {
+          req.route = getRouteFromApp(this.middleware as any, handler as any)
+        }
+        await applyHandler<Req, Res>(handler)(req, res, next)
+      }
+
+    let idx = 0, err: unknown | undefined
     const next: NextFunction = (error) => {
       if (error) err = error
       return loop()
     }
-    const loop = async () => (idx < mw.length &&
-      await applyHandler<Req, Res>(mw[idx++].handler)(
+    const loop = async () =>
+      idx < mw.length && await handle(mw[idx++])(
         req,
         res as Res,
         next,
-      ))
+      )
 
     await loop()
     if (err) throw err
