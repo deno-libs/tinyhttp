@@ -1,9 +1,9 @@
-import { all, compile,  isIP, proxyaddr } from '../../deps.ts'
-import { THRequest } from '../../request.ts'
-import { Protocol } from '../../types.ts'
+import { all, compile, isIP, proxyaddr } from '../../deps.ts'
+import type { THRequest } from '../../request.ts'
+import type { ConnInfo, Protocol } from '../../types.ts'
 
 export const trustRemoteAddress = (
-  conn: Deno.Conn,
+  conn: ConnInfo,
 ) => {
   const val = (conn.remoteAddr as Deno.NetAddr).hostname
 

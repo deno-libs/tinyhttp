@@ -25,7 +25,7 @@ type AppConstructor<Req, Res> = Partial<{
   settings: AppSettings
 }>
 
-type NextFunction = (e?: unknown) => void
+type NextFunction = (e?: unknown) => Promise<void>
 
 type Handler<
   Req extends THRequest = THRequest,
@@ -65,6 +65,13 @@ type TemplateFunc<O> = (
   opts: TemplateEngineOptions<O>,
   cb: (err: Error | null, html: unknown) => void,
 ) => void
+
+export interface ConnInfo {
+  /** The local address of the connection. */
+  readonly localAddr: Deno.Addr
+  /** The remote address of the connection. */
+  readonly remoteAddr: Deno.Addr
+}
 
 export type {
   AcceptsReturns,

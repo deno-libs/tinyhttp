@@ -1,5 +1,5 @@
 import { eTag } from '../../utils/eTag.ts'
-import { typeByExtension,contentType } from '../../deps.ts'
+import { contentType, typeByExtension } from '../../deps.ts'
 
 export const createETag = async (body: string | Deno.FileInfo) => {
   return await eTag(body, { weak: true })

@@ -1,9 +1,8 @@
-
 import { sendFile, SendFileOptions } from './send/sendFile.ts'
 import { setContentType, setHeader } from './headers.ts'
 import { THRequest } from '../../request.ts'
 import { THResponse } from '../../response.ts'
-import { contentDisposition, extname } from "../../deps.ts";
+import { contentDisposition, extname } from '../../deps.ts'
 
 export type DownloadOptions =
   & SendFileOptions

@@ -6,6 +6,7 @@ import { THRequest } from './request.ts'
 import type {
   AppConstructor,
   AppSettings,
+  ConnInfo,
   Handler,
   Middleware,
   NextFunction,
@@ -29,7 +30,7 @@ const applyHandler =
     try {
       await h(req, res, next!)
     } catch (e) {
-      next(e)
+      await next(e)
     }
   }
 
@@ -159,7 +160,7 @@ export class App<
    */
   async #prepare(
     req: Req,
-    res: { _init?: ResponseInit } = { _init: {} },
+    res: { _init?: ResponseInit; _body?: BodyInit },
   ) {
     req._urlObject = new URL(req.url)
     const exts = extendMiddleware<RenderOptions>(this as unknown as App)
@@ -206,21 +207,24 @@ export class App<
       }
 
     let idx = 0, err: unknown | undefined
-    const next: NextFunction = (error) => {
+    const next: NextFunction = async (error) => {
       if (error) err = error
-      return loop()
+      return await loop()
     }
     const loop = async () =>
-      idx < mw.length && await handle(mw[idx++])(
-        req,
-        res as Res,
-        next,
-      )
+      idx < mw.length
+        ? await handle(mw[idx++])(
+          req,
+          res as Res,
+          next,
+        )
+        : undefined
 
     await loop()
+
     if (err) throw err
   }
-  handler = async (_req: Request, connInfo?: Deno.Conn) => {
+  handler = async (_req: Request, connInfo?: ConnInfo) => {
     const req = _req.clone() as Req
     req.conn = connInfo!
     const res = {
@@ -233,10 +237,11 @@ export class App<
       },
       _body: undefined,
     }
+
     try {
       await this.#prepare(req, res)
     } catch (e) {
-      return this.onError(e)
+      return await this.onError(e)
     }
     return new Response(res._body, res._init)
   }
@@ -249,11 +254,11 @@ export class App<
   async listen(port: number, cb?: () => void, hostname?: string) {
     const listener = Deno.listen({ hostname, port })
     cb?.()
-    
+
     for await (const conn of listener) {
       const requests = Deno.serveHttp(conn)
       for await (const { request, respondWith } of requests) {
-        const response = await this.handler(request, conn)
+        const response = await this.handler.bind(this, request, conn)()
         if (response) {
           respondWith(response)
         }
