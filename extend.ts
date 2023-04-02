@@ -57,8 +57,10 @@ export const extendMiddleware =
     req.protocol = getProtocol(req)
     req.hostname = getHostname(req)
     req.secure = req.protocol === 'https'
-    // req.fresh = getFreshOrStale(req, res)
-    // req.stale = !req.fresh
+    Object.defineProperty(req, 'fresh', {
+      get: getFreshOrStale.bind(null, req, res),
+    })
+    req.stale = !req.fresh
     req.ip = getIP(req)
     req.ips = getIPs(req)
     req.subdomains = getSubdomains(req, app.settings.subdomainOffset)

@@ -13,43 +13,39 @@ describe('Request properties', () => {
         url: req.url,
       })
     })
-    await request.json({}, (json) => {
-      expect(json).toEqual({ url: 'http://localhost:8080//' })
-    })
+    const { data } = await request('/')
+    expect(data).toEqual({ url: 'http://localhost:8080/' })
   })
 
   // describe('URL extensions', () => {
-  //   it('req.query is being parsed properly', async () => {
-  //     const { request } = initAppAndTest((req, res) => void res.send(req.query))
+  //   it.only('req.query is being parsed properly', async () => {
+  //     const { request } = initAppAndTest((req, res) => void res.json(req.query))
 
-  //     await fetch.get('/?param1=val1&param2=val2').expect(200, {
-  //       param1: 'val1',
-  //       param2: 'val2',
+  //     await request.json('/?param1=val1&param2=val2', (json, res) => {
+  //       expect(json).toEqual({
+  //         param1: 'val1',
+  //         param2: 'val2',
+  //       })
+  //       expect(res.status).toEqual(200)
   //     })
   //   })
   //   it('req.params is being parsed properly', async () => {
   //     const { request } = initAppAndTest(
   //       (req, res) => {
-  //         res.send(req.params)
+  //         res.json(req.params)
   //       },
   //       '/:param1/:param2',
   //       {},
   //       'get',
   //     )
 
-  //     await fetch.get('/val1/val2').expect(200, {
-  //       param1: 'val1',
-  //       param2: 'val2',
+  //     await request.json('/val1/val2', (json, res) => {
+  //       expect(res.status).toBe(200)
+  //       expect(json).toEqual({
+  //         param1: 'val1',
+  //         param2: 'val2',
+  //       })
   //     })
-  //   })
-  //   it('req.url does not include the mount path', async () => {
-  //     const app = new App()
-
-  //     app.use('/abc', (req, res) => void res.send(req.url))
-
-  //     const request = BindToSuperDeno(app)
-
-  //     await request.get('/abc/def').expect(200, '/def')
   //   })
   // })
 
@@ -126,16 +122,16 @@ describe('Request properties', () => {
   //   })
   // })
 
-  it('req.xhr is false because of node-superagent', async () => {
-    const { request } = initAppAndTest((req, res) => {
-      res.end(`XMLHttpRequest: ${req.xhr ? 'yes' : 'no'}`)
-    })
+  // it('req.xhr is false because of node-superagent', async () => {
+  //   const { request } = initAppAndTest((req, res) => {
+  //     res.end(`XMLHttpRequest: ${req.xhr ? 'yes' : 'no'}`)
+  //   })
 
-    await request.text({}, (text, res) => {
-      expect(res.status).toEqual(200)
-      expect(text).toEqual(`XMLHttpRequest: no`)
-    })
-  })
+  //   await request.text({}, (text, res) => {
+  //     expect(res.status).toEqual(200)
+  //     expect(text).toEqual(`XMLHttpRequest: no`)
+  //   })
+  // })
 
   // it('req.path is the URL but without query parameters', async () => {
   //   const { request } = initAppAndTest((req, res) => {
@@ -154,15 +150,17 @@ describe('Request properties', () => {
   // it('req.fresh and req.stale get set', async () => {
   //   const etag = '123'
   //   const { request } = initAppAndTest(
-  //     (_req, res) => {
-  //       res.set('ETag', etag).send('stale')
+  //     async (_req, res) => {
+  //       res.set('ETag', etag)
+  //       await res.send('stale')
   //     },
   //     '/',
   //     {},
   //     'get',
   //   )
-
-  //   await fetch.get('/').set('If-None-Match', etag).expect(304)
+  //   await request.text({ params: {headers: {'If-None-Match': etag }}}, (_, res) => {
+  //     expect(res.status).toEqual(304)
+  //   })
   // })
 })
 

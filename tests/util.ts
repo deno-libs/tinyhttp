@@ -1,3 +1,4 @@
+import { resolve } from 'https://deno.land/std@0.182.0/path/win32.ts'
 import { App } from '../app.ts'
 import { THRequest } from '../request.ts'
 import { THResponse } from '../response.ts'
@@ -14,41 +15,26 @@ export const supertest = (app: App) => {
       respondWith(response)
     }
   }
-  return {
-    text: async (
-      { url = '/', params = {} }: { url?: string; params?: RequestInit } = {},
-      cb: (x: any, res: Response) => void,
-    ) => {
+
+  return async (url = '', params?: RequestInit) => {
+    const p = new Promise<{ res: Response; data?: string }>((resolve) => {
       setTimeout(async () => {
         const res = await fetch(
-          `http://localhost:8080/${url}`,
+          `http://localhost:8080${url}`,
           params,
         )
-        const text = await res.text()
-        cb(text, res)
+        const data = res.headers.get('Content-Type') === 'application/json'
+          ? await res.json()
+          : await res.text()
+
+        resolve({ res, data })
         Deno.close(conn.rid + 1)
         listener.close()
       })
-      const conn = await listener.accept()
-      await serve(conn)
-    },
-    json: async (
-      { url = '/', params = {} }: { url?: string; params?: RequestInit } = {},
-      cb: (x: any, res: Response) => void,
-    ) => {
-      setTimeout(async () => {
-        const res = await fetch(
-          `http://localhost:8080/${url}`,
-          params,
-        )
-        const text = await res.json()
-        cb(text, res)
-        Deno.close(conn.rid + 1)
-        listener.close()
-      })
-      const conn = await listener.accept()
-      await serve(conn)
-    },
+    })
+    const conn = await listener.accept()
+    await serve(conn)
+    return p
   }
 }
 

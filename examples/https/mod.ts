@@ -1,5 +1,5 @@
 import { App } from '../../app.ts'
-import { serveTls } from 'https://deno.land/std@0.181.0/http/server.ts'
+import { serveTls } from 'https://deno.land/std@0.182.0/http/server.ts'
 
 const app = new App()
 

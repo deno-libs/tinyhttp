@@ -37,7 +37,6 @@ async (body: any) => {
   ) {
     res._init.headers?.set('etag', etag)
   }
-
   // freshness
   if (req.fresh) res._init.status = 304
 
