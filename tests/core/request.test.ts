@@ -117,20 +117,21 @@ describe('Request properties', () => {
     res.expectStatus(200).expectBody('XMLHttpRequest: no')
   })
 
-  // it('req.path is the URL but without query parameters', async () => {
-  //   const { request } = initAppAndTest((req, res) => {
-  //     res.send(`Path to page: ${req.path}`)
-  //   })
+  it('req.path is the URL but without query parameters', async () => {
+    const { fetch } = initAppAndTest((req, res) => {
+      res.end(`Path to page: ${req.path}`)
+    })
+    const res = await fetch('/page')
+    res.expect(`Path to page: /page`)
+  })
+  it('req.path works properly for optional parameters', async () => {
+    const { fetch } = initAppAndTest((req, res) => {
+      res.end(`Path to page: ${req.path}`)
+    }, '/:format?/:uml?', {}, 'get')
 
-  //   await fetch.get('/page?a=b').expect(200, `Path to page: /page`)
-  // })
-  // it('req.path works properly for optional parameters', async () => {
-  //   const { request } = initAppAndTest((req, res) => {
-  //     res.send(`Path to page: ${req.path}`)
-  //   }, '/:format?/:uml?')
-
-  //   await fetch.get('/page/page-1').expect(200, `Path to page: /page/page-1`)
-  // })
+    const res = await fetch('/page/page-1')
+    res.expect(`Path to page: /page/page-1`)
+  })
   it('req.fresh and req.stale get set', async () => {
     const etag = '123'
     const { fetch } = initAppAndTest(
