@@ -30,7 +30,6 @@ export interface DummyResponse {
 }
 
 export interface THResponse<O = any, B = any> extends DummyResponse {
-
   locals: Record<string, unknown>
   send(body: B): Promise<THResponse<O, B>>
   sendFile(path: string, opts?: SendFileOptions): Promise<THResponse<O, B>>

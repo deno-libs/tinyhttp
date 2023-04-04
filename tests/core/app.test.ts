@@ -40,35 +40,40 @@ describe('Testing App', () => {
     const res = await fetch('/')
     res.expect('Oopsie! Page / is lost.').expectStatus(404)
   })
-    it('Custom onError works', async () => {
-      const app = new App({
-        onError: (err, req) => new Response(`Ouch, ${err} hurt me on ${req.url} page.`, {status: 500})
+  it('Custom onError works', async () => {
+    const app = new App({
+      onError: (err, req) =>
+        new Response(`Ouch, ${err} hurt me on ${req.url} page.`, {
+          status: 500,
+        }),
+    })
+
+    app.use((_req, _res, next) => next('you'))
+
+    const fetch = makeFetch(app.handler)
+
+    const res = await fetch('/')
+    res.expectStatus(500).expect(
+      'Ouch, you hurt me on http://localhost:8080/ page.',
+    )
+  })
+  it('req and res inherit properties from previous middlewares', async () => {
+    const app = new App()
+
+    app
+      .use((_req, res, next) => {
+        res.locals = { hello: 'world' }
+        next()
+      })
+      .use((_req, res) => {
+        res.json(res.locals)
       })
 
-      app.use((_req, _res, next) => next('you'))
+    const fetch = makeFetch(app.handler)
 
-      const fetch = makeFetch(app.handler)
-
-      const res = await fetch('/')
-      res.expectStatus(500).expect('Ouch, you hurt me on http://localhost:8080/ page.')
-    })
-    it('req and res inherit properties from previous middlewares', async () => {
-      const app = new App()
-
-      app
-        .use((_req, res, next) => {
-          res.locals = { hello: 'world' }
-          next()
-        })
-        .use((_req, res) => {
-          res.json(res.locals)
-        })
-
-      const fetch = makeFetch(app.handler)
-
-      const res = await fetch('/')
-      res.expect({ hello: 'world' })
-    })
+    const res = await fetch('/')
+    res.expect({ hello: 'world' })
+  })
   //   it('req and res inherit properties from previous middlewares asynchronously', async () => {
   //     const app = new App()
 

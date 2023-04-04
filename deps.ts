@@ -22,3 +22,8 @@ export * as cookie from 'https://deno.land/std@0.182.0/http/cookie.ts'
 export { contentDisposition } from 'https://esm.sh/@tinyhttp/content-disposition@2.0.8'
 export { extname } from 'https://deno.land/std@0.182.0/path/mod.ts'
 export { status as getStatus } from 'https://deno.land/x/status@0.1.0/status.ts'
+export {
+  accepts,
+  acceptsEncodings,
+  acceptsLanguages,
+} from 'https://deno.land/std@0.182.0/http/negotiation.ts'

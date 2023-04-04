@@ -1,13 +1,10 @@
-import { Accepts } from '../../utils/accepts.ts'
+import { accepts, acceptsEncodings, acceptsLanguages } from '../../deps.ts'
 
 export const getAccepts = (req: Request) => (...types: string[]) =>
-  new Accepts(req.headers).types(types)
+  accepts(req, ...types)
 
 export const getAcceptsEncodings = (req: Request) => (...encodings: string[]) =>
-  new Accepts(req.headers).encodings(encodings)
-
-export const getAcceptsCharsets = (req: Request) => (...charsets: string[]) =>
-  new Accepts(req.headers).charsets(charsets)
+  acceptsEncodings(req, ...encodings)
 
 export const getAcceptsLanguages = (req: Request) => (...languages: string[]) =>
-  new Accepts(req.headers).languages(languages)
+  acceptsLanguages(req, ...languages)

@@ -37,8 +37,8 @@ export const setHeader =
   }
 
 export const getResponseHeader =
-  <Res extends DummyResponse = DummyResponse>(res: Res) =>
-  (field: string) => res._init.headers?.get(field)
+  <Res extends DummyResponse = DummyResponse>(res: Res) => (field: string) =>
+    res._init.headers?.get(field)
 
 export const setLocationHeader = <
   Req extends THRequest = THRequest,

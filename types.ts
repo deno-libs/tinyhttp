@@ -5,8 +5,6 @@ import { THRequest } from './request.ts'
 
 type Method = typeof METHODS[number]
 
-type AcceptsReturns = string | false | string[]
-
 type Protocol = 'http' | 'https'
 
 /**
@@ -74,7 +72,6 @@ export interface ConnInfo {
 }
 
 export type {
-  AcceptsReturns,
   AppConstructor,
   AppSettings,
   Handler,

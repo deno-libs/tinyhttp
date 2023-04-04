@@ -1,5 +1,5 @@
 import type { RangesSpecifier } from './deps.ts'
-import type { AcceptsReturns, ConnInfo, Middleware, Protocol } from './types.ts'
+import type { ConnInfo, Middleware, Protocol } from './types.ts'
 
 export interface THRequest extends Request {
   _urlObject: URL
@@ -14,10 +14,10 @@ export interface THRequest extends Request {
   ip?: string
   ips?: string[]
   subdomains?: string[]
-  accepts: (...types: string[]) => AcceptsReturns
-  acceptsEncodings: (...encodings: string[]) => AcceptsReturns
-  acceptsCharsets: (...charsets: string[]) => AcceptsReturns
-  acceptsLanguages: (...languages: string[]) => AcceptsReturns
+  accepts: (...types: string[]) => string | undefined
+  acceptsEncodings: (...encodings: string[]) => string | undefined
+  acceptsCharsets: (...charsets: string[]) => string | undefined
+  acceptsLanguages: (...languages: string[]) => string | undefined
   is: (...types: string[]) => string | boolean
   get: (header: string) => string | string[] | undefined
   cookies?: any

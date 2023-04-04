@@ -3,7 +3,6 @@ import { getRequestHeader } from './extensions/req/headers.ts'
 import {
   checkIfXMLHttpRequest,
   getAccepts,
-  getAcceptsCharsets,
   getAcceptsEncodings,
   getAcceptsLanguages,
   getFreshOrStale,
@@ -51,7 +50,7 @@ export const extendMiddleware =
     // Request
     req.accepts = getAccepts(req)
     req.path = req._urlObject.pathname
-    req.acceptsCharsets = getAcceptsCharsets(req)
+    // req.acceptsCharsets = getAcceptsCharsets(req)
     req.acceptsEncodings = getAcceptsEncodings(req)
     req.acceptsLanguages = getAcceptsLanguages(req)
     req.is = reqIs(req)

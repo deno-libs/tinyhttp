@@ -4,22 +4,21 @@ import { makeFetch } from 'https://deno.land/x/superfetch@1.0.0/mod.ts'
 import { path } from '../../deps.ts'
 import type { THRequest, THResponse } from '../../mod.ts'
 import {
+  append,
+  attachment,
+  clearCookie,
+  download,
   formatResponse,
   getResponseHeader,
   redirect,
-  setHeader,
-  setVaryHeader,
   setContentType,
-  attachment,
-  download,
   setCookie,
-  clearCookie,
-  append,
+  setHeader,
   setLinksHeader,
-  setLocationHeader
+  setLocationHeader,
+  setVaryHeader,
 } from '../../extensions/res/mod.ts'
 import { DummyResponse } from '../../response.ts'
-
 
 const __dirname = path.dirname(import.meta.url)
 
@@ -27,13 +26,13 @@ describe('Response extensions', () => {
   describe('res.set(field, val)', () => {
     it('should set a string header with a string value', async () => {
       const app = () => {
-        const res: DummyResponse = {_init: {headers: new Headers({})}}
+        const res: DummyResponse = { _init: { headers: new Headers({}) } }
         setHeader(res)('hello', 'World')
         return new Response('hello', res._init)
-      } 
+      }
 
       const res = await makeFetch(app)('/')
-      
+
       res.expectHeader('hello', 'World')
     })
     // it('should set an array of header values', async () => {
@@ -75,13 +74,13 @@ describe('Response extensions', () => {
   describe('res.get(field)', () => {
     it('should get a header with a specified field', async () => {
       const app = () => {
-        const res: DummyResponse = {_init: {headers: new Headers({})}}
+        const res: DummyResponse = { _init: { headers: new Headers({}) } }
         setHeader(res)('hello', 'World')
         return new Response(getResponseHeader(res)('hello'), res._init)
       }
 
       const res = await makeFetch(app)('/')
-      
+
       res.expect('World')
     })
   })
