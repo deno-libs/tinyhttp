@@ -35,41 +35,50 @@ describe('Response extensions', () => {
 
       res.expectHeader('hello', 'World')
     })
-    // it('should set an array of header values', async () => {
-    //   const app = runServer((_, res) => {
-    //     setHeader(res)('foo', ['bar', 'baz'])
-    //     res.end()
-    //   })
+    it('should set an array of header values', async () => {
+      const app = () => {
+        const res: DummyResponse = { _init: { headers: new Headers({}) } }
+        setHeader(res)('foo', ['bar', 'baz'])
+        return new Response('hello', res._init)
+      }
 
-    //   await makeFetch(app)('/').expectHeader('foo', 'bar, baz')
-    // })
-    // it('should throw if `Content-Type` header is passed as an array', async () => {
-    //   const app = runServer((_, res) => {
-    //     try {
-    //       setHeader(res)('content-type', ['foo', 'bar'])
-    //     } catch (e) {
-    //       res.statusCode = 500
-    //       res.end((e as TypeError).message)
-    //     }
-    //   })
-    //   await makeFetch(app)('/').expect(500, 'Content-Type cannot be set to an Array')
-    // })
-    // it('if the first argument is object, then map keys to values', async () => {
-    //   const app = runServer((_, res) => {
-    //     setHeader(res)({ foo: 'bar' })
-    //     res.end()
-    //   })
+      const res = await makeFetch(app)('/')
+      res.expectHeader('foo', 'bar,baz')
+    })
+    it('should throw if `Content-Type` header is passed as an array', async () => {
+      
+      const app = () => {
+        const res: DummyResponse = { _init: { headers: new Headers({}) } }
+        try {
+          setHeader(res)('content-type', ['foo', 'bar'])
+        } catch (e) {
+          return new Response((e as TypeError).message, {...res._init, status: 500})
+        }
+        return new Response(null, res._init)
+      }
+      const res = await makeFetch(app)('/')
+      res.expectStatus(500).expect('Content-Type cannot be set to an Array')
+    })
+    it('if the first argument is object, then map keys to values', async () => {
+      const app = () => {
+        const res: DummyResponse = { _init: { headers: new Headers({}) } }
+        setHeader(res)({ foo: 'bar' })
+        return new Response(null, res._init)
+      }
 
-    //   await makeFetch(app)('/').expectHeader('foo', 'bar')
-    // })
-    // it('should not set a charset of one is already set', async () => {
-    //   const app = runServer((_, res) => {
-    //     setHeader(res)('content-type', 'text/plain; charset=UTF-8')
-    //     res.end()
-    //   })
+      const res = await makeFetch(app)('/')
+      res.expectHeader('foo', 'bar')
+    })
+    it('should not set a charset of one is already set', async () => {
+      const app = () => {
+        const res: DummyResponse = { _init: { headers: new Headers({}) } }
+        setHeader(res)('content-type', 'text/plain; charset=UTF-8')
+        return new Response(null, res._init)
+      }
 
-    //   await makeFetch(app)('/').expectHeader('content-type', 'text/plain; charset=UTF-8')
-    // })
+      const res = await makeFetch(app)('/')
+      res.expectHeader('content-type', 'text/plain; charset=UTF-8')
+    })
   })
   describe('res.get(field)', () => {
     it('should get a header with a specified field', async () => {
