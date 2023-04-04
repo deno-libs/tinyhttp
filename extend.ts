@@ -14,19 +14,21 @@ import {
   getSubdomains,
   reqIs,
 } from './extensions/req/mod.ts'
-import { getResponseHeader, setHeader } from './extensions/res/headers.ts'
 import {
   append,
   attachment,
   clearCookie,
   end,
   formatResponse,
+  getResponseHeader,
   json,
   redirect,
   send,
   sendFile,
   sendStatus,
+  setContentType,
   setCookie,
+  setHeader,
   setLinksHeader,
   setLocationHeader,
   setVaryHeader,
@@ -65,6 +67,7 @@ export const extendMiddleware =
     req.ips = getIPs(req)
     req.subdomains = getSubdomains(req, app.settings.subdomainOffset)
     req.get = getRequestHeader(req)
+    req.query = req._urlObject.searchParams
 
     // Response
     res.end = end(res)
@@ -86,6 +89,7 @@ export const extendMiddleware =
     res.get = getResponseHeader(res)
     res.header = setHeader(res)
     res.set = setHeader(res)
+    res.type = setContentType(res)
 
     await next()
   }

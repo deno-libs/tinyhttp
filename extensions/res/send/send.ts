@@ -39,7 +39,6 @@ async (body: any) => {
   }
   // freshness
   if (req.fresh) res._init.status = 304
-
   // strip irrelevant headers
   if (res._init.status === 204 || res._init.status === 304) {
     res._init.headers?.delete('Content-Type')

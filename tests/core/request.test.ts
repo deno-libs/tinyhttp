@@ -12,37 +12,39 @@ describe('Request properties', () => {
     res.expectBody({ url: 'http://localhost:8080/' })
   })
 
-  // describe('URL extensions', () => {
-  //   it.only('req.query is being parsed properly', async () => {
-  //     const { request } = initAppAndTest((req, res) => void res.json(req.query))
+  describe('URL extensions', () => {
+    it('req.query is being parsed properly', async () => {
+      const { fetch } = initAppAndTest((req, res) => {
+        const query: Record<string, string> = {}
+        for (const [k, v] of req.query.entries()) query[k] = v
+        res.json(query)
+      })
 
-  //     await request.json('/?param1=val1&param2=val2', (json, res) => {
-  //       expect(json).toEqual({
-  //         param1: 'val1',
-  //         param2: 'val2',
-  //       })
-  //       expect(res.status).toEqual(200)
-  //     })
-  //   })
-  //   it('req.params is being parsed properly', async () => {
-  //     const { request } = initAppAndTest(
-  //       (req, res) => {
-  //         res.json(req.params)
-  //       },
-  //       '/:param1/:param2',
-  //       {},
-  //       'get',
-  //     )
+      const res = await fetch('/?param1=val1&param2=val2')
 
-  //     await request.json('/val1/val2', (json, res) => {
-  //       expect(res.status).toBe(200)
-  //       expect(json).toEqual({
-  //         param1: 'val1',
-  //         param2: 'val2',
-  //       })
-  //     })
-  //   })
-  // })
+      res.expectStatus(200).expect({
+        param1: 'val1',
+        param2: 'val2',
+      })
+    })
+    it('req.params is being parsed properly', async () => {
+      const { fetch } = initAppAndTest(
+        (req, res) => {
+          res.json(req.params)
+        },
+        '/:param1/:param2',
+        {},
+        'get',
+      )
+
+      const res = await fetch('/val1/val2')
+
+      res.expectStatus(200).expect({
+        param1: 'val1',
+        param2: 'val2',
+      })
+    })
+  })
 
   describe('Network extensions', () => {
     it('req.ip & req.ips is being parsed properly', async () => {
