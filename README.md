@@ -15,8 +15,8 @@ import { App } from 'https://deno.land/x/tinyhttp/app.ts'
 
 const app = new App()
 
-app.get('/:name/', (req, res) => {
-  return res.send(`Hello on ${req.url} from Deno v${Deno.version.deno} and tinyhttp! 🦕`)
+app.get('/:name/', async (req, res) => {
+  await res.send(`Hello on ${req.url} from Deno v${Deno.version.deno} and tinyhttp! 🦕`)
 })
 
 app.listen(3000, () => console.log(`Started on :3000`))
@@ -24,7 +24,7 @@ app.listen(3000, () => console.log(`Started on :3000`))
 
 [docs-badge]: https://img.shields.io/github/v/release/deno-libs/tinyhttp?label=Docs&logo=deno&style=for-the-badge&color=B06892
 [docs]: https://doc.deno.land/https/deno.land/x/tinyhttp/mod.ts
-[gh-actions-img]: https://img.shields.io/github/workflow/status/deno-libs/tinyhttp/CI?style=for-the-badge&logo=github&label=&color=B06892
+[gh-actions-img]: https://img.shields.io/github/actions/workflow/status/deno-libs/tinyhttp/main.yml?branch=master&style=for-the-badge&logo=github&label=&color=B06892
 [codecov]: https://coveralls.io/github/deno-libs/tinyhttp
 [github-actions]: https://github.com/deno-libs/tinyhttp/actions
 [codecov-badge]: https://img.shields.io/coveralls/github/deno-libs/tinyhttp?style=for-the-badge&color=B06892&
