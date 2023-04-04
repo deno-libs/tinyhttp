@@ -46,13 +46,15 @@ describe('Response extensions', () => {
       res.expectHeader('foo', 'bar,baz')
     })
     it('should throw if `Content-Type` header is passed as an array', async () => {
-      
       const app = () => {
         const res: DummyResponse = { _init: { headers: new Headers({}) } }
         try {
           setHeader(res)('content-type', ['foo', 'bar'])
         } catch (e) {
-          return new Response((e as TypeError).message, {...res._init, status: 500})
+          return new Response((e as TypeError).message, {
+            ...res._init,
+            status: 500,
+          })
         }
         return new Response(null, res._init)
       }
@@ -93,15 +95,17 @@ describe('Response extensions', () => {
       res.expect('World')
     })
   })
-  // describe('res.vary(field)', () => {
-  //   it('should set a "Vary" header properly', async () => {
-  //     const app = runServer((_, res) => {
-  //       setVaryHeader(res)('User-Agent').end()
-  //     })
-
-  //     await makeFetch(app)('/').expect('Vary', 'User-Agent')
-  //   })
-  // })
+  describe('res.vary(field)', () => {
+    it('should set a "Vary" header properly', async () => {
+      const app = () => {
+        const res: DummyResponse = { _init: { headers: new Headers({}) } }
+        setVaryHeader(res)('User-Agent')
+        return new Response(null, res._init)
+      }
+      const res = await makeFetch(app)('/')
+      res.expect('Vary', 'Accept-Encoding, User-Agent')
+    })
+  })
   // describe('res.redirect(url, status)', () => {
   //   it('should set 302 status and message about redirecting', async () => {
   //     const app = runServer((req, res) => {

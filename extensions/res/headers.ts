@@ -74,16 +74,16 @@ export const setLinksHeader =
   }
 
 export const setVaryHeader =
-  <Response extends THResponse = THResponse>(res: Response) =>
-  (field: string): Response => {
+  <Res extends DummyResponse = DummyResponse>(res: Res) =>
+  (field: string): Res => {
     vary(res._init.headers || new Headers({}), field)
 
     return res
   }
 
 export const setContentType =
-  <Response extends THResponse = THResponse>(res: Response) =>
-  (type: string): Response => {
+  <Res extends DummyResponse = DummyResponse>(res: Res) =>
+  (type: string): Res => {
     const ct = type.indexOf('/') === -1 ? typeByExtension(type) : type
 
     setHeader(res)('Content-Type', ct)
