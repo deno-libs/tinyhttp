@@ -34,8 +34,12 @@ const applyHandler =
     }
   }
 
-const notFound: Handler = (req, res) =>
-  void res.status(404).send(`Cannot ${req.method} ${new URL(req.url).pathname}`)
+async function notFound(req: Request, res: THResponse) {
+  res.status(404)
+  await res.send(
+    `Cannot ${req.method} ${new URL(req.url).pathname}`,
+  )
+}
 
 const mount = (fn: App | Handler) => (fn instanceof App ? fn.attach : fn)
 
@@ -48,7 +52,7 @@ export class App<
   settings: AppSettings & Record<string, unknown>
   locals: Record<string, string> = {}
   engines: Record<string, TemplateFunc<RenderOptions>> = {}
-  onError: (err: unknown) => Response | Promise<Response>
+  onError: (err: unknown, req: Request) => Response | Promise<Response>
   notFound: Handler<Req, Res>
   attach: (req: Req, res: Res, next: NextFunction) => void
 
@@ -241,7 +245,7 @@ export class App<
     try {
       await this.#prepare(req, res)
     } catch (e) {
-      return await this.onError(e)
+      return await this.onError(e, req)
     }
     return new Response(res._body, res._init)
   }

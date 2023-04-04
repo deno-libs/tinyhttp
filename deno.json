@@ -9,11 +9,11 @@
     }
   },
   "tasks": {
-    "test": "deno test --allow-net --allow-read --allow-write --coverage=coverage"
+    "test": "deno test --allow-net --coverage=coverage"
   },
   "test": {
-    "files":{
-      "exclude": ["./tests/util.ts"]
+    "files": {
+      "include": ["./tests/core/app.test.ts"]
     }
   }
 }

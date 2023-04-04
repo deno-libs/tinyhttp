@@ -20,7 +20,7 @@ type AppSettings = Partial<
 
 type AppConstructor<Req, Res> = Partial<{
   noMatchHandler: Handler
-  onError: (err: unknown) => Response | Promise<Response>
+  onError: (err: unknown, req: Request) => Response | Promise<Response>
   applyExtensions: (req: Req, res: Res, next: NextFunction) => void
   settings: AppSettings
 }>
