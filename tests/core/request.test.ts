@@ -1,9 +1,5 @@
 import { initAppAndTest } from '../util.ts'
-import {
-  describe,
-  it,
-  run,
-} from 'https://deno.land/x/tincan@1.0.1/mod.ts'
+import { describe, it, run } from 'https://deno.land/x/tincan@1.0.1/mod.ts'
 
 describe('Request properties', () => {
   it('should have default HTTP Request properties', async () => {
@@ -58,14 +54,12 @@ describe('Request properties', () => {
           })
         },
         '/',
-        {
-         
-        },
+        {},
         'get',
       )
 
       const res = await fetch('/')
-      
+
       res.expectStatus(200).expectBody({
         ip: '1',
         ips: ['::1'],
@@ -91,43 +85,35 @@ describe('Request properties', () => {
           res.end(`secure: ${req.secure}`)
         },
         '/',
-        {
-
-        },
+        {},
         'get',
       )
       const res = await fetch('/')
 
       res.expect(`secure: false`).expectStatus(200)
     })
-    // it('req.subdomains is empty by default', async () => {
-    //   const { request } = initAppAndTest(
-    //     (req, res) => {
-    //       res.send(`subdomains: ${req.subdomains?.join(', ')}`)
-    //     },
-    //     '/',
-    //     {
-    //       settings: {
-    //         networkExtensions: true,
-    //       },
-    //     },
-    //     'get',
-    //   )
-
-    //   await fetch.get('/').expect(200, `subdomains: `)
-    // })
+    it('req.subdomains is empty by default', async () => {
+      const { fetch } = initAppAndTest(
+        (req, res) => {
+          res.end(`subdomains: ${req.subdomains?.join(', ')}`)
+        },
+        '/',
+        {},
+        'get',
+      )
+      const res = await fetch('/')
+      res.expect('subdomains: ')
+    })
   })
 
-  // it('req.xhr is false because of node-superagent', async () => {
-  //   const { request } = initAppAndTest((req, res) => {
-  //     res.end(`XMLHttpRequest: ${req.xhr ? 'yes' : 'no'}`)
-  //   })
+  it('req.xhr is false because of superfetch', async () => {
+    const { fetch } = initAppAndTest((req, res) => {
+      res.end(`XMLHttpRequest: ${req.xhr ? 'yes' : 'no'}`)
+    })
 
-  //   await request.text({}, (text, res) => {
-  //     expect(res.status).toEqual(200)
-  //     expect(text).toEqual(`XMLHttpRequest: no`)
-  //   })
-  // })
+    const res = await fetch('/')
+    res.expectStatus(200).expectBody('XMLHttpRequest: no')
+  })
 
   // it('req.path is the URL but without query parameters', async () => {
   //   const { request } = initAppAndTest((req, res) => {
@@ -154,7 +140,7 @@ describe('Request properties', () => {
       {},
       'get',
     )
-    const res = await fetch('/', {headers: {'If-None-Match': etag }})
+    const res = await fetch('/', { headers: { 'If-None-Match': etag } })
     res.expectStatus(304)
   })
 })
