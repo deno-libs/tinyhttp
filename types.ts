@@ -13,7 +13,7 @@ type Protocol = 'http' | 'https'
  * tinyhttp App has a few settings for toggling features
  */
 type AppSettings = Partial<
-  & Record<'networkExtensions' | 'bindAppToReqRes' | 'enableReqRoute', boolean>
+  & Record<'bindAppToReqRes' | 'enableReqRoute', boolean>
   & Record<'subdomainOffset', number>
   & Record<'xPoweredBy', string | boolean>
 >
