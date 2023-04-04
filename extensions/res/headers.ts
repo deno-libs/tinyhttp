@@ -1,16 +1,16 @@
 import { encodeUrl, getCharset, typeByExtension, vary } from '../../deps.ts'
 import { THRequest } from '../../request.ts'
-import { THResponse } from '../../response.ts'
+import { DummyResponse, THResponse } from '../../response.ts'
 import { getRequestHeader } from '../req/headers.ts'
 
 const charsetRegExp = /;\s*charset\s*=/
 
 export const setHeader =
-  <Response extends THResponse = THResponse>(res: Response) =>
+  <Res extends DummyResponse = DummyResponse>(res: Res) =>
   (
     field: string | Record<string, string | number | string[]>,
     val?: string | number | readonly string[],
-  ): Response => {
+  ): Res => {
     if (typeof field === 'string') {
       let value = Array.isArray(val) ? val.map(String) : String(val)
 
@@ -37,10 +37,8 @@ export const setHeader =
   }
 
 export const getResponseHeader =
-  <Response extends THResponse = THResponse>(res: Response) =>
-  (field: string) => {
-    return res._init.headers?.get(field)
-  }
+  <Res extends DummyResponse = DummyResponse>(res: Res) =>
+  (field: string) => res._init.headers?.get(field)
 
 export const setLocationHeader = <
   Req extends THRequest = THRequest,

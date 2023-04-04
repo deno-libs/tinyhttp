@@ -10,10 +10,10 @@
   },
   "tasks": {
     "test": "deno test --allow-net --coverage=coverage"
-  },
-  "test": {
-    "files": {
-      "include": ["./tests/core/app.test.ts"]
-    }
   }
+  // "test": {
+  //   "files": {
+  //     "exclude": ["./tests/modules/res.test.ts"]
+  //   }
+  // }
 }

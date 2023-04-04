@@ -24,9 +24,13 @@ export const renderTemplate =
     return res
   }
 
-export interface THResponse<O = any, B = any> {
+export interface DummyResponse {
   _body?: BodyInit
   _init: ResponseInit & { headers: Headers }
+}
+
+export interface THResponse<O = any, B = any> extends DummyResponse {
+
   locals: Record<string, unknown>
   send(body: B): Promise<THResponse<O, B>>
   sendFile(path: string, opts?: SendFileOptions): Promise<THResponse<O, B>>

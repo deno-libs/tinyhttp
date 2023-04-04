@@ -1,6 +1,6 @@
 import { path } from './deps.ts'
 import { pushMiddleware, Router, UseMethodParams } from './router.ts'
-import { THResponse } from './response.ts'
+import { DummyResponse, THResponse } from './response.ts'
 import { extendMiddleware } from './extend.ts'
 import { THRequest } from './request.ts'
 import type {
@@ -231,7 +231,7 @@ export class App<
   handler = async (_req: Request, connInfo?: ConnInfo) => {
     const req = _req.clone() as Req
     req.conn = connInfo!
-    const res = {
+    const res: DummyResponse = {
       _init: {
         headers: new Headers({
           'X-Powered-By': typeof this.settings.xPoweredBy === 'string'
