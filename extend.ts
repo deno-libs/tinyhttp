@@ -26,7 +26,7 @@ import {
   sendFile,
   sendStatus,
   setContentType,
-  setCookie,
+  cookie,
   setHeader,
   setLinksHeader,
   setLocationHeader,
@@ -82,7 +82,7 @@ export const extendMiddleware =
     res.redirect = redirect(req, res, next)
     res.append = append(res)
     res.render = renderTemplate<EngineOptions>(res, app)
-    res.cookie = setCookie(res)
+    res.cookie = cookie(res)
     res.clearCookie = clearCookie(res)
     res.location = setLocationHeader(req, res)
     res.get = getResponseHeader(res)

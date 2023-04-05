@@ -1,16 +1,16 @@
-import { THResponse } from '../../../response.ts'
+import { DummyResponse } from '../../../response.ts'
 
 export const json =
-  <Response extends THResponse = THResponse>(res: Response) =>
-  <T = unknown>(body: T): Response => {
+  <Res extends DummyResponse = DummyResponse>(res: Res) =>
+  <T = unknown>(body: T): Res => {
     res._init.headers.set('Content-Type', 'application/json')
     if (typeof body === 'object' && body != null) {
-      res.end(JSON.stringify(body, null, 2))
-    } else if (typeof body === 'string') res.end(body)
+      res._body = JSON.stringify(body, null, 2)
+    } else if (typeof body === 'string') res._body = body
     else if (body == null) {
       res._init.headers.delete('Content-Length')
       res._init.headers.delete('Transfer-Encoding')
-      res.end(undefined)
+      res._body = undefined
     }
 
     return res

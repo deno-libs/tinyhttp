@@ -1,7 +1,12 @@
 import { initAppAndTest } from '../util.ts'
-import { describe, it, run } from 'https://deno.land/x/tincan@1.0.1/mod.ts'
-import { makeFetch } from 'https://deno.land/x/superfetch@1.0.0/mod.ts'
-import { path } from '../../deps.ts'
+import {
+  describe,
+  expect,
+  it,
+  run,
+} from 'https://deno.land/x/tincan@1.0.1/mod.ts'
+import { makeFetch } from 'https://deno.land/x/superfetch@1.0.1/mod.ts'
+import {  path } from '../../deps.ts'
 import type { THRequest, THResponse } from '../../mod.ts'
 import {
   append,
@@ -12,16 +17,15 @@ import {
   getResponseHeader,
   NotAcceptableError,
   redirect,
+  send,
   setContentType,
-  setCookie,
+  cookie,
   setHeader,
   setLinksHeader,
   setLocationHeader,
   setVaryHeader,
 } from '../../extensions/res/mod.ts'
 import { DummyResponse } from '../../response.ts'
-import { Handler } from '../../types.ts'
-
 const __dirname = path.dirname(import.meta.url)
 
 describe('Response extensions', () => {
@@ -269,11 +273,10 @@ describe('Response extensions', () => {
       }
 
       const res = await makeFetch(app)('/')
-      
+
       res.expect('Content-Disposition', 'attachment')
     })
     it('should set Content-Disposition with a filename specified', async () => {
-   
       const app = () => {
         const res: DummyResponse = { _init: { headers: new Headers({}) } }
         attachment(res)(path.join(__dirname, '../fixtures', 'favicon.ico'))
@@ -287,125 +290,164 @@ describe('Response extensions', () => {
   })
   // describe('res.download(filename)', () => {
   //   it('should set Content-Disposition based on path', async () => {
-  //     const app = runServer((req, res) => {
-  //       download(req, res)(path.join(__dirname, '../fixtures', 'favicon.ico')).end()
-  //     })
-
-  //     await makeFetch(app)('/').expect('Content-Disposition', 'attachment; filename="favicon.ico"')
-  //   })
-  //   it('should set Content-Disposition based on filename', async () => {
-  //     const app = runServer((req, res) => {
-  //       download(req, res)(path.join(__dirname, '../fixtures', 'favicon.ico'), 'favicon.icon').end()
-  //     })
-
-  //     await makeFetch(app)('/').expect('Content-Disposition', 'attachment; filename="favicon.icon"')
-  //   })
-  //   it('should pass the error to a callback', async () => {
-  //     const app = runServer((req, res) => {
-  //       download(req, res)(path.join(__dirname, '../fixtures'), 'some_file.png', (err) => {
-  //         expect((err as Error).message).toContain('EISDIR')
-  //       }).end()
-  //     })
-
-  //     await makeFetch(app)('/').expect('Content-Disposition', 'attachment; filename="some_file.png"')
-  //   })
-  //   it('should set "root" from options', async () => {
-  //     const app = runServer((req, res) => {
-  //       download(req, res)('favicon.ico', () => void 0, {
-  //         root: path.join(__dirname, '../fixtures')
-  //       }).end()
-  //     })
-
-  //     await makeFetch(app)('/').expect('Content-Disposition', 'attachment; filename="favicon.ico"')
-  //   })
-  //   it(`'should pass options to sendFile's ReadStream'`, async () => {
-  //     const app = runServer((req, res) => {
-  //       download(req, res)(path.join(__dirname, '../fixtures', 'favicon.ico'), () => void 0, {
-  //         encoding: 'ascii'
-  //       }).end()
-  //     })
-
-  //     await makeFetch(app)('/').expect('Content-Disposition', 'attachment; filename="favicon.ico"')
-  //   })
-  //   it('should set headers from options', async () => {
-  //     const app = runServer((req, res) => {
-  //       download(req, res)(path.join(__dirname, '../fixtures', 'favicon.ico'), () => void 0, {
-  //         headers: {
-  //           'X-Custom-Header': 'Value'
-  //         }
-  //       }).end()
-  //     })
-
-  //     await makeFetch(app)('/')
-  //       .expect('Content-Disposition', 'attachment; filename="favicon.ico"')
-  //       .expect('X-Custom-Header', 'Value')
-  //   })
-  // })
-  // describe('res.cookie(name, value, options)', () => {
-  //   it('serializes the cookie and puts it in a Set-Cookie header', async () => {
-  //     const app = runServer((req, res) => {
-  //       setCookie(req, res)('hello', 'world').end()
-
-  //       expect(res.getHeader('Set-Cookie')).toBe('hello=world; Path=/')
-  //     })
-
-  //     await makeFetch(app)('/').expect(200)
-  //   })
-  //   it('sets default path to "/" if not specified in options', async () => {
-  //     const app = runServer((req, res) => {
-  //       setCookie(req, res)('hello', 'world').end()
-
-  //       expect(res.getHeader('Set-Cookie')).toContain('Path=/')
-  //     })
-
-  //     await makeFetch(app)('/').expect(200)
-  //   })
-  //   it('should throw if it is signed and and no secret is provided', async () => {
-  //     const app = runServer((req, res) => {
-  //       try {
-  //         setCookie(req, res)('hello', 'world', {
-  //           signed: true
-  //         }).end()
-  //       } catch (e) {
-  //         res.end((e as TypeError).message)
+  //     const app = async (req: Request) => {
+  //       const res: DummyResponse & { send?: ReturnType<typeof send> } = {
+  //         _init: {
+  //           headers: new Headers()
+  //         },
   //       }
-  //     })
+  //       const filePath = path.join(__dirname, '../fixtures', 'favicon.ico')
+  //       res.send = send(req, res)
+  //       await download(req, res)(filePath.slice(5, filePath.length))
+  //       return new Response(res._body, res._init)
+  //     }
 
-  //     await makeFetch(app)('/').expect('cookieParser("secret") required for signed cookies')
+  //     const res = await makeFetch(app)('/')
+
+  //     res.expect('Content-Disposition', 'attachment; filename="favicon.ico"')
   //   })
-  //   it('should set "maxAge" and "expires" from options', async () => {
-  //     const maxAge = 3600 * 24 * 365
+  // it('should set Content-Disposition based on filename', async () => {
+  //   const app = async (req: Request) => {
+  //     const res: DummyResponse & { send?: ReturnType<typeof send> } = {
+  //       _init: { headers: new Headers({}) },
+  //     }
+  //     res.send = send(req, res)
+  //     await download(req, res)(
+  //       path.join(__dirname, '../fixtures', 'favicon.ico'),
+  //       'favicon.icon',
+  //     )
+  //     return new Response(res._body, res._init)
+  //   }
+  //   const res = await makeFetch(app)('/')
 
-  //     const app = runServer((req, res) => {
-  //       setCookie(req, res)('hello', 'world', {
-  //         maxAge
-  //       }).end()
-
-  //       expect(res.getHeader('Set-Cookie')).toContain(`Max-Age=${maxAge / 1000}; Path=/; Expires=`)
-  //     })
-
-  //     await makeFetch(app)('/').expect(200)
-  //   })
-  //   it('should append to Set-Cookie if called multiple times', async () => {
-  //     const app = runServer((req, res) => {
-  //       setCookie(req, res)('hello', 'world')
-  //       setCookie(req, res)('foo', 'bar').end()
-  //     })
-
-  //     await makeFetch(app)('/').expect(200).expectHeader('Set-Cookie', 'hello=world; Path=/, foo=bar; Path=/')
-  //   })
+  //   res.expect(
+  //     'Content-Disposition',
+  //     'attachment; filename="favicon.icon"',
+  //   )
   // })
-  // describe('res.clearCookie(name, options)', () => {
-  //   it('sets path to "/" if not specified in options', async () => {
-  //     const app = runServer((req, res) => {
-  //       clearCookie(req, res)('cookie').end()
+  // it('should pass the error to a callback', async () => {
+  //   const app = async (req: Request) => {
+  //     const res: DummyResponse & { send?: ReturnType<typeof send> } = {
+  //       _init: { headers: new Headers({}) },
+  //     }
+  //     res.send = send(req, res)
+  //     try {
+  //       await download(req, res)(
+  //         path.join(__dirname, '../fixtures'),
+  //         'some_file.png',
+  //       )
 
-  //       expect(res.getHeader('Set-Cookie')).toContain('Path=/;')
-  //     })
+  //       return new Response(res._body, res._init)
+  //     } catch (e) {
+  //       return new Response(e.message, { status: 500 })
+  //     }
+  //   }
 
-  //     await makeFetch(app)('/').expect(200)
-  //   })
+  //   const res = await makeFetch(app)('/')
+  //   res.expect(
+  //     'Content-Disposition',
+  //     'attachment; filename="some_file.png"',
+  //   )
   // })
+  // it('should set "root" from options', async () => {
+  //   const app = runServer((req, res) => {
+  //     download(req, res)('favicon.ico', () => void 0, {
+  //       root: path.join(__dirname, '../fixtures'),
+  //     }).end()
+  //   })
+
+  //   await makeFetch(app)('/').expect(
+  //     'Content-Disposition',
+  //     'attachment; filename="favicon.ico"',
+  //   )
+  // })
+  // it(`'should pass options to sendFile's ReadStream'`, async () => {
+  //   const app = runServer((req, res) => {
+  //     download(req, res)(
+  //       path.join(__dirname, '../fixtures', 'favicon.ico'),
+  //       () => void 0,
+  //       {
+  //         encoding: 'ascii',
+  //       },
+  //     ).end()
+  //   })
+
+  //   await makeFetch(app)('/').expect(
+  //     'Content-Disposition',
+  //     'attachment; filename="favicon.ico"',
+  //   )
+  // })
+  // it('should set headers from options', async () => {
+  //   const app = runServer((req, res) => {
+  //     download(req, res)(
+  //       path.join(__dirname, '../fixtures', 'favicon.ico'),
+  //       () => void 0,
+  //       {
+  //         headers: {
+  //           'X-Custom-Header': 'Value',
+  //         },
+  //       },
+  //     ).end()
+  //   })
+
+  //   await makeFetch(app)('/')
+  //     .expect('Content-Disposition', 'attachment; filename="favicon.ico"')
+  //     .expect('X-Custom-Header', 'Value')
+  // })
+  // })
+  describe('res.cookie(name, value, options)', () => {
+    it('serializes the cookie and puts it in a Set-Cookie header', async () => {
+      const app = () => {
+        const res: DummyResponse = { _init: { headers: new Headers({}) } }
+        cookie(res)('hello', 'world')
+        expect(res._init.headers.get('Set-Cookie')).toBe('hello=world; Path=/')
+        return new Response(res._body, res._init)
+      }
+
+      const res = await makeFetch(app)('/')
+      res.expect(200)
+    })
+    it('should set "maxAge" and "expires" from options', async () => {
+      const maxAge = 3600 * 24 * 365
+
+      const app = () => {
+        const res: DummyResponse = { _init: { headers: new Headers({}) } }
+        cookie(res)('hello', 'world', {maxAge})
+        expect(res._init.headers.get('Set-Cookie')).toContain(
+          `Max-Age=${maxAge}`,
+        )
+        return new Response(res._body, res._init)
+      }
+
+      const res = await makeFetch(app)('/')
+      res.expect(200)
+    })
+    it('should append to Set-Cookie if called multiple times', async () => {
+      const app = () => {
+        const res: DummyResponse = { _init: { headers: new Headers({}) } }
+        cookie(res)('hello', 'world',)
+        cookie(res)('foo', 'bar')
+        return new Response(res._body, res._init)
+      }
+
+      const res = await makeFetch(app)('/')
+      res.expect(200).expectHeader('Set-Cookie', 'hello=world; Path=/, foo=bar; Path=/')
+    })
+  })
+  describe('res.clearCookie(name, options)', () => {
+    it('sets path to "/" if not specified in options', async () => {
+
+      const app = () => {
+        const res: DummyResponse = { _init: { headers: new Headers({}) } }
+        clearCookie(res)('cookie')
+        expect(res._init.headers.get('Set-Cookie')).toContain('Path=/;')
+        return new Response(res._body, res._init)
+      }
+
+      const res = await makeFetch(app)('/')
+      res.expect(200)
+    })
+  })
   // describe('res.append(field,value)', () => {
   //   it('sets new header if header not present', async () => {
   //     const app = runServer((_, res) => {

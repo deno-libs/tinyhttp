@@ -1,7 +1,8 @@
 import { contentType, path as _path } from '../../../deps.ts'
 import { THRequest } from '../../../request.ts'
-import { THResponse } from '../../../response.ts'
+import { DummyResponse } from '../../../response.ts'
 import { createETag } from '../utils.ts'
+import { send } from './send.ts'
 
 export type SendFileOptions =
   & Partial<{
@@ -23,9 +24,9 @@ export type SendFileOptions =
  * @param res Response
  */
 export const sendFile = <
-  Request extends THRequest = THRequest,
-  Response extends THResponse = THResponse,
->(req: Request, res: Response) =>
+  Req extends Request = Request,
+  Res extends DummyResponse = DummyResponse,
+>(req: Req, res: Res) =>
 async (path: string, opts: SendFileOptions = {}) => {
   const { root, headers = {}, encoding = 'utf-8', ...options } = opts
 
@@ -42,7 +43,6 @@ async (path: string, opts: SendFileOptions = {}) => {
   headers['Last-Modified'] = stats.mtime!.toUTCString()
 
   headers['Content-Type'] = contentType(_path.extname(path)) || 'text/html'
-
   headers['ETag'] = await createETag(stats)
 
   headers['Content-Length'] = `${stats.size}`
@@ -64,7 +64,7 @@ async (path: string, opts: SendFileOptions = {}) => {
       res._init.status = 416
       res._init.headers?.set('Content-Range', `bytes */${stats.size}`)
 
-      res.end()
+      res._body = undefined
     }
     headers['Content-Range'] = `bytes ${start}-${end}/${stats.size}`
     headers['Content-Length'] = `${end - start + 1}`
@@ -75,11 +75,9 @@ async (path: string, opts: SendFileOptions = {}) => {
 
   res._init.status = status
 
-  const file = await Deno.open(filePath, options)
+  const file = await Deno.readFile(path)
 
-  res.send(file)
-
-  file.close()
+  await send(req, res)(file)
 
   return res
 }

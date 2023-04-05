@@ -1,7 +1,6 @@
 import { sendFile, SendFileOptions } from './send/sendFile.ts'
 import { setContentType, setHeader } from './headers.ts'
-import { THRequest } from '../../request.ts'
-import { DummyResponse, THResponse } from '../../response.ts'
+import { DummyResponse } from '../../response.ts'
 import { contentDisposition, extname } from '../../deps.ts'
 
 export type DownloadOptions =
@@ -11,8 +10,8 @@ export type DownloadOptions =
   }>
 
 export const download = <
-  Req extends THRequest = THRequest,
-  Res extends THResponse = THResponse,
+  Req extends Request = Request,
+  Res extends DummyResponse = DummyResponse,
 >(req: Req, res: Res) =>
 async (
   path: string,

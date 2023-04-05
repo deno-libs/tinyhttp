@@ -1,14 +1,13 @@
-import type { THResponse } from '../../../response.ts'
-import type { THRequest } from '../../../request.ts'
+import type { DummyResponse } from '../../../response.ts'
 import { json } from './json.ts'
 import { createETag, setCharset } from '../utils.ts'
 import { end } from './end.ts'
 
 export const send = <
-  Request extends THRequest = THRequest,
-  Response extends THResponse = THResponse,
->(req: Request, res: Response) =>
-async (body: any) => {
+  Req extends Request & { fresh?: boolean } = Request & { fresh?: boolean },
+  Res extends DummyResponse = DummyResponse,
+>(req: Req, res: Res) =>
+async (body: unknown) => {
   let bodyToSend = body
 
   // in case of object - turn it to json
@@ -48,7 +47,7 @@ async (body: any) => {
   }
 
   if (req.method === 'HEAD') {
-    return end(res)(bodyToSend)
+    return end(res)(bodyToSend as BodyInit)
   }
 
   if (typeof bodyToSend === 'object') {
@@ -70,6 +69,6 @@ async (body: any) => {
       bodyToSend = (bodyToSend as string).toString()
     }
 
-    return end(res)(bodyToSend)
+    return end(res)(bodyToSend as BodyInit)
   }
 }

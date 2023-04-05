@@ -18,7 +18,6 @@ export { escapeHtml } from 'https://deno.land/x/escape_html@1.0.0/mod.ts'
 export * as base64 from 'https://deno.land/std@0.182.0/encoding/base64.ts'
 export { parseMediaType } from 'https://deno.land/std@0.182.0/media_types/parse_media_type.ts'
 export * as mediaTyper from 'https://deno.land/x/media_typer@1.0.1/mod.ts'
-export * as cookie from 'https://deno.land/std@0.182.0/http/cookie.ts'
 export { contentDisposition } from 'https://esm.sh/@tinyhttp/content-disposition@2.0.8'
 export { extname } from 'https://deno.land/std@0.182.0/path/mod.ts'
 export { status as getStatus } from 'https://deno.land/x/status@0.1.0/status.ts'
@@ -27,3 +26,5 @@ export {
   acceptsEncodings,
   acceptsLanguages,
 } from 'https://deno.land/std@0.182.0/http/negotiation.ts'
+export { setCookie } from 'https://deno.land/std@0.182.0/http/cookie.ts';
+export type { Cookie } from 'https://deno.land/std@0.182.0/http/cookie.ts';

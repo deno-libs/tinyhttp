@@ -106,7 +106,7 @@ describe('Response methods', () => {
       res.cookie('Hello', 'World').end()
     })
     const res = await fetch('/')
-    res.expect('Set-Cookie', 'Hello=World')
+    res.expect('Set-Cookie', 'Hello=World; Path=/')
   })
   describe('res.type(type)', () => {
     it('should detect MIME type', async () => {

@@ -1,5 +1,5 @@
-import type { THResponse } from '../../../response.ts'
-export const end = (res: THResponse) =>
+import type { DummyResponse } from '../../../response.ts'
+export const end = <Res extends DummyResponse = DummyResponse>(res: Res) =>
 (
   body: BodyInit | number | boolean | null | undefined,
 ) => {

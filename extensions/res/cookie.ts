@@ -1,30 +1,34 @@
-import { cookie } from '../../deps.ts'
-import { THResponse } from '../../response.ts'
+import { Cookie, setCookie } from '../../deps.ts'
+import type { DummyResponse } from '../../response.ts'
 
-export type SetCookieOptions = Omit<cookie.Cookie, 'value' | 'name'>
+export type SetCookieOptions = Omit<Cookie, 'name' | 'value'>
 
-export const setCookie =
-  <Response extends THResponse = THResponse>(res: Response) =>
+export const cookie =
+  <Res extends DummyResponse = DummyResponse>(res: Res) =>
   (
     name: string,
     value: string,
-    options?: SetCookieOptions,
-  ): Response => {
-    cookie.setCookie(res._init.headers, {
-      value,
-      name,
-      ...options,
-    })
-
+    options: SetCookieOptions = {},
+  ): Res => {
+    if (options.path == null) {
+      options.path = "/";
+    }
+    setCookie(res._init.headers, { name, value, ...options })
     return res
   }
 
 export const clearCookie =
-  <Response extends THResponse = THResponse>(res: Response) =>
-  (name: string): Response => {
-    cookie.deleteCookie(res._init.headers, name, {
-      path: cookie.getCookies(res._init.headers)['Path'] || '/',
-    })
+  <Res extends DummyResponse = DummyResponse>(res: Res) =>
+  (name: string): Res => {
+    setCookie(
+      res._init.headers,
+      {
+        path: "/",
+        name,
+        value: "",
+        expires: new Date(0),
+      },
+    );
 
     return res
   }

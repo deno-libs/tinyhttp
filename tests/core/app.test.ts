@@ -1,4 +1,4 @@
-import { makeFetch } from 'https://deno.land/x/superfetch@1.0.0/mod.ts'
+import { makeFetch } from 'https://deno.land/x/superfetch@1.0.1/mod.ts'
 import { initAppAndTest } from '../util.ts'
 import {
   describe,
