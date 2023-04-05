@@ -260,22 +260,31 @@ describe('Response extensions', () => {
       res.expect('Content-Type', 'text/html; charset=utf-8')
     })
   })
-  // describe('res.attachment(filename)', () => {
-  //   it('should set Content-Disposition without a filename specified', async () => {
-  //     const app = runServer((_, res) => {
-  //       attachment(res)().end()
-  //     })
+  describe('res.attachment(filename)', () => {
+    it('should set Content-Disposition without a filename specified', async () => {
+      const app = () => {
+        const res: DummyResponse = { _init: { headers: new Headers({}) } }
+        attachment(res)()
+        return new Response(res._body, res._init)
+      }
 
-  //     await makeFetch(app)('/').expect('Content-Disposition', 'attachment')
-  //   })
-  //   it('should set Content-Disposition with a filename specified', async () => {
-  //     const app = runServer((_, res) => {
-  //       attachment(res)(path.join(__dirname, '../fixtures', 'favicon.ico')).end()
-  //     })
+      const res = await makeFetch(app)('/')
+      
+      res.expect('Content-Disposition', 'attachment')
+    })
+    it('should set Content-Disposition with a filename specified', async () => {
+   
+      const app = () => {
+        const res: DummyResponse = { _init: { headers: new Headers({}) } }
+        attachment(res)(path.join(__dirname, '../fixtures', 'favicon.ico'))
+        return new Response(res._body, res._init)
+      }
 
-  //     await makeFetch(app)('/').expect('Content-Disposition', 'attachment; filename="favicon.ico"')
-  //   })
-  // })
+      const res = await makeFetch(app)('/')
+
+      res.expect('Content-Disposition', 'attachment; filename="favicon.ico"')
+    })
+  })
   // describe('res.download(filename)', () => {
   //   it('should set Content-Disposition based on path', async () => {
   //     const app = runServer((req, res) => {
