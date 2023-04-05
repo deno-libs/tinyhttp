@@ -10,6 +10,7 @@ import {
   download,
   formatResponse,
   getResponseHeader,
+  NotAcceptableError,
   redirect,
   setContentType,
   setCookie,
@@ -19,6 +20,7 @@ import {
   setVaryHeader,
 } from '../../extensions/res/mod.ts'
 import { DummyResponse } from '../../response.ts'
+import { Handler } from '../../types.ts'
 
 const __dirname = path.dirname(import.meta.url)
 
@@ -161,74 +163,103 @@ describe('Response extensions', () => {
   //     }).expect(302, '')
   //   })
   // })
-  // describe('res.format(obj)', () => {
-  //   it('should send text by default', async () => {
-  //     const app = runServer((req, res) => {
-  //       // eslint-disable-next-line @typescript-eslint/no-empty-function
-  //       formatResponse(req, res, () => {})({
-  //         text: (_: Request, res: Response) => res.end(`Hello World`)
-  //       }).end()
-  //     })
+  describe('res.format(obj)', () => {
+    it('should send text by default', async () => {
+      const app = (req: Request) => {
+        const res: DummyResponse = { _init: { headers: new Headers({}) } }
+        formatResponse(req, res, () => {})({
+          'text/plain': (_, res) => {
+            res._body = `Hello World`
+          },
+        })
+        return new Response(res._body, res._init)
+      }
 
-  //     await makeFetch(app)('/').expect(200, 'Hello World')
-  //   })
-  //   it('should send HTML if specified in "Accepts" header', async () => {
-  //     const app = runServer((req, res) => {
-  //       // eslint-disable-next-line @typescript-eslint/no-empty-function
-  //       formatResponse(req, res, () => {})({
-  //         text: (_: Request, res: Response) => res.end(`Hello World`),
-  //         html: (_: Request, res: Response) => res.end('<h1>Hello World</h1>')
-  //       }).end()
-  //     })
+      const res = await makeFetch(app)('/')
+      res.expect('Hello World')
+    })
+    it('should send HTML if specified in "Accepts" header', async () => {
+      const app = (req: Request) => {
+        const res: DummyResponse = { _init: { headers: new Headers({}) } }
+        formatResponse(req, res, () => {})({
+          'text/plain': (_, res) => {
+            res._body = `Hello World`
+          },
+          'text/html': (_, res) => {
+            res._body = '<h1>Hello World</h1>'
+          },
+        })
+        return new Response(res._body, res._init)
+      }
 
-  //     await makeFetch(app)('/', {
-  //       headers: {
-  //         Accept: 'text/html'
-  //       }
-  //     })
-  //       .expect(200, '<h1>Hello World</h1>')
-  //       .expectHeader('Content-Type', 'text/html')
-  //   })
-  //   it('should throw 406 status when invalid MIME is specified', async () => {
-  //     const app = runServer((req, res) => {
-  //       formatResponse(req, res, (err) => res.writeHead(err.status).end(err.message))({
-  //         text: (_: Request, res: Response) => res.end(`Hello World`)
-  //       }).end()
-  //     })
+      const res = await makeFetch(app)('/', {
+        headers: {
+          Accept: 'text/html',
+        },
+      })
 
-  //     await makeFetch(app)('/', {
-  //       headers: {
-  //         Accept: 'foo/bar'
-  //       }
-  //     }).expect(406, 'Not Acceptable')
-  //   })
-  //   it('should call `default` as a function if specified', async () => {
-  //     const app = runServer((req, res) => {
-  //       // eslint-disable-next-line @typescript-eslint/no-empty-function
-  //       formatResponse(req, res, () => {})({
-  //         default: () => res.end('Hello World')
-  //       }).end()
-  //     })
+      res
+        .expect('<h1>Hello World</h1>')
+        .expectHeader('Content-Type', 'text/html')
+    })
+    it('should throw 406 status when invalid MIME is specified', async () => {
+      const app = (req: Request) => {
+        const res: DummyResponse = { _init: { headers: new Headers({}) } }
+        formatResponse(req, res, (err) => {
+          res._body = (err as NotAcceptableError).message
+          res._init.status = (err as NotAcceptableError).status
+        })({
+          'text/plain': (_, res) => {
+            res._body = `Hello World`
+          },
+        })
+        return new Response(res._body, res._init)
+      }
 
-  //     await makeFetch(app)('/').expect(200, 'Hello World')
-  //   })
-  // })
-  // describe('res.type(type)', () => {
-  //   it('should detect MIME type', async () => {
-  //     const app = runServer((_, res) => {
-  //       setContentType(res)('html').end()
-  //     })
+      const res = await makeFetch(app)('/', {
+        headers: {
+          Accept: 'foo/bar',
+        },
+      })
+      res.expectStatus(406).expectBody('Not Acceptable')
+    })
+    it('should call `default` as a function if specified', async () => {
+      const app = (req: Request) => {
+        const res: DummyResponse = { _init: { headers: new Headers({}) } }
+        formatResponse(req, res, () => {})({
+          default: (_, res) => {
+            res._body = `Hello World`
+          },
+        })
+        return new Response(res._body, res._init)
+      }
 
-  //     await makeFetch(app)('/').expect('Content-Type', 'text/html; charset=utf-8')
-  //   })
-  //   it('should detect MIME type by extension', async () => {
-  //     const app = runServer((_, res) => {
-  //       setContentType(res)('.html').end()
-  //     })
+      const res = await makeFetch(app)('/')
+      res.expect('Hello World')
+    })
+  })
+  describe('res.type(type)', () => {
+    it('should detect MIME type', async () => {
+      const app = () => {
+        const res: DummyResponse = { _init: { headers: new Headers({}) } }
+        setContentType(res)('html')
+        return new Response(res._body, res._init)
+      }
 
-  //     await makeFetch(app)('/').expect('Content-Type', 'text/html; charset=utf-8')
-  //   })
-  // })
+      const res = await makeFetch(app)('/')
+      res.expect('Content-Type', 'text/html; charset=utf-8')
+    })
+    it('should detect MIME type by extension', async () => {
+      const app = () => {
+        const res: DummyResponse = { _init: { headers: new Headers({}) } }
+        setContentType(res)('.html')
+        return new Response(res._body, res._init)
+      }
+
+      const res = await makeFetch(app)('/')
+      res.expect('Content-Type', 'text/html; charset=utf-8')
+    })
+  })
   // describe('res.attachment(filename)', () => {
   //   it('should set Content-Disposition without a filename specified', async () => {
   //     const app = runServer((_, res) => {

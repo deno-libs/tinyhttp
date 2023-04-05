@@ -2,14 +2,13 @@ import { Handler, NextFunction } from '../../types.ts'
 import { normalizeType, normalizeTypes } from './utils.ts'
 import { setVaryHeader } from './headers.ts'
 import { getAccepts } from '../req/mod.ts'
-import { THResponse } from '../../response.ts'
-import { THRequest } from '../../request.ts'
+import { DummyResponse } from '../../response.ts'
 
-export type FormatProps = {
-  default?: () => void
-} & Record<string, Handler>
+export type FormatProps<Res extends DummyResponse = DummyResponse> = {
+  default?: (req: Request, res: Res) => void
+} & Record<string, Handler<Request, Res>>
 
-class NotAcceptableError extends Error {
+export class NotAcceptableError extends Error {
   status = 406
   statusCode = 406
   types: string[]
@@ -20,11 +19,10 @@ class NotAcceptableError extends Error {
 }
 
 export const formatResponse = <
-  Request extends THRequest = THRequest,
-  Response extends THResponse = THResponse,
+  Res extends DummyResponse = DummyResponse,
 >(
   req: Request,
-  res: Response,
+  res: Res,
   next: NextFunction,
 ) =>
 (obj: FormatProps) => {
@@ -35,7 +33,6 @@ export const formatResponse = <
   const keys = Object.keys(obj)
 
   const key = keys.length > 0 ? (getAccepts(req)(...keys) as string) : false
-
   setVaryHeader(res)('Accept')
 
   if (key) {
@@ -43,9 +40,9 @@ export const formatResponse = <
 
     obj[key](req, res, next)
   } else if (fn) {
-    fn()
+    fn(req, res)
   } else {
-    throw new NotAcceptableError(normalizeTypes(keys).map((o) => o.value!))
+    next(new NotAcceptableError(normalizeTypes(keys).map((o) => o.value!)))
   }
 
   return res

@@ -1,4 +1,4 @@
-import { THResponse } from './response.ts'
+import { DummyResponse, THResponse } from './response.ts'
 
 import { METHODS } from './constants.ts'
 import { THRequest } from './request.ts'
@@ -23,11 +23,11 @@ type AppConstructor<Req, Res> = Partial<{
   settings: AppSettings
 }>
 
-type NextFunction = (e?: unknown) => Promise<void>
+type NextFunction = (e?: unknown) => void | Promise<void>
 
 type Handler<
-  Req extends THRequest = THRequest,
-  Res extends THResponse = THResponse,
+  Req extends Request = THRequest,
+  Res extends DummyResponse = THResponse,
 > = (
   req: Req,
   res: Res,
