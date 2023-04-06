@@ -8,10 +8,10 @@ const subsubApp = new App()
 subApp.get(
   '/route',
   function handler(_, res) {
-    res.send(`Hello from ${subApp.mountpath}`)
+    res.end(`Hello from ${subApp.mountpath}`)
   },
 )
-subsubApp.use((req, res) => void res.send(`Hello from ${req.url}`))
+subsubApp.use((req, res) => void res.end(`Hello from ${req.url}`))
 subApp.use('/subapp', subsubApp)
 
 app.use('/subapp', subApp)

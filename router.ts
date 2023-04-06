@@ -195,7 +195,6 @@ export class Router<
       handlers: handlers.slice(1),
       method,
       type: 'route',
-      pattern: new URLPattern({ pathname: args[0] as string }),
     })
 
     return this

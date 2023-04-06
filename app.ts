@@ -147,12 +147,16 @@ export class App<
     return this
   }
   #find(url: URL) {
-    const result = this.middleware.filter((m) => {
+    const result = this.middleware.map(m => ({
+      ...m,
+      pattern: new URLPattern({ pathname: m.fullPath || m.path })
+    })).filter((m) => {
       const path = m.fullPath || m.path
+   
       if (m.type === 'mw') {
         return url.pathname.startsWith(path!)
       } else {
-        return m.pattern!.test(url)
+        return m.pattern.test(url)
       }
     })
 
@@ -171,8 +175,8 @@ export class App<
     const matched = this.#find(req._urlObject).filter((x) =>
       req.method === 'HEAD' || (x.method ? x.method === req.method : true)
     )
-
-    const mw: Middleware<Req, Res>[] = [
+    
+    const mw: Middleware<Req, Res>[] = 'fresh' in req ? matched : [
       {
         handler: exts,
         type: 'mw',
