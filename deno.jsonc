@@ -9,7 +9,7 @@
     }
   },
   "tasks": {
-    "test": "deno test --allow-net --coverage=coverage"
+    "test": "deno test --allow-net --allow-read --coverage=coverage"
   }
   // "test": {
   //   "files": {
