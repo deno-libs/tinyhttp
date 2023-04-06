@@ -98,91 +98,95 @@ describe('Testing App', () => {
   })
 })
 
-// describe('Testing App routing', () => {
-//   it('should add routes added before app.use', async () => {
-//     const app = new App()
+describe('Testing App routing', () => {
+  it('should add routes added before app.use', async () => {
+    const app = new App()
 
-//     const router = new App()
-//     router.get('/list', (_, res) => {
-//       res.end('/router/list')
-//     })
+    const router = new App()
+    router.get('/list', (_, res) => {
+      res.end('/router/list')
+    })
 
-//     router.get('/find', (_, res) => {
-//       res.end('/router/find')
-//     })
-//     console.log(router.middleware)
-//     app.use('/router', router)
+    router.get('/find', (_, res) => {
+      res.end('/router/find')
+    })
+    app.use('/router', router)
 
-//     const fetch = makeFetch(app.handler)
-//     const res1 = await fetch('/router/list')
-//     res1.expect('/router/list')
-//     const res2 = await fetch('router/find')
-//     res2.expect('router/find')
-//   })
-// it('should respond on matched route', async () => {
-//   const { fetch } = initAppAndTest((_req, res) => void res.send('Hello world'), '/route')
+    const fetch1 = makeFetch(app.handler)
+    const res1 = await fetch1('/router/list')
+    res1.expect('/router/list')
+    const fetch2 = makeFetch(app.handler)
+    const res2 = await fetch2('/router/find')
+    res2.expect('/router/find')
+  })
+  it('should respond on matched route', async () => {
+    const { fetch } = initAppAndTest(
+      (_req, res) => void res.end('Hello world'),
+      '/route',
+    )
 
-//   await fetch('/route').expect(200, 'Hello world')
-// })
-// it('should match wares containing base path', async () => {
-//   const app = new App()
+    const res = await fetch('/route')
+    res.expect('Hello world')
+  })
+  // it('should match wares containing base path', async () => {
+  //   const app = new App()
 
-//   const server = app.listen()
+  //   const server = app.listen()
 
-//   app.use('/abc', (_req, res) => void res.send('Hello world'))
+  //   app.use('/abc', (_req, res) => void res.send('Hello world'))
 
-//   await makeFetch(server)('/abc/def').expect(200, 'Hello world')
+  //   await makeFetch(server)('/abc/def').expect(200, 'Hello world')
 
-//   await makeFetch(server)('/abcdef').expect(404)
-// })
-// it('"*" should catch all undefined routes', async () => {
-//   const app = new App()
+  //   await makeFetch(server)('/abcdef').expect(404)
+  // })
+  // it('"*" should catch all undefined routes', async () => {
+  //   const app = new App()
 
-//   const server = app.listen()
+  //   const server = app.listen()
 
-//   app
-//     .get('/route', (_req, res) => void res.send('A different route'))
-//     .all('*', (_req, res) => void res.send('Hello world'))
+  //   app
+  //     .get('/route', (_req, res) => void res.send('A different route'))
+  //     .all('*', (_req, res) => void res.send('Hello world'))
 
-//   await makeFetch(server)('/route').expect(200, 'A different route')
+  //   await makeFetch(server)('/route').expect(200, 'A different route')
 
-//   await makeFetch(server)('/test').expect(200, 'Hello world')
-// })
-// it('should throw 404 on no routes', async () => {
-//   await makeFetch(new App().listen())('/').expect(404)
-// })
-// it('should flatten the array of wares', async () => {
-//   const app = new App()
+  //   await makeFetch(server)('/test').expect(200, 'Hello world')
+  // })
+  // it('should throw 404 on no routes', async () => {
+  //   await makeFetch(new App().listen())('/').expect(404)
+  // })
+  // it('should flatten the array of wares', async () => {
+  //   const app = new App()
 
-//   let counter = 1
+  //   let counter = 1
 
-//   app.use('/abc', [(_1, _2, next) => counter++ && next(), (_1, _2, next) => counter++ && next()], (_req, res) => {
-//     expect(counter).toBe(3)
-//     res.send('Hello World')
-//   })
+  //   app.use('/abc', [(_1, _2, next) => counter++ && next(), (_1, _2, next) => counter++ && next()], (_req, res) => {
+  //     expect(counter).toBe(3)
+  //     res.send('Hello World')
+  //   })
 
-//   await makeFetch(app.listen())('/abc').expect(200, 'Hello World')
-// })
-// it('should can set url prefix for the application', async () => {
-//   const app = new App()
+  //   await makeFetch(app.listen())('/abc').expect(200, 'Hello World')
+  // })
+  // it('should can set url prefix for the application', async () => {
+  //   const app = new App()
 
-//   const route1 = new App()
-//   route1.get('/route1', (_req, res) => res.send('route1'))
+  //   const route1 = new App()
+  //   route1.get('/route1', (_req, res) => res.send('route1'))
 
-//   const route2 = new App()
-//   route2.get('/route2', (_req, res) => res.send('route2'))
+  //   const route2 = new App()
+  //   route2.get('/route2', (_req, res) => res.send('route2'))
 
-//   const route3 = new App()
-//   route3.get('/route3', (_req, res) => res.send('route3'))
+  //   const route3 = new App()
+  //   route3.get('/route3', (_req, res) => res.send('route3'))
 
-//   app.use('/abc', ...[route1, route2, route3])
+  //   app.use('/abc', ...[route1, route2, route3])
 
-//   await makeFetch(app.listen())('/abc/route1').expect(200, 'route1')
+  //   await makeFetch(app.listen())('/abc/route1').expect(200, 'route1')
 
-//   await makeFetch(app.listen())('/abc/route2').expect(200, 'route2')
+  //   await makeFetch(app.listen())('/abc/route2').expect(200, 'route2')
 
-//   await makeFetch(app.listen())('/abc/route3').expect(200, 'route3')
-// })
+  //   await makeFetch(app.listen())('/abc/route3').expect(200, 'route3')
+})
 //   describe('next(err)', () => {
 //     it('next function skips current middleware', async () => {
 //       const app = new App()
