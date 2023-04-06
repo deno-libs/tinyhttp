@@ -17,6 +17,7 @@ import {
   append,
   attachment,
   clearCookie,
+  cookie,
   end,
   formatResponse,
   getResponseHeader,
@@ -26,7 +27,6 @@ import {
   sendFile,
   sendStatus,
   setContentType,
-  cookie,
   setHeader,
   setLinksHeader,
   setLocationHeader,
@@ -40,13 +40,12 @@ import type { NextFunction } from './types.ts'
 /**
  * Extends Request and Response objects with custom properties and methods
  */
-export const extendMiddleware =
-  <EngineOptions>(app: App<EngineOptions>) =>
-  async (
+export const extendMiddleware = <EngineOptions>(app: App<EngineOptions>) =>
+  async function extend(
     req: THRequest,
     res: THResponse<EngineOptions>,
     next: NextFunction,
-  ): Promise<void> => {
+  ): Promise<void> {
     // Request
     req.accepts = getAccepts(req)
     req.path = req._urlObject.pathname

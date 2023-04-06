@@ -26,5 +26,5 @@ export {
   acceptsEncodings,
   acceptsLanguages,
 } from 'https://deno.land/std@0.182.0/http/negotiation.ts'
-export { setCookie } from 'https://deno.land/std@0.182.0/http/cookie.ts';
-export type { Cookie } from 'https://deno.land/std@0.182.0/http/cookie.ts';
+export { setCookie } from 'https://deno.land/std@0.182.0/http/cookie.ts'
+export type { Cookie } from 'https://deno.land/std@0.182.0/http/cookie.ts'

@@ -3,19 +3,18 @@ import type { DummyResponse } from '../../response.ts'
 
 export type SetCookieOptions = Omit<Cookie, 'name' | 'value'>
 
-export const cookie =
-  <Res extends DummyResponse = DummyResponse>(res: Res) =>
-  (
-    name: string,
-    value: string,
-    options: SetCookieOptions = {},
-  ): Res => {
-    if (options.path == null) {
-      options.path = "/";
-    }
-    setCookie(res._init.headers, { name, value, ...options })
-    return res
+export const cookie = <Res extends DummyResponse = DummyResponse>(res: Res) =>
+(
+  name: string,
+  value: string,
+  options: SetCookieOptions = {},
+): Res => {
+  if (options.path == null) {
+    options.path = '/'
   }
+  setCookie(res._init.headers, { name, value, ...options })
+  return res
+}
 
 export const clearCookie =
   <Res extends DummyResponse = DummyResponse>(res: Res) =>
@@ -23,12 +22,12 @@ export const clearCookie =
     setCookie(
       res._init.headers,
       {
-        path: "/",
+        path: '/',
         name,
-        value: "",
+        value: '',
         expires: new Date(0),
       },
-    );
+    )
 
     return res
   }

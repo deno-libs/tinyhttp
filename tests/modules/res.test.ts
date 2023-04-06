@@ -6,12 +6,12 @@ import {
   run,
 } from 'https://deno.land/x/tincan@1.0.1/mod.ts'
 import { makeFetch } from 'https://deno.land/x/superfetch@1.0.1/mod.ts'
-import {  path } from '../../deps.ts'
-import type { THRequest, THResponse } from '../../mod.ts'
+import { path } from '../../deps.ts'
 import {
   append,
   attachment,
   clearCookie,
+  cookie,
   download,
   formatResponse,
   getResponseHeader,
@@ -19,7 +19,6 @@ import {
   redirect,
   send,
   setContentType,
-  cookie,
   setHeader,
   setLinksHeader,
   setLocationHeader,
@@ -32,7 +31,10 @@ describe('Response extensions', () => {
   describe('res.set(field, val)', () => {
     it('should set a string header with a string value', async () => {
       const app = () => {
-        const res: DummyResponse = { _init: { headers: new Headers({}) } }
+        const res: DummyResponse = {
+          _init: { headers: new Headers({}) },
+          locals: {},
+        }
         setHeader(res)('hello', 'World')
         return new Response('hello', res._init)
       }
@@ -43,7 +45,10 @@ describe('Response extensions', () => {
     })
     it('should set an array of header values', async () => {
       const app = () => {
-        const res: DummyResponse = { _init: { headers: new Headers({}) } }
+        const res: DummyResponse = {
+          _init: { headers: new Headers({}) },
+          locals: {},
+        }
         setHeader(res)('foo', ['bar', 'baz'])
         return new Response('hello', res._init)
       }
@@ -53,7 +58,10 @@ describe('Response extensions', () => {
     })
     it('should throw if `Content-Type` header is passed as an array', async () => {
       const app = () => {
-        const res: DummyResponse = { _init: { headers: new Headers({}) } }
+        const res: DummyResponse = {
+          _init: { headers: new Headers({}) },
+          locals: {},
+        }
         try {
           setHeader(res)('content-type', ['foo', 'bar'])
         } catch (e) {
@@ -69,7 +77,10 @@ describe('Response extensions', () => {
     })
     it('if the first argument is object, then map keys to values', async () => {
       const app = () => {
-        const res: DummyResponse = { _init: { headers: new Headers({}) } }
+        const res: DummyResponse = {
+          _init: { headers: new Headers({}) },
+          locals: {},
+        }
         setHeader(res)({ foo: 'bar' })
         return new Response(null, res._init)
       }
@@ -79,7 +90,10 @@ describe('Response extensions', () => {
     })
     it('should not set a charset of one is already set', async () => {
       const app = () => {
-        const res: DummyResponse = { _init: { headers: new Headers({}) } }
+        const res: DummyResponse = {
+          _init: { headers: new Headers({}) },
+          locals: {},
+        }
         setHeader(res)('content-type', 'text/plain; charset=UTF-8')
         return new Response(null, res._init)
       }
@@ -91,7 +105,10 @@ describe('Response extensions', () => {
   describe('res.get(field)', () => {
     it('should get a header with a specified field', async () => {
       const app = () => {
-        const res: DummyResponse = { _init: { headers: new Headers({}) } }
+        const res: DummyResponse = {
+          _init: { headers: new Headers({}) },
+          locals: {},
+        }
         setHeader(res)('hello', 'World')
         return new Response(getResponseHeader(res)('hello'), res._init)
       }
@@ -104,7 +121,10 @@ describe('Response extensions', () => {
   describe('res.vary(field)', () => {
     it('should set a "Vary" header properly', async () => {
       const app = () => {
-        const res: DummyResponse = { _init: { headers: new Headers({}) } }
+        const res: DummyResponse = {
+          _init: { headers: new Headers({}) },
+          locals: {},
+        }
         setVaryHeader(res)('User-Agent')
         return new Response(null, res._init)
       }
@@ -170,7 +190,10 @@ describe('Response extensions', () => {
   describe('res.format(obj)', () => {
     it('should send text by default', async () => {
       const app = (req: Request) => {
-        const res: DummyResponse = { _init: { headers: new Headers({}) } }
+        const res: DummyResponse = {
+          _init: { headers: new Headers({}) },
+          locals: {},
+        }
         formatResponse(req, res, () => {})({
           'text/plain': (_, res) => {
             res._body = `Hello World`
@@ -184,7 +207,10 @@ describe('Response extensions', () => {
     })
     it('should send HTML if specified in "Accepts" header', async () => {
       const app = (req: Request) => {
-        const res: DummyResponse = { _init: { headers: new Headers({}) } }
+        const res: DummyResponse = {
+          _init: { headers: new Headers({}) },
+          locals: {},
+        }
         formatResponse(req, res, () => {})({
           'text/plain': (_, res) => {
             res._body = `Hello World`
@@ -208,7 +234,10 @@ describe('Response extensions', () => {
     })
     it('should throw 406 status when invalid MIME is specified', async () => {
       const app = (req: Request) => {
-        const res: DummyResponse = { _init: { headers: new Headers({}) } }
+        const res: DummyResponse = {
+          _init: { headers: new Headers({}) },
+          locals: {},
+        }
         formatResponse(req, res, (err) => {
           res._body = (err as NotAcceptableError).message
           res._init.status = (err as NotAcceptableError).status
@@ -229,7 +258,10 @@ describe('Response extensions', () => {
     })
     it('should call `default` as a function if specified', async () => {
       const app = (req: Request) => {
-        const res: DummyResponse = { _init: { headers: new Headers({}) } }
+        const res: DummyResponse = {
+          _init: { headers: new Headers({}) },
+          locals: {},
+        }
         formatResponse(req, res, () => {})({
           default: (_, res) => {
             res._body = `Hello World`
@@ -245,7 +277,10 @@ describe('Response extensions', () => {
   describe('res.type(type)', () => {
     it('should detect MIME type', async () => {
       const app = () => {
-        const res: DummyResponse = { _init: { headers: new Headers({}) } }
+        const res: DummyResponse = {
+          _init: { headers: new Headers({}) },
+          locals: {},
+        }
         setContentType(res)('html')
         return new Response(res._body, res._init)
       }
@@ -255,7 +290,10 @@ describe('Response extensions', () => {
     })
     it('should detect MIME type by extension', async () => {
       const app = () => {
-        const res: DummyResponse = { _init: { headers: new Headers({}) } }
+        const res: DummyResponse = {
+          _init: { headers: new Headers({}) },
+          locals: {},
+        }
         setContentType(res)('.html')
         return new Response(res._body, res._init)
       }
@@ -267,7 +305,10 @@ describe('Response extensions', () => {
   describe('res.attachment(filename)', () => {
     it('should set Content-Disposition without a filename specified', async () => {
       const app = () => {
-        const res: DummyResponse = { _init: { headers: new Headers({}) } }
+        const res: DummyResponse = {
+          _init: { headers: new Headers({}) },
+          locals: {},
+        }
         attachment(res)()
         return new Response(res._body, res._init)
       }
@@ -278,7 +319,10 @@ describe('Response extensions', () => {
     })
     it('should set Content-Disposition with a filename specified', async () => {
       const app = () => {
-        const res: DummyResponse = { _init: { headers: new Headers({}) } }
+        const res: DummyResponse = {
+          _init: { headers: new Headers({}) },
+          locals: {},
+        }
         attachment(res)(path.join(__dirname, '../fixtures', 'favicon.ico'))
         return new Response(res._body, res._init)
       }
@@ -398,7 +442,10 @@ describe('Response extensions', () => {
   describe('res.cookie(name, value, options)', () => {
     it('serializes the cookie and puts it in a Set-Cookie header', async () => {
       const app = () => {
-        const res: DummyResponse = { _init: { headers: new Headers({}) } }
+        const res: DummyResponse = {
+          _init: { headers: new Headers({}) },
+          locals: {},
+        }
         cookie(res)('hello', 'world')
         expect(res._init.headers.get('Set-Cookie')).toBe('hello=world; Path=/')
         return new Response(res._body, res._init)
@@ -411,8 +458,11 @@ describe('Response extensions', () => {
       const maxAge = 3600 * 24 * 365
 
       const app = () => {
-        const res: DummyResponse = { _init: { headers: new Headers({}) } }
-        cookie(res)('hello', 'world', {maxAge})
+        const res: DummyResponse = {
+          _init: { headers: new Headers({}) },
+          locals: {},
+        }
+        cookie(res)('hello', 'world', { maxAge })
         expect(res._init.headers.get('Set-Cookie')).toContain(
           `Max-Age=${maxAge}`,
         )
@@ -424,21 +474,29 @@ describe('Response extensions', () => {
     })
     it('should append to Set-Cookie if called multiple times', async () => {
       const app = () => {
-        const res: DummyResponse = { _init: { headers: new Headers({}) } }
-        cookie(res)('hello', 'world',)
+        const res: DummyResponse = {
+          _init: { headers: new Headers({}) },
+          locals: {},
+        }
+        cookie(res)('hello', 'world')
         cookie(res)('foo', 'bar')
         return new Response(res._body, res._init)
       }
 
       const res = await makeFetch(app)('/')
-      res.expect(200).expectHeader('Set-Cookie', 'hello=world; Path=/, foo=bar; Path=/')
+      res.expect(200).expectHeader(
+        'Set-Cookie',
+        'hello=world; Path=/, foo=bar; Path=/',
+      )
     })
   })
   describe('res.clearCookie(name, options)', () => {
     it('sets path to "/" if not specified in options', async () => {
-
       const app = () => {
-        const res: DummyResponse = { _init: { headers: new Headers({}) } }
+        const res: DummyResponse = {
+          _init: { headers: new Headers({}) },
+          locals: {},
+        }
         clearCookie(res)('cookie')
         expect(res._init.headers.get('Set-Cookie')).toContain('Path=/;')
         return new Response(res._body, res._init)

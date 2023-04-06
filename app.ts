@@ -240,7 +240,7 @@ export class App<
         }),
       },
       _body: undefined,
-      
+      locals: {},
     }
 
     try {
