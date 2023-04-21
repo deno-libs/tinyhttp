@@ -1,8 +1,10 @@
 import { path } from './deps.ts'
-import { pushMiddleware, Router, UseMethodParams } from './router.ts'
-import { DummyResponse, THResponse } from './response.ts'
 import { extendMiddleware } from './extend.ts'
+import { getRouteFromApp } from './extensions/req/route.ts'
+import { onErrorHandler } from './onError.ts'
 import { THRequest } from './request.ts'
+import { DummyResponse, THResponse } from './response.ts'
+import { pushMiddleware, Router, UseMethodParams } from './router.ts'
 import type {
   AppConstructor,
   AppSettings,
@@ -13,8 +15,6 @@ import type {
   TemplateEngineOptions,
   TemplateFunc,
 } from './types.ts'
-import { onErrorHandler } from './onError.ts'
-import { getRouteFromApp } from './extensions/req/route.ts'
 
 /**
  * Add leading slash if not present (e.g. path -> /path, /path -> /path)
@@ -147,17 +147,18 @@ export class App<
     return this
   }
   #find(url: URL) {
-    const result = this.middleware.map((m) => ({
-      ...m,
-      pattern: new URLPattern({ pathname: m.fullPath || m.path }),
-    })).filter((m) => {
+    const result = this.middleware.map((m) => {
       const path = m.fullPath || m.path
-
-      if (m.type === 'mw') {
-        return url.pathname.startsWith(path!)
-      } else {
-        return m.pattern.test(url)
+      return {
+        ...m,
+        pattern: new URLPattern({
+          pathname: m.type === 'mw'
+            ? m.path === '/' ? '*' : `${path}/([^\/]*)?`
+            : path,
+        }),
       }
+    }).filter((m) => {
+      return m.pattern.test(url)
     })
 
     return result

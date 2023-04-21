@@ -1,12 +1,12 @@
 import { makeFetch } from 'https://deno.land/x/superfetch@1.0.1/mod.ts'
-import { initAppAndTest } from '../util.ts'
 import {
   describe,
   expect,
   it,
-  run,
+  run
 } from 'https://deno.land/x/tincan@1.0.1/mod.ts'
 import { App } from '../../app.ts'
+import { initAppAndTest } from '../util.ts'
 
 const decoder = new TextDecoder()
 
@@ -128,17 +128,13 @@ describe('Testing App routing', () => {
     const res = await fetch('/route')
     res.expect('Hello world')
   })
-  // it('should match wares containing base path', async () => {
-  //   const app = new App()
+  it('should match wares containing base path', async () => {
+    const app = new App()
 
-  //   const server = app.listen()
-
-  //   app.use('/abc', (_req, res) => void res.send('Hello world'))
-
-  //   await makeFetch(server)('/abc/def').expect(200, 'Hello world')
-
-  //   await makeFetch(server)('/abcdef').expect(404)
-  // })
+    app.use('/abc', (_req, res) => void res.end('Hello world'))
+    ;(await makeFetch(app.handler)('/abc/def')).expectStatus(200).expectBody('Hello world')
+    ;(await makeFetch(app.handler)('/abcdef')).expect(404)
+  })
   // it('"*" should catch all undefined routes', async () => {
   //   const app = new App()
 
@@ -152,9 +148,9 @@ describe('Testing App routing', () => {
 
   //   await makeFetch(server)('/test').expect(200, 'Hello world')
   // })
-  // it('should throw 404 on no routes', async () => {
-  //   await makeFetch(new App().listen())('/').expect(404)
-  // })
+  it('should throw 404 on no routes', async () => {
+    (await makeFetch(new App().handler)('/')).expectStatus(404)
+  })
   // it('should flatten the array of wares', async () => {
   //   const app = new App()
 
