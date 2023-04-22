@@ -1,34 +1,32 @@
 import { parseRange } from '../../deps.ts'
 import { is } from '../../utils/type_is.ts'
 import { THRequest } from '../../request.ts'
-import { THResponse } from '../../response.ts'
+import type { DummyResponse } from '../../response.ts'
 import { fresh } from '../../utils/fresh.ts'
 
-export const getRequestHeader =
-  <Request extends THRequest = THRequest>(req: Request) => (header: string) => {
-    const lc = header.toLowerCase()
+export const getRequestHeader = (req: Request) => (header: string) => {
+  const lc = header.toLowerCase()
 
-    switch (lc) {
-      case 'referer':
-      case 'referrer':
-        return (req.headers.get('referrer') as string) ||
-          (req.headers.get('referer') as string)
-      default:
-        return req.headers.get(lc) as string
-    }
+  switch (lc) {
+    case 'referer':
+    case 'referrer':
+      return (req.headers.get('referrer') as string) ||
+        (req.headers.get('referer') as string)
+    default:
+      return req.headers.get(lc) as string
   }
-export const getRangeFromHeader =
-  <Request extends THRequest = THRequest>(req: Request) => () => {
-    const range = getRequestHeader(req)('Range')
+}
+export const getRangeFromHeader = (req: Request) => () => {
+  const range = getRequestHeader(req)('Range')
 
-    if (!range) return
+  if (!range) return
 
-    return parseRange(range)
-  }
+  return parseRange(range)
+}
 
 export const getFreshOrStale = <
   Request extends THRequest = THRequest,
-  Response extends THResponse = THResponse,
+  Response extends DummyResponse = DummyResponse,
 >(
   req: Request,
   res: Response,
@@ -53,10 +51,9 @@ export const getFreshOrStale = <
   return false
 }
 
-export const checkIfXMLHttpRequest = <Request extends THRequest = THRequest>(
+export const checkIfXMLHttpRequest = (
   req: Request,
 ) => req.headers?.get('X-Requested-With') === 'XMLHttpRequest'
 
-export const reqIs =
-  <Request extends THRequest = THRequest>(req: Request) =>
-  (...types: string[]) => is(req.headers?.get('content-type') as string, types)
+export const reqIs = (req: Request) => (...types: string[]) =>
+  is(req.headers?.get('content-type') as string, types)

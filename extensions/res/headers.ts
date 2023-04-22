@@ -1,6 +1,5 @@
 import { encodeUrl, getCharset, typeByExtension, vary } from '../../deps.ts'
-import { THRequest } from '../../request.ts'
-import { DummyResponse, THResponse } from '../../response.ts'
+import { DummyResponse } from '../../response.ts'
 import { getRequestHeader } from '../req/headers.ts'
 
 const charsetRegExp = /;\s*charset\s*=/
@@ -41,9 +40,8 @@ export const getResponseHeader =
     res._init.headers?.get(field)
 
 export const setLocationHeader = <
-  Req extends THRequest = THRequest,
-  Res extends THResponse = THResponse,
->(req: Req, res: Res) =>
+  Res extends DummyResponse = DummyResponse,
+>(req: Request, res: Res) =>
 (url: string): Res => {
   let loc = url
 
