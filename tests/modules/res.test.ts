@@ -339,6 +339,7 @@ describe('Response extensions', () => {
   //         _init: {
   //           headers: new Headers()
   //         },
+  //         locals: {}
   //       }
   //       const filePath = path.join(__dirname, '../fixtures', 'favicon.ico')
   //       res.send = send(req, res)
@@ -506,81 +507,99 @@ describe('Response extensions', () => {
       res.expect(200)
     })
   })
-  // describe('res.append(field,value)', () => {
-  //   it('sets new header if header not present', async () => {
-  //     const app = runServer((_, res) => {
-  //       append(res)('hello', 'World')
-  //       res.end()
-  //     })
+  describe('res.append(field,value)', () => {
+    it('sets new header if header not present', async () => {
+      const app = () => {
+        const res: DummyResponse = {
+          _init: { headers: new Headers({}) },
+          locals: {},
+        }
+        append(res)('hello', 'World')
+        return new Response(res._body, res._init)
+      }
+      const fetch = await makeFetch(app)
+      const res = await fetch('/')
 
-  //     await makeFetch(app)('/').expectHeader('hello', 'World')
-  //   })
-  //   it('appends value to existing header value', async () => {
-  //     const app = runServer((_, res) => {
-  //       setHeader(res)('hello', 'World1')
-  //       append(res)('hello', 'World2')
-  //       res.end()
-  //     })
+      res.expectHeader('hello', 'World')
+    })
+    // it('appends value to existing header value', async () => {
+    //   const app = () => {
+    //     const res: DummyResponse = {
+    //       _init: { headers: new Headers({}) },
+    //       locals: {},
+    //     }
+    //     setHeader(res)('hello', 'World1')
+    //     append(res)('hello', 'World2')
+    //     return new Response(res._body, res._init)
+    //   }
+    //   const fetch = await makeFetch(app)
+    //   const res = await fetch('/')
+    //   res.expectHeader('hello', ['World1', 'World2'])
+    // })
+    // it('appends value to existing header array', async () => {
+    //   const app = runServer((_, res) => {
+    //     setHeader(res)('hello', ['World1', 'World2'])
+    //     append(res)('hello', 'World3')
+    //     res.end()
+    //   })
 
-  //     await makeFetch(app)('/').expectHeader('hello', ['World1', 'World2'])
-  //   })
-  //   it('appends value to existing header array', async () => {
-  //     const app = runServer((_, res) => {
-  //       setHeader(res)('hello', ['World1', 'World2'])
-  //       append(res)('hello', 'World3')
-  //       res.end()
-  //     })
+    //   await makeFetch(app)('/').expectHeader('hello', ['World1', 'World2', 'World3'])
+    // })
+    // it('appends value array to existing header value', async () => {
+    //   const app = runServer((_, res) => {
+    //     setHeader(res)('hello', 'World1')
+    //     append(res)('hello', ['World2', 'World3'])
+    //     res.end()
+    //   })
 
-  //     await makeFetch(app)('/').expectHeader('hello', ['World1', 'World2', 'World3'])
-  //   })
-  //   it('appends value array to existing header value', async () => {
-  //     const app = runServer((_, res) => {
-  //       setHeader(res)('hello', 'World1')
-  //       append(res)('hello', ['World2', 'World3'])
-  //       res.end()
-  //     })
-
-  //     await makeFetch(app)('/').expectHeader('hello', ['World1', 'World2', 'World3'])
-  //   })
-  // })
-  // describe('res.links(obj)', () => {
-  //   it('should set "Links" header field', async () => {
-  //     const app = runServer((_, res) => {
-  //       setLinksHeader(res)({
-  //         next: 'http://api.example.com/users?page=2',
-  //         last: 'http://api.example.com/users?page=5'
-  //       }).end()
-  //     })
-
-  //     await makeFetch(app)('/')
-  //       .expectHeader(
-  //         'Link',
-  //         '<http://api.example.com/users?page=2>; rel="next", <http://api.example.com/users?page=5>; rel="last"'
-  //       )
-  //       .expectStatus(200)
-  //   })
-  //   it('should set "Links" for multiple calls', async () => {
-  //     const app = runServer((_, res) => {
-  //       setLinksHeader(res)({
-  //         next: 'http://api.example.com/users?page=2',
-  //         last: 'http://api.example.com/users?page=5'
-  //       })
-
-  //       setLinksHeader(res)({
-  //         prev: 'http://api.example.com/users?page=1'
-  //       })
-
-  //       res.end()
-  //     })
-
-  //     await makeFetch(app)('/')
-  //       .expectHeader(
-  //         'Link',
-  //         '<http://api.example.com/users?page=2>; rel="next", <http://api.example.com/users?page=5>; rel="last", <http://api.example.com/users?page=1>; rel="prev"'
-  //       )
-  //       .expectStatus(200)
-  //   })
-  // })
+    //   await makeFetch(app)('/').expectHeader('hello', ['World1', 'World2', 'World3'])
+    // })
+  })
+  describe('res.links(obj)', () => {
+    it('should set "Links" header field', async () => {
+      const app = () => {
+        const res: DummyResponse = {
+          _init: { headers: new Headers({}) },
+          locals: {},
+        }
+        setLinksHeader(res)({
+          next: 'http://api.example.com/users?page=2',
+          last: 'http://api.example.com/users?page=5',
+        })
+        return new Response(res._body, res._init)
+      }
+      const fetch = makeFetch(app)
+      const res = await fetch('/')
+      res.expectHeader(
+        'Link',
+        '<http://api.example.com/users?page=2>; rel="next", <http://api.example.com/users?page=5>; rel="last"',
+      )
+        .expectStatus(200)
+    })
+    it('should set "Links" for multiple calls', async () => {
+      const app = () => {
+        const res: DummyResponse = {
+          _init: { headers: new Headers({}) },
+          locals: {},
+        }
+        setLinksHeader(res)({
+          next: 'http://api.example.com/users?page=2',
+          last: 'http://api.example.com/users?page=5',
+        })
+        setLinksHeader(res)({
+          prev: 'http://api.example.com/users?page=1',
+        })
+        return new Response(res._body, res._init)
+      }
+      const fetch = makeFetch(app)
+      const res = await fetch('/')
+      res.expectHeader(
+        'Link',
+        '<http://api.example.com/users?page=2>; rel="next", <http://api.example.com/users?page=5>; rel="last", <http://api.example.com/users?page=1>; rel="prev"',
+      )
+        .expectStatus(200)
+    })
+  })
 
   // describe('res.location(url)', () => {
   //   it('sets the "Location" header', async () => {

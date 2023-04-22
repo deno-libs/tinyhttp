@@ -9,7 +9,8 @@
     }
   },
   "tasks": {
-    "test": "deno test --allow-net --allow-read --coverage=coverage"
+    "test": "deno test --allow-net --allow-read --coverage=coverage",
+    "fmt": "deno fmt ./**/*.ts"
   }
   // "test": {
   //   "files": {

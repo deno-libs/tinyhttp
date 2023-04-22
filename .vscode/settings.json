@@ -4,5 +4,6 @@
     "https://deno.land/x/": true,
     "https://x.nest.land/": true
   },
-  "deno.config": "./deno.jsonc"
+  "deno.config": "./deno.jsonc",
+  
 }

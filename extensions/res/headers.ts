@@ -58,8 +58,8 @@ export const setLocationHeader = <
 }
 
 export const setLinksHeader =
-  <Response extends THResponse = THResponse>(res: Response) =>
-  (links: { [key: string]: string }): Response => {
+  <Res extends DummyResponse = DummyResponse>(res: Res) =>
+  (links: { [key: string]: string }): Res => {
     let link = res._init.headers?.get('Link') || ''
     if (link) link += ', '
     res._init.headers.set(

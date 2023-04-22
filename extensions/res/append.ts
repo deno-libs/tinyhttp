@@ -1,10 +1,10 @@
-import { THResponse } from '../../response.ts'
+import type { DummyResponse } from '../../response.ts'
 import { getResponseHeader, setHeader } from './headers.ts'
 
 export const append =
-  <Response extends THResponse = THResponse>(res: Response) =>
-  (field: string, value: string | number | string[]): Response => {
-    const prevVal = getResponseHeader<THResponse>(res)(field)
+  <Res extends DummyResponse = DummyResponse>(res: Res) =>
+  (field: string, value: string | number | string[]): Res => {
+    const prevVal = getResponseHeader<Res>(res)(field)
     let newVal = value
 
     if (prevVal && typeof newVal !== 'number' && typeof prevVal !== 'number') {

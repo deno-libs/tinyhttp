@@ -3,7 +3,7 @@ import {
   describe,
   expect,
   it,
-  run
+  run,
 } from 'https://deno.land/x/tincan@1.0.1/mod.ts'
 import { App } from '../../app.ts'
 import { initAppAndTest } from '../util.ts'
@@ -132,7 +132,9 @@ describe('Testing App routing', () => {
     const app = new App()
 
     app.use('/abc', (_req, res) => void res.end('Hello world'))
-    ;(await makeFetch(app.handler)('/abc/def')).expectStatus(200).expectBody('Hello world')
+    ;(await makeFetch(app.handler)('/abc/def')).expectStatus(200).expectBody(
+      'Hello world',
+    )
     ;(await makeFetch(app.handler)('/abcdef')).expect(404)
   })
   // it('"*" should catch all undefined routes', async () => {
@@ -149,39 +151,53 @@ describe('Testing App routing', () => {
   //   await makeFetch(server)('/test').expect(200, 'Hello world')
   // })
   it('should throw 404 on no routes', async () => {
-    (await makeFetch(new App().handler)('/')).expectStatus(404)
+    const app = new App()
+    const fetch = makeFetch(app.handler)
+    const res = await fetch('/')
+    res.expectStatus(404)
   })
-  // it('should flatten the array of wares', async () => {
-  //   const app = new App()
+  it('should flatten the array of wares', async () => {
+    const app = new App()
 
-  //   let counter = 1
+    let counter = 1
 
-  //   app.use('/abc', [(_1, _2, next) => counter++ && next(), (_1, _2, next) => counter++ && next()], (_req, res) => {
-  //     expect(counter).toBe(3)
-  //     res.send('Hello World')
-  //   })
+    app.use('/abc', [
+      (_1, _2, next) => {
+        counter++
+        next()
+      },
+      (_1, _2, next) => {
+        counter++
+        next()
+      },
+    ], (_req, res) => {
+      res.end(`${counter}`)
+    })
+    const fetch = makeFetch(app.handler)
 
-  //   await makeFetch(app.listen())('/abc').expect(200, 'Hello World')
-  // })
+    const res = await fetch('/abc')
+    res.expect('3')
+  })
   // it('should can set url prefix for the application', async () => {
   //   const app = new App()
 
   //   const route1 = new App()
-  //   route1.get('/route1', (_req, res) => res.send('route1'))
+  //   route1.get('/route1', (_req, res) => void res.end('route1'))
 
   //   const route2 = new App()
-  //   route2.get('/route2', (_req, res) => res.send('route2'))
+  //   route2.get('/route2', (_req, res) => void res.end('route2'))
 
   //   const route3 = new App()
-  //   route3.get('/route3', (_req, res) => res.send('route3'))
+  //   route3.get('/route3', (_req, res) => void res.end('route3'))
 
   //   app.use('/abc', ...[route1, route2, route3])
-
-  //   await makeFetch(app.listen())('/abc/route1').expect(200, 'route1')
-
-  //   await makeFetch(app.listen())('/abc/route2').expect(200, 'route2')
-
-  //   await makeFetch(app.listen())('/abc/route3').expect(200, 'route3')
+  //   const fetch1 = makeFetch(app.handler)
+  //   const res1 = await fetch1('/abc/route1')
+  //   res1.expect('route1')
+  //   const fetch2 = makeFetch(app.handler)
+  //   const res2 = await fetch2('/abc/route2')
+  //   res2.expect('route2')
+  // })
 })
 //   describe('next(err)', () => {
 //     it('next function skips current middleware', async () => {
