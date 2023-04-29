@@ -178,93 +178,98 @@ describe('Testing App routing', () => {
     const res = await fetch('/abc')
     res.expect('3')
   })
-  // it('should can set url prefix for the application', async () => {
-  //   const app = new App()
+  it('should can set url prefix for the application', async () => {
+    const app = new App()
 
-  //   const route1 = new App()
-  //   route1.get('/route1', (_req, res) => void res.end('route1'))
+    const route1 = new App()
+    route1.get('/route1', (_req, res) => void res.end('route1'))
 
-  //   const route2 = new App()
-  //   route2.get('/route2', (_req, res) => void res.end('route2'))
+    const route2 = new App()
+    route2.get('/route2', (_req, res) => void res.end('route2'))
 
-  //   const route3 = new App()
-  //   route3.get('/route3', (_req, res) => void res.end('route3'))
+    const route3 = new App()
+    route3.get('/route3', (_req, res) => void res.end('route3'))
 
-  //   app.use('/abc', ...[route1, route2, route3])
-  //   const fetch1 = makeFetch(app.handler)
-  //   const res1 = await fetch1('/abc/route1')
-  //   res1.expect('route1')
-  //   const fetch2 = makeFetch(app.handler)
-  //   const res2 = await fetch2('/abc/route2')
-  //   res2.expect('route2')
-  // })
+    app.use('/abc', ...[route1, route2, route3])
+    const fetch1 = makeFetch(app.handler)
+    const res1 = await fetch1('/abc/route1')
+    res1.expect('route1')
+    const fetch2 = makeFetch(app.handler)
+    const res2 = await fetch2('/abc/route2')
+    res2.expect('route2')
+  })
 })
-//   describe('next(err)', () => {
-//     it('next function skips current middleware', async () => {
-//       const app = new App()
+describe('next(err)', () => {
+  it('next function skips current middleware', async () => {
+    const app = new App()
 
-//       app.locals['log'] = 'test'
+    app.locals['log'] = 'test'
 
-//       app
-//         .use((req, _res, next) => {
-//           app.locals['log'] = req.url
-//           next()
-//         })
-//         .use((_req, res) => void res.json({ ...app.locals }))
+    app
+      .use((req, _res, next) => {
+        app.locals['log'] = req.path
+        next()
+      })
+      .use((_req, res) => void res.json({ ...app.locals }))
+    const fetch = makeFetch(app.handler)
+    const res = await fetch('/')
+    res.expect(200).expectBody({ log: '/' })
+  })
+  it('next function handles errors', async () => {
+    const app = new App()
 
-//       await makeFetch(app.listen())('/').expect(200, { log: '/' })
-//     })
-//     it('next function handles errors', async () => {
-//       const app = new App()
+    app.use((req, res, next) => {
+      if (req.path === '/broken') {
+        next('Your appearance destroyed this world.')
+      } else {
+        res.end('Welcome back')
+      }
+    })
+    const fetch = makeFetch(app.handler)
+    const res = await fetch('/broken')
+    res.expectStatus(500).expectBody( 'Your appearance destroyed this world.')
+  })
+  it('next function sends error message if it\'s not an HTTP status code or string', async () => {
+    const app = new App()
 
-//       app.use((req, res, next) => {
-//         if (req.url === '/broken') {
-//           next('Your appearance destroyed this world.')
-//         } else {
-//           res.send('Welcome back')
-//         }
-//       })
+    app.use((req, res, next) => {
+      if (req.path === '/broken') {
+        next(new Error('Your appearance destroyed this world.'))
+      } else {
+        res.end('Welcome back')
+      }
+    })
 
-//       await makeFetch(app.listen())('/broken').expect(500, 'Your appearance destroyed this world.')
-//     })
-//     it("next function sends error message if it's not an HTTP status code or string", async () => {
-//       const app = new App()
+    const fetch = makeFetch(app.handler)
+    const res = await fetch('/broken')
+    res.expectStatus(500).expectBody( 'Your appearance destroyed this world.')
+  })
+  it('errors in async wares do not destroy the app', async () => {
+    const app = new App()
 
-//       app.use((req, res, next) => {
-//         if (req.url === '/broken') {
-//           next(new Error('Your appearance destroyed this world.'))
-//         } else {
-//           res.send('Welcome back')
-//         }
-//       })
+    app.use(async (_req, _res) => {
+      throw `bruh`
+    })
 
-//       await makeFetch(app.listen())('/broken').expect(500, 'Your appearance destroyed this world.')
-//     })
-//     it('errors in async wares do not destroy the app', async () => {
-//       const app = new App()
+    const fetch = makeFetch(app.handler)
+    const res = await fetch('/')
 
-//       app.use(async (_req, _res) => {
-//         throw `bruh`
-//       })
+    res.expectStatus(500).expectBody('bruh')
+  })
 
-//       const server = app.listen()
+  it('errors in sync wares do not destroy the app', async () => {
+    const app = new App()
 
-//       await makeFetch(server)('/').expect(500, 'bruh')
-//     })
+    app.use((_req, _res) => {
+      throw `bruh`
+    })
 
-//     it('errors in sync wares do not destroy the app', async () => {
-//       const app = new App()
+    const fetch = makeFetch(app.handler)
+    const res = await fetch('/')
 
-//       app.use((_req, _res) => {
-//         throw `bruh`
-//       })
-
-//       const server = app.listen()
-
-//       await makeFetch(server)('/').expect(500, 'bruh')
-//     })
-//   })
-// })
+    res.expectStatus(500).expectBody('bruh')
+  })
+})
 
 // describe('App methods', () => {
 //   it('`app.set` sets a setting', () => {

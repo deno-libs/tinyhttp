@@ -207,7 +207,7 @@ export class App<
         const params =
           type === 'route' && pattern?.exec(req.url)?.pathname.groups || {}
 
-        req.params = params
+        req.params = params as Record<string, string>
 
         if (this.settings?.enableReqRoute) {
           req.route = getRouteFromApp(this.middleware as any, handler as any)
