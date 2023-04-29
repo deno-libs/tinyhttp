@@ -238,16 +238,19 @@ export class App<
     req.conn = connInfo!
     const res: DummyResponse = {
       _init: {
-        headers: new Headers({
-          'X-Powered-By': typeof this.settings.xPoweredBy === 'string'
-            ? this.settings.xPoweredBy
-            : 'tinyhttp',
-        }),
+        headers: new Headers(
+          this.settings.xPoweredBy
+            ? {
+              'X-Powered-By': typeof this.settings.xPoweredBy === 'string'
+                ? this.settings.xPoweredBy
+                : 'tinyhttp',
+            }
+            : {},
+        ),
       },
       _body: undefined,
       locals: {},
     }
-
     try {
       await this.#prepare(req, res)
     } catch (e) {

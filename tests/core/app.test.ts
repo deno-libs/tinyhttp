@@ -960,69 +960,68 @@ describe('Route handlers', () => {
 //   })
 // })
 
-// describe('App settings', () => {
-//   describe('xPoweredBy', () => {
-//     it('is enabled by default', () => {
-//       const app = new App()
+describe('App settings', () => {
+  describe('xPoweredBy', () => {
+    it('is enabled by default', () => {
+      const app = new App()
 
-//       expect(app.settings.xPoweredBy).toBe(true)
-//     })
-//     it('should set X-Powered-By to "tinyhttp"', async () => {
-//       const { fetch } = initAppAndTest((_req, res) => void res.send('hi'))
+      expect(app.settings.xPoweredBy).toBe(true)
+    })
+    it('should set X-Powered-By to "tinyhttp"', async () => {
+      const { fetch } = initAppAndTest((_req, res) => void res.end('hi'))
+      const res = await fetch('/')
+      await res.expectHeader('X-Powered-By', 'tinyhttp')
+    })
+    it('when disabled should not send anything', async () => {
+      const app = new App({ settings: { xPoweredBy: false } })
 
-//       await fetch('/').expectHeader('X-Powered-By', 'tinyhttp')
-//     })
-//     it('when disabled should not send anything', async () => {
-//       const app = new App({ settings: { xPoweredBy: false } })
+      app.use((_req, res) => void res.send('hi'))
 
-//       app.use((_req, res) => void res.send('hi'))
+      const fetch = makeFetch(app.handler)
+      const res = await fetch('/')
 
-//       const server = app.listen()
+      res.expectHeader('X-Powered-By', null)
+    })
+  })
+  // describe('bindAppToReqRes', () => {
+  //   it('references the current app instance in req.app and res.app', async () => {
+  //     const app = new App({
+  //       settings: {
+  //         bindAppToReqRes: true
+  //       }
+  //     })
 
-//       const fetch = makeFetch(server)
+  //     app.locals['hello'] = 'world'
 
-//       await fetch('/').expectHeader('X-Powered-By', null)
-//     })
-//   })
-//   describe('bindAppToReqRes', () => {
-//     it('references the current app instance in req.app and res.app', async () => {
-//       const app = new App({
-//         settings: {
-//           bindAppToReqRes: true
-//         }
-//       })
+  //     app.use((req, res) => {
+  //       expect(req.app).toBeInstanceOf(App)
+  //       expect(res.app).toBeInstanceOf(App)
+  //       expect(req.app.locals['hello']).toBe('world')
+  //       expect(res.app.locals['hello']).toBe('world')
+  //       res.end()
+  //     })
 
-//       app.locals['hello'] = 'world'
+  //     const fetch = makeFetch(app.handler)
+  //     const res = await fetch('/')
 
-//       app.use((req, res) => {
-//         expect(req.app).toBeInstanceOf(App)
-//         expect(res.app).toBeInstanceOf(App)
-//         expect(req.app.locals['hello']).toBe('world')
-//         expect(res.app.locals['hello']).toBe('world')
-//         res.end()
-//       })
+  //     res.expect(200)
+  //   })
+  // })
+  // describe('enableReqRoute', () => {
+  //   it('attach current fn to req.route when enabled', async () => {
+  //     const app = new App({ settings: { enableReqRoute: true } })
 
-//       const server = app.listen()
+  //     app.use((req, res) => {
+  //       expect(req.route).toEqual(app.middleware[0])
+  //       res.end()
+  //     })
 
-//       await makeFetch(server)('/').expect(200)
-//     })
-//   })
-//   describe('enableReqRoute', () => {
-//     it('attach current fn to req.route when enabled', async () => {
-//       const app = new App({ settings: { enableReqRoute: true } })
+  //     const fetch = makeFetch(app.handler)
+  //     const res = await fetch('/')
 
-//       app.use((req, res) => {
-//         expect(req.route).toEqual(app.middleware[0])
-//         res.end()
-//       })
-
-//       const server = app.listen()
-
-//       const fetch = makeFetch(server)
-
-//       await fetch('/').expect(200)
-//     })
-//   })
-// })
+  //     res.expect(200)
+  //   })
+  // })
+})
 
 run()
