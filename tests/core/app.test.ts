@@ -227,7 +227,7 @@ describe('next(err)', () => {
     })
     const fetch = makeFetch(app.handler)
     const res = await fetch('/broken')
-    res.expectStatus(500).expectBody( 'Your appearance destroyed this world.')
+    res.expectStatus(500).expectBody('Your appearance destroyed this world.')
   })
   it('next function sends error message if it\'s not an HTTP status code or string', async () => {
     const app = new App()
@@ -242,7 +242,7 @@ describe('next(err)', () => {
 
     const fetch = makeFetch(app.handler)
     const res = await fetch('/broken')
-    res.expectStatus(500).expectBody( 'Your appearance destroyed this world.')
+    res.expectStatus(500).expectBody('Your appearance destroyed this world.')
   })
   it('errors in async wares do not destroy the app', async () => {
     const app = new App()
@@ -538,136 +538,137 @@ describe('next(err)', () => {
 //   })
 // })
 
-// describe('Route handlers', () => {
-//   it('router accepts array of middlewares', async () => {
-//     const app = new App()
+describe('Route handlers', () => {
+  it('router accepts array of middlewares', async () => {
+    const app = new App()
 
-//     app.use('/', [
-//       (req, _, n) => {
-//         req.body = 'hello'
-//         n()
-//       },
-//       (req, _, n) => {
-//         req.body += ' '
-//         n()
-//       },
-//       (req, _, n) => {
-//         req.body += 'world'
-//         n()
-//       },
-//       (req, res) => {
-//         res.send(req.body)
-//       }
-//     ])
+    app.use('/', [
+      (_req, res, n) => {
+        res.locals.test = 'hello'
+        n()
+      },
+      (_req, res, n) => {
+        res.locals.test += ' '
+        n()
+      },
+      (_req, res, n) => {
+        res.locals.test += 'world'
+        n()
+      },
+      (_req, res) => {
+        res.end(res.locals.test)
+      },
+    ])
 
-//     const server = app.listen()
+    const fetch = makeFetch(app.handler)
+    const res = await fetch('/')
 
-//     const fetch = makeFetch(server)
+    res.expect('hello world')
+  })
+  // it('router accepts path as array of middlewares', async () => {
+  //   const app = new App()
 
-//     await fetch('/').expect(200, 'hello world')
-//   })
-//   it('router accepts path as array of middlewares', async () => {
-//     const app = new App()
+  //   app.use([
+  //     (req, _, n) => {
+  //       req.body = 'hello'
+  //       n()
+  //     },
+  //     (req, _, n) => {
+  //       req.body += ' '
+  //       n()
+  //     },
+  //     (req, _, n) => {
+  //       req.body += 'world'
+  //       n()
+  //     },
+  //     (req, res) => {
+  //       res.send(req.body)
+  //     }
+  //   ])
 
-//     app.use([
-//       (req, _, n) => {
-//         req.body = 'hello'
-//         n()
-//       },
-//       (req, _, n) => {
-//         req.body += ' '
-//         n()
-//       },
-//       (req, _, n) => {
-//         req.body += 'world'
-//         n()
-//       },
-//       (req, res) => {
-//         res.send(req.body)
-//       }
-//     ])
+  //   const server = app.listen()
 
-//     const server = app.listen()
+  //   const fetch = makeFetch(server)
 
-//     const fetch = makeFetch(server)
+  //   await fetch('/').expect(200, 'hello world')
+  // })
+  // it('router accepts list of middlewares', async () => {
+  //   const app = new App()
 
-//     await fetch('/').expect(200, 'hello world')
-//   })
-//   it('router accepts list of middlewares', async () => {
-//     const app = new App()
+  //   app.use(
+  //     (req, _, n) => {
+  //       req.body = 'hello'
+  //       n()
+  //     },
+  //     (req, _, n) => {
+  //       req.body += ' '
+  //       n()
+  //     },
+  //     (req, _, n) => {
+  //       req.body += 'world'
+  //       n()
+  //     },
+  //     (req, res) => {
+  //       res.send(req.body)
+  //     }
+  //   )
 
-//     app.use(
-//       (req, _, n) => {
-//         req.body = 'hello'
-//         n()
-//       },
-//       (req, _, n) => {
-//         req.body += ' '
-//         n()
-//       },
-//       (req, _, n) => {
-//         req.body += 'world'
-//         n()
-//       },
-//       (req, res) => {
-//         res.send(req.body)
-//       }
-//     )
+  //   const server = app.listen()
 
-//     const server = app.listen()
+  //   const fetch = makeFetch(server)
 
-//     const fetch = makeFetch(server)
+  //   await fetch('/').expect(200, 'hello world')
+  // })
+  // it('router accepts array of wares', async () => {
+  //   const app = new App()
 
-//     await fetch('/').expect(200, 'hello world')
-//   })
-//   it('router accepts array of wares', async () => {
-//     const app = new App()
+  //   app.get(
+  //     '/',
+  //     [
+  //       (req, _, n) => {
+  //         req.body = 'hello'
+  //         n()
+  //       }
+  //     ],
+  //     [
+  //       (req, _, n) => {
+  //         req.body += ' '
+  //         n()
+  //       }
+  //     ],
+  //     [
+  //       (req, _, n) => {
+  //         req.body += 'world'
+  //         n()
+  //       },
+  //       (req, res) => {
+  //         res.send(req.body)
+  //       }
+  //     ]
+  //   )
 
-//     app.get(
-//       '/',
-//       [
-//         (req, _, n) => {
-//           req.body = 'hello'
-//           n()
-//         }
-//       ],
-//       [
-//         (req, _, n) => {
-//           req.body += ' '
-//           n()
-//         }
-//       ],
-//       [
-//         (req, _, n) => {
-//           req.body += 'world'
-//           n()
-//         },
-//         (req, res) => {
-//           res.send(req.body)
-//         }
-//       ]
-//     )
+  //   const server = app.listen()
 
-//     const server = app.listen()
+  //   const fetch = makeFetch(server)
 
-//     const fetch = makeFetch(server)
+  //   await fetch('/').expect(200, 'hello world')
+  // })
+  it('router methods do not match loosely', async () => {
+    const app = new App()
 
-//     await fetch('/').expect(200, 'hello world')
-//   })
-//   it('router methods do not match loosely', async () => {
-//     const app = new App()
+    app.get('/route', (_, res) => void res.end('found'))
 
-//     app.get('/route', (_, res) => res.send('found'))
+    const fetch1 = makeFetch(app.handler)
+    const res1 = await fetch1('/route/subroute')
 
-//     const server = app.listen()
+    res1.expect(404)
 
-//     const fetch = makeFetch(server)
+    const fetch2 = makeFetch(app.handler)
+    const res2 = await fetch2('/route')
 
-//     await fetch('/route/subroute').expect(404)
-
-//     await fetch('/route').expect(200, 'found')
-//   })
-// })
+    res2.expect('found')
+  })
+})
 
 // describe('Subapps', () => {
 //   it('sub-app mounts on a specific path', () => {
