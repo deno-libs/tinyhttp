@@ -1,4 +1,3 @@
-import { initAppAndTest } from '../util.ts'
 import {
   describe,
   expect,
@@ -666,33 +665,44 @@ describe('Response extensions', () => {
           .expect('Location', '/some/page.html')
           .expectStatus(200)
       })
-      // it('should set location from "Referrer" header', async () => {
-      //   const app = runServer((req, res) => {
-      //     setLocationHeader(req, res)('back').end()
-      //   })
+      it('should set location from "Referrer" header', async () => {
+        const app = (req: Request) => {
+          const res: DummyResponse = {
+            _init: { headers: new Headers({}) },
+            locals: {},
+          }
+          setLocationHeader(req, res)('back')
 
-      //   await makeFetch(app)('/', {
-      //     headers: {
-      //       Referrer: '/some/page.html',
-      //     },
-      //   })
-      //     .expect('Location', '/some/page.html')
-      //     .expectStatus(200)
-      // })
-      // it('should prefer "Referrer" header', async () => {
-      //   const app = runServer((req, res) => {
-      //     setLocationHeader(req, res)('back').end()
-      //   })
+          return new Response(res._body, res._init)
+        }
+        const fetch = makeFetch(app)
+        const res = await fetch('/', {
+          headers: {
+            Referrer: '/some/page.html',
+          },
+        })
+        res.expect('Location', '/some/page.html').expectStatus(200)
+      })
+      it('should prefer "Referrer" header', async () => {
+        const app = (req: Request) => {
+          const res: DummyResponse = {
+            _init: { headers: new Headers({}) },
+            locals: {},
+          }
+          setLocationHeader(req, res)('back')
 
-      //   await makeFetch(app)('/', {
-      //     headers: {
-      //       Referer: '/some/page1.html',
-      //       Referrer: '/some/page2.html',
-      //     },
-      //   })
-      //     .expect('Location', '/some/page2.html')
-      //     .expectStatus(200)
-      // })
+          return new Response(res._body, res._init)
+        }
+        const fetch = makeFetch(app)
+
+        const res = await fetch('/', {
+          headers: {
+            Referer: '/some/page1.html',
+            Referrer: '/some/page2.html',
+          },
+        })
+        res.expect('Location', '/some/page2.html').expectStatus(200)
+      })
       it('should set the header to "/" without referrer', async () => {
         const app = (req: Request) => {
           const res: DummyResponse = {

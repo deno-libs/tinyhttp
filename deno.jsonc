@@ -1,12 +1,10 @@
 {
   "fmt": {
-    "options": {
-      "useTabs": false,
-      "lineWidth": 80,
-      "indentWidth": 2,
-      "singleQuote": true,
-      "semiColons": false
-    }
+    "useTabs": false,
+    "lineWidth": 80,
+    "indentWidth": 2,
+    "singleQuote": true,
+    "semiColons": false
   },
   "tasks": {
     "test": "deno test --allow-net --allow-read --coverage=coverage"
