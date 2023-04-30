@@ -247,6 +247,7 @@ describe('next(err)', () => {
   it('errors in async wares do not destroy the app', async () => {
     const app = new App()
 
+    // deno-lint-ignore require-await
     app.use(async (_req, _res) => {
       throw `bruh`
     })
@@ -1007,21 +1008,21 @@ describe('App settings', () => {
       res.expect(200)
     })
   })
-  // describe('enableReqRoute', () => {
-  //   it('attach current fn to req.route when enabled', async () => {
-  //     const app = new App({ settings: { enableReqRoute: true } })
+  describe('enableReqRoute', () => {
+    it('attach current fn to req.route when enabled', async () => {
+      const app = new App({ settings: { enableReqRoute: true } })
 
-  //     app.use((req, res) => {
-  //       expect(req.route).toEqual(app.middleware[0])
-  //       res.end()
-  //     })
+      app.use((req, res) => {
+        expect(req.route).toEqual(app.middleware[0])
+        res.end()
+      })
 
-  //     const fetch = makeFetch(app.handler)
-  //     const res = await fetch('/')
+      const fetch = makeFetch(app.handler)
+      const res = await fetch('/')
 
-  //     res.expect(200)
-  //   })
-  // })
+      res.expect(200)
+    })
+  })
 })
 
 run()
