@@ -4,7 +4,7 @@ import {
   it,
   run,
 } from 'https://deno.land/x/tincan@1.0.1/mod.ts'
-import { makeFetch } from 'https://deno.land/x/superfetch@1.0.1/mod.ts'
+import { makeFetch } from 'https://deno.land/x/superfetch@1.0.2/mod.ts'
 import { path } from '../../deps.ts'
 import {
   append,
@@ -516,43 +516,53 @@ describe('Response extensions', () => {
         append(res)('hello', 'World')
         return new Response(res._body, res._init)
       }
-      const fetch = await makeFetch(app)
+      const fetch = makeFetch(app)
       const res = await fetch('/')
 
       res.expectHeader('hello', 'World')
     })
-    // it('appends value to existing header value', async () => {
-    //   const app = () => {
-    //     const res: DummyResponse = {
-    //       _init: { headers: new Headers({}) },
-    //       locals: {},
-    //     }
-    //     setHeader(res)('hello', 'World1')
-    //     append(res)('hello', 'World2')
-    //     return new Response(res._body, res._init)
-    //   }
-    //   const fetch = await makeFetch(app)
-    //   const res = await fetch('/')
-    //   res.expectHeader('hello', ['World1', 'World2'])
-    // })
-    // it('appends value to existing header array', async () => {
-    //   const app = runServer((_, res) => {
-    //     setHeader(res)('hello', ['World1', 'World2'])
-    //     append(res)('hello', 'World3')
-    //     res.end()
-    //   })
-
-    //   await makeFetch(app)('/').expectHeader('hello', ['World1', 'World2', 'World3'])
-    // })
-    // it('appends value array to existing header value', async () => {
-    //   const app = runServer((_, res) => {
-    //     setHeader(res)('hello', 'World1')
-    //     append(res)('hello', ['World2', 'World3'])
-    //     res.end()
-    //   })
-
-    //   await makeFetch(app)('/').expectHeader('hello', ['World1', 'World2', 'World3'])
-    // })
+    it('appends value to existing header value', async () => {
+      const app = () => {
+        const res: DummyResponse = {
+          _init: { headers: new Headers({}) },
+          locals: {},
+        }
+        setHeader(res)('hello', 'World1')
+        append(res)('hello', 'World2')
+        return new Response(res._body, res._init)
+      }
+      const fetch = makeFetch(app)
+      const res = await fetch('/')
+      res.expectHeader('hello', ['World1', 'World2'])
+    })
+    it('appends value to existing header array', async () => {
+      const app = () => {
+        const res: DummyResponse = {
+          _init: { headers: new Headers({}) },
+          locals: {},
+        }
+        setHeader(res)('hello', ['World1', 'World2'])
+        append(res)('hello', 'World3')
+        return new Response(res._body, res._init)
+      }
+      const fetch = makeFetch(app)
+      const res = await fetch('/')
+      res.expectHeader('hello', ['World1', 'World2', 'World3'])
+    })
+    it('appends value array to existing header value', async () => {
+      const app = () => {
+        const res: DummyResponse = {
+          _init: { headers: new Headers({}) },
+          locals: {},
+        }
+        setHeader(res)('hello', 'World1')
+        append(res)('hello', ['World2', 'World3'])
+        return new Response(res._body, res._init)
+      }
+      const fetch = makeFetch(app)
+      const res = await fetch('/')
+      res.expectHeader('hello', ['World1', 'World2', 'World3'])
+    })
   })
   describe('res.links(obj)', () => {
     it('should set "Links" header field', async () => {

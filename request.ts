@@ -1,4 +1,4 @@
-import type { App } from "./app.ts";
+import type { App } from './app.ts'
 import type { RangesSpecifier } from './deps.ts'
 import type { ConnInfo, Middleware, Protocol } from './types.ts'
 
