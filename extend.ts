@@ -46,6 +46,11 @@ export const extendMiddleware = <EngineOptions>(app: App<EngineOptions>) =>
     res: THResponse<EngineOptions>,
     next: NextFunction,
   ): Promise<void> {
+    if (app.settings?.bindAppToReqRes) {
+      req.app = app
+      res.app = app
+    }
+
     // Request
     req.accepts = getAccepts(req)
     req.path = req._urlObject.pathname

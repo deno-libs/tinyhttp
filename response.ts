@@ -71,4 +71,5 @@ export interface THResponse<O = any, B = any> extends DummyResponse {
     val?: string | number | readonly string[],
   ): THResponse<O, B>
   get(field: string): string | null
+  app?: App
 }

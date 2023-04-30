@@ -1,9 +1,5 @@
 {
   "deno.enable": true,
-  "deno.suggest.imports.hosts": {
-    "https://deno.land/x/": true,
-    "https://x.nest.land/": true
-  },
   "deno.config": "./deno.jsonc",
   "deno.codeLens.implementations": true,
   "deno.codeLens.references": true

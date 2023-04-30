@@ -1,3 +1,4 @@
+import type { App } from "./app.ts";
 import type { RangesSpecifier } from './deps.ts'
 import type { ConnInfo, Middleware, Protocol } from './types.ts'
 
@@ -27,4 +28,5 @@ export interface THRequest extends Request {
   stale?: boolean
   secure: boolean
   route?: Middleware
+  app?: App
 }

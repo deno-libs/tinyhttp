@@ -983,30 +983,30 @@ describe('App settings', () => {
       res.expectHeader('X-Powered-By', null)
     })
   })
-  // describe('bindAppToReqRes', () => {
-  //   it('references the current app instance in req.app and res.app', async () => {
-  //     const app = new App({
-  //       settings: {
-  //         bindAppToReqRes: true
-  //       }
-  //     })
+  describe('bindAppToReqRes', () => {
+    it('references the current app instance in req.app and res.app', async () => {
+      const app = new App({
+        settings: {
+          bindAppToReqRes: true,
+        },
+      })
 
-  //     app.locals['hello'] = 'world'
+      app.locals['hello'] = 'world'
 
-  //     app.use((req, res) => {
-  //       expect(req.app).toBeInstanceOf(App)
-  //       expect(res.app).toBeInstanceOf(App)
-  //       expect(req.app.locals['hello']).toBe('world')
-  //       expect(res.app.locals['hello']).toBe('world')
-  //       res.end()
-  //     })
+      app.use((req, res) => {
+        expect(req.app).toBeInstanceOf(App)
+        expect(res.app).toBeInstanceOf(App)
+        expect(req.app?.locals['hello']).toBe('world')
+        expect(res.app?.locals['hello']).toBe('world')
+        res.end()
+      })
 
-  //     const fetch = makeFetch(app.handler)
-  //     const res = await fetch('/')
+      const fetch = makeFetch(app.handler)
+      const res = await fetch('/')
 
-  //     res.expect(200)
-  //   })
-  // })
+      res.expect(200)
+    })
+  })
   // describe('enableReqRoute', () => {
   //   it('attach current fn to req.route when enabled', async () => {
   //     const app = new App({ settings: { enableReqRoute: true } })
