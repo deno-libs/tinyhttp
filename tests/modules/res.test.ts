@@ -4,7 +4,7 @@ import {
   it,
   run,
 } from 'https://deno.land/x/tincan@1.0.1/mod.ts'
-import { makeFetch } from 'https://deno.land/x/superfetch@1.0.2/mod.ts'
+import { makeFetch } from 'https://deno.land/x/superfetch@1.0.3/mod.ts'
 import { path } from '../../deps.ts'
 import {
   append,
@@ -331,96 +331,97 @@ describe('Response extensions', () => {
       res.expect('Content-Disposition', 'attachment; filename="favicon.ico"')
     })
   })
-  // describe('res.download(filename)', () => {
-  //   it('should set Content-Disposition based on path', async () => {
-  //     const app = async (req: Request) => {
-  //       const res: DummyResponse & { send?: ReturnType<typeof send> } = {
-  //         _init: {
-  //           headers: new Headers()
-  //         },
-  //         locals: {}
-  //       }
-  //       const filePath = path.join(__dirname, '../fixtures', 'favicon.ico')
-  //       res.send = send(req, res)
-  //       await download(req, res)(filePath.slice(5, filePath.length))
-  //       return new Response(res._body, res._init)
-  //     }
+  describe('res.download(filename)', () => {
+    it('should set Content-Disposition based on path', async () => {
+      const app = async (req: Request) => {
+        const res: DummyResponse & { send?: ReturnType<typeof send> } = {
+          _init: {
+            headers: new Headers(),
+          },
+          locals: {},
+        }
+        const filePath = path.join(__dirname, '../fixtures', 'favicon.ico')
+        res.send = send(req, res)
+        await download(req, res)(filePath.slice(5, filePath.length))
+        return new Response(res._body, res._init)
+      }
 
-  //     const res = await makeFetch(app)('/')
+      const res = await makeFetch(app)('/')
 
-  //     res.expect('Content-Disposition', 'attachment; filename="favicon.ico"')
-  //   })
-  // it('should set Content-Disposition based on filename', async () => {
-  //   const app = async (req: Request) => {
-  //     const res: DummyResponse & { send?: ReturnType<typeof send> } = {
-  //       _init: { headers: new Headers({}) },
-  //     }
-  //     res.send = send(req, res)
-  //     await download(req, res)(
-  //       path.join(__dirname, '../fixtures', 'favicon.ico'),
-  //       'favicon.icon',
-  //     )
-  //     return new Response(res._body, res._init)
-  //   }
-  //   const res = await makeFetch(app)('/')
+      res.expect('Content-Disposition', 'attachment; filename="favicon.ico"')
+    })
+    it('should set Content-Disposition based on filename', async () => {
+      const app = async (req: Request) => {
+        const res: DummyResponse & { send?: ReturnType<typeof send> } = {
+          _init: { headers: new Headers({}) },
+          locals: {},
+        }
+        res.send = send(req, res)
+        await download(req, res)(
+          path.join(__dirname, '../fixtures', 'favicon.ico'),
+          'favicon.icon',
+        )
+        return new Response(res._body, res._init)
+      }
+      const res = await makeFetch(app)('/')
 
-  //   res.expect(
-  //     'Content-Disposition',
-  //     'attachment; filename="favicon.icon"',
-  //   )
-  // })
-  // it('should pass the error to a callback', async () => {
-  //   const app = async (req: Request) => {
-  //     const res: DummyResponse & { send?: ReturnType<typeof send> } = {
-  //       _init: { headers: new Headers({}) },
-  //     }
-  //     res.send = send(req, res)
-  //     try {
-  //       await download(req, res)(
-  //         path.join(__dirname, '../fixtures'),
-  //         'some_file.png',
-  //       )
+      res.expect(
+        'Content-Disposition',
+        'attachment; filename="favicon.icon"',
+      )
+    })
+    // it('should pass the error to a callback', async () => {
+    //   const app = async (req: Request) => {
+    //     const res: DummyResponse & { send?: ReturnType<typeof send> } = {
+    //       _init: { headers: new Headers({}) },
+    //     }
+    //     res.send = send(req, res)
+    //     try {
+    //       await download(req, res)(
+    //         path.join(__dirname, '../fixtures'),
+    //         'some_file.png',
+    //       )
 
-  //       return new Response(res._body, res._init)
-  //     } catch (e) {
-  //       return new Response(e.message, { status: 500 })
-  //     }
-  //   }
+    //       return new Response(res._body, res._init)
+    //     } catch (e) {
+    //       return new Response(e.message, { status: 500 })
+    //     }
+    //   }
 
-  //   const res = await makeFetch(app)('/')
-  //   res.expect(
-  //     'Content-Disposition',
-  //     'attachment; filename="some_file.png"',
-  //   )
-  // })
-  // it('should set "root" from options', async () => {
-  //   const app = runServer((req, res) => {
-  //     download(req, res)('favicon.ico', () => void 0, {
-  //       root: path.join(__dirname, '../fixtures'),
-  //     }).end()
-  //   })
+    //   const res = await makeFetch(app)('/')
+    //   res.expect(
+    //     'Content-Disposition',
+    //     'attachment; filename="some_file.png"',
+    //   )
+    // })
+    // it('should set "root" from options', async () => {
+    //   const app = runServer((req, res) => {
+    //     download(req, res)('favicon.ico', () => void 0, {
+    //       root: path.join(__dirname, '../fixtures'),
+    //     }).end()
+    //   })
 
-  //   await makeFetch(app)('/').expect(
-  //     'Content-Disposition',
-  //     'attachment; filename="favicon.ico"',
-  //   )
-  // })
-  // it(`'should pass options to sendFile's ReadStream'`, async () => {
-  //   const app = runServer((req, res) => {
-  //     download(req, res)(
-  //       path.join(__dirname, '../fixtures', 'favicon.ico'),
-  //       () => void 0,
-  //       {
-  //         encoding: 'ascii',
-  //       },
-  //     ).end()
-  //   })
+    //   await makeFetch(app)('/').expect(
+    //     'Content-Disposition',
+    //     'attachment; filename="favicon.ico"',
+    //   )
+    // })
+    // it(`'should pass options to sendFile's ReadStream'`, async () => {
+    //   const app = runServer((req, res) => {
+    //     download(req, res)(
+    //       path.join(__dirname, '../fixtures', 'favicon.ico'),
+    //       () => void 0,
+    //       {
+    //         encoding: 'ascii',
+    //       },
+    //     ).end()
+    //   })
 
-  //   await makeFetch(app)('/').expect(
-  //     'Content-Disposition',
-  //     'attachment; filename="favicon.ico"',
-  //   )
-  // })
+    //   await makeFetch(app)('/').expect(
+    //     'Content-Disposition',
+    //     'attachment; filename="favicon.ico"',
+    //   )
+  })
   // it('should set headers from options', async () => {
   //   const app = runServer((req, res) => {
   //     download(req, res)(

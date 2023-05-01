@@ -1,4 +1,4 @@
-import { makeFetch } from 'https://deno.land/x/superfetch@1.0.2/mod.ts'
+import { makeFetch } from 'https://deno.land/x/superfetch@1.0.3/mod.ts'
 import {
   describe,
   expect,
@@ -566,94 +566,91 @@ describe('Route handlers', () => {
 
     res.expect('hello world')
   })
-  // it('router accepts path as array of middlewares', async () => {
-  //   const app = new App()
+  it('router accepts path as array of middlewares', async () => {
+    const app = new App()
 
-  //   app.use([
-  //     (req, _, n) => {
-  //       req.body = 'hello'
-  //       n()
-  //     },
-  //     (req, _, n) => {
-  //       req.body += ' '
-  //       n()
-  //     },
-  //     (req, _, n) => {
-  //       req.body += 'world'
-  //       n()
-  //     },
-  //     (req, res) => {
-  //       res.send(req.body)
-  //     }
-  //   ])
+    app.use([
+      (_, res, n) => {
+        res.locals.test = 'hello'
+        n()
+      },
+      (_, res, n) => {
+        res.locals.test += ' '
+        n()
+      },
+      (_, res, n) => {
+        res.locals.test += 'world'
+        n()
+      },
+      (_, res) => {
+        res.end(res.locals.test)
+      },
+    ])
 
-  //   const server = app.listen()
+    const fetch = makeFetch(app.handler)
+    const res = await fetch('/')
 
-  //   const fetch = makeFetch(server)
+    res.expect('hello world')
+  })
+  it('router accepts list of middlewares', async () => {
+    const app = new App()
 
-  //   await fetch('/').expect(200, 'hello world')
-  // })
-  // it('router accepts list of middlewares', async () => {
-  //   const app = new App()
+    app.use(
+      (_, res, n) => {
+        res.locals.test = 'hello'
+        n()
+      },
+      (_, res, n) => {
+        res.locals.test += ' '
+        n()
+      },
+      (_, res, n) => {
+        res.locals.test += 'world'
+        n()
+      },
+      (_, res) => {
+        res.end(res.locals.test)
+      },
+    )
 
-  //   app.use(
-  //     (req, _, n) => {
-  //       req.body = 'hello'
-  //       n()
-  //     },
-  //     (req, _, n) => {
-  //       req.body += ' '
-  //       n()
-  //     },
-  //     (req, _, n) => {
-  //       req.body += 'world'
-  //       n()
-  //     },
-  //     (req, res) => {
-  //       res.send(req.body)
-  //     }
-  //   )
+    const fetch = makeFetch(app.handler)
+    const res = await fetch('/')
 
-  //   const server = app.listen()
+    res.expect('hello world')
+  })
+  it('router accepts array of wares', async () => {
+    const app = new App()
 
-  //   const fetch = makeFetch(server)
+    app.get(
+      '/',
+      [
+        (_, res, n) => {
+          res.locals.test = 'hello'
+          n()
+        }
+      ],
+      [
+        (_, res, n) => {
+          res.locals.test += ' '
+          n()
+        }
+      ],
+      [
+        (_, res, n) => {
+          res.locals.test += 'world'
+          n()
+        },
+        (_, res) => {
+          res.end(res.locals.test)
+        },
+      ]
+    )
 
-  //   await fetch('/').expect(200, 'hello world')
-  // })
-  // it('router accepts array of wares', async () => {
-  //   const app = new App()
+    const fetch = makeFetch(app.handler)
+    const res = await fetch('/')
 
-  //   app.get(
-  //     '/',
-  //     [
-  //       (req, _, n) => {
-  //         req.body = 'hello'
-  //         n()
-  //       }
-  //     ],
-  //     [
-  //       (req, _, n) => {
-  //         req.body += ' '
-  //         n()
-  //       }
-  //     ],
-  //     [
-  //       (req, _, n) => {
-  //         req.body += 'world'
-  //         n()
-  //       },
-  //       (req, res) => {
-  //         res.send(req.body)
-  //       }
-  //     ]
-  //   )
-
-  //   const server = app.listen()
-
-  //   const fetch = makeFetch(server)
-
-  //   await fetch('/').expect(200, 'hello world')
-  // })
+    res.expect('hello world')
+  })
   it('router methods do not match loosely', async () => {
     const app = new App()
 

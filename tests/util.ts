@@ -2,7 +2,7 @@ import { App } from '../app.ts'
 import { THRequest } from '../request.ts'
 import { THResponse } from '../response.ts'
 import { AppConstructor, Handler } from '../types.ts'
-import { makeFetch } from 'https://deno.land/x/superfetch@1.0.2/mod.ts'
+import { makeFetch } from 'https://deno.land/x/superfetch@1.0.3/mod.ts'
 
 export const supertest = (app: App) => {
   const fetch = makeFetch((req, conn) => app.handler(req, conn))
