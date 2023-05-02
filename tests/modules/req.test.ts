@@ -12,6 +12,7 @@ import {
 } from '../../extensions/req/mod.ts'
 import type { DummyResponse } from '../../response.ts'
 import { runServer } from '../util.test.ts'
+import { setHeader } from '../../extensions/res/headers.ts'
 const __dirname = path.dirname(import.meta.url)
 
 describe('Request extensions', () => {
@@ -104,8 +105,8 @@ describe('Request extensions', () => {
 
       const res = await makeFetch(app)('/', {
         headers: {
-          'Accept-Language': 'ru-RU'
-        }
+          'Accept-Language': 'ru-RU',
+        },
       })
       res.expect('ru-RU')
     })
@@ -118,11 +119,145 @@ describe('Request extensions', () => {
 
       const res = await makeFetch(app)('/', {
         headers: {
-          'Accept-Language': 'ru-RU, ru;q=0.9, en-US;q=0.8'
-        }
+          'Accept-Language': 'ru-RU, ru;q=0.9, en-US;q=0.8',
+        },
       })
       res.expect('ru-RU | ru | en-US')
     })
   })
+  describe('req.fresh', () => {
+    it('returns false if method is neither GET nor HEAD', async () => {
+      const app = runServer((req, res) => {
+        const fresh = getFreshOrStale(req, res)
+
+        return new Response(fresh ? 'fresh' : 'stale', res._init)
+      })
+
+      const res = await makeFetch(app)('/', {
+        method: 'POST',
+        body: 'Hello World',
+      })
+      res.expect('stale')
+    })
+    it('returns true when the resource is not modified', async () => {
+      const etag = '123'
+      const app = runServer((req, res) => {
+        setHeader(res)('ETag', etag)
+        const fresh = getFreshOrStale(req, res)
+
+        return new Response(fresh ? 'fresh' : 'stale', res._init)
+      })
+
+      const res = await makeFetch(app)('/', {
+        headers: {
+          'If-None-Match': etag,
+        },
+      })
+      res.expect('fresh')
+    })
+    it('should return false when the resource is modified', async () => {
+      const etag = '123'
+      const app = runServer((req, res) => {
+        setHeader(res)('ETag', etag)
+        const fresh = getFreshOrStale(req, res)
+
+        return new Response(fresh ? 'fresh' : 'stale', res._init)
+      })
+
+      const res = await makeFetch(app)('/', {
+        headers: {
+          'If-None-Match': '12345',
+        },
+      })
+      res.expect('stale')
+    })
+    it('returns false if status code is neither >=200 nor < 300, nor 304', async () => {
+      const app = runServer((req, res) => {
+        res._init.status = 418
+
+        const fresh = getFreshOrStale(req, res)
+
+        return new Response(fresh ? 'fresh' : 'stale', res._init)
+      })
+
+      const res = await makeFetch(app)('/')
+      res.expect('stale')
+    })
+  })
+  describe('req.range', () => {
+    it('should return parsed ranges', async () => {
+      const app = runServer((req) => {
+        const range = getRangeFromHeader(req)
+        const result = range()
+        expect(result).toEqual({
+          rangeUnit: 'bytes',
+          rangeSet: [{ firstPos: 0, lastPos: 1000 }],
+        })
+        return new Response(null)
+      })
+
+      await makeFetch(app)('/', {
+        headers: {
+          Range: 'bytes=0-1000',
+        },
+      })
+    })
+  })
+  describe('req.is', () => {
+    it('should return the given MIME type when matching', async () => {
+      const app = runServer((req, res) => {
+        expect(reqIs(req)('text/plain')).toBe('text/plain')
+        return new Response(null)
+      })
+      await makeFetch(app)('/', {
+        headers: {
+          'Content-Type': 'text/plain',
+        },
+      })
+    })
+    it('should return false when not matching', async () => {
+      const app = runServer((req) => {
+        expect(reqIs(req)('text/other')).toBe(false)
+        return new Response(null)
+      })
+      await makeFetch(app)('/', {
+        headers: {
+          'Content-Type': 'text/plain',
+        },
+      })
+    })
+    it('should return false when Content-Type header is not present', async () => {
+      const app = runServer((req) => {
+        expect(reqIs(req)('text/other')).toBe(false)
+        return new Response(null)
+      })
+      await makeFetch(app)('/', {
+        headers: {},
+      })
+    })
+    it('Should lookup the MIME type with the extension given (e.g. req.is(\'json\')', async () => {
+      const app = runServer((req) => {
+        expect(reqIs(req)('json')).toBe('json')
+        return new Response(null)
+      })
+      await makeFetch(app)('/', {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+    })
+    it('should ignore charset', async () => {
+      const app = runServer((req) => {
+        expect(reqIs(req)('text/html')).toBe('text/html')
+        return new Response(null)
+      })
+      await makeFetch(app)('/', {
+        headers: {
+          'Content-Type': 'text/html; charset=UTF-8',
+        },
+      })
+    })
+  })
 })
+
 run()

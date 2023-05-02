@@ -25,7 +25,6 @@ export const getRangeFromHeader = (req: Request) => () => {
 }
 
 export const getFreshOrStale = <
-  Request extends THRequest = THRequest,
   Response extends DummyResponse = DummyResponse,
 >(
   req: Request,

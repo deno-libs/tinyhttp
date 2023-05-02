@@ -7,5 +7,6 @@ export const getAccepts =
 export const getAcceptsEncodings = (req: Request) => (...encodings: string[]) =>
   acceptsEncodings(req, ...encodings)
 
-export const getAcceptsLanguages = (req: Request) => (...languages: string[]): string | string[] | undefined =>
-  acceptsLanguages(req, ...languages)
+export const getAcceptsLanguages =
+  (req: Request) => (...languages: string[]): string | string[] | undefined =>
+    acceptsLanguages(req, ...languages)
