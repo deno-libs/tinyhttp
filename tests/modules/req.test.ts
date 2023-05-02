@@ -29,13 +29,9 @@ describe('Request extensions', () => {
       res.expect('*/*')
     })
     it('should handle "referer"', async () => {
-      const app = (req: Request) => {
-        const res: DummyResponse = {
-          _init: { headers: new Headers({}) },
-          locals: {},
-        }
+      const app = runServer((req, res) => {
         return new Response(getRequestHeader(req)('referrer'), res._init)
-      }
+      })
       const res = await makeFetch(app)('/', {
         headers: {
           'Referrer-Policy': 'unsafe-url',
@@ -45,13 +41,9 @@ describe('Request extensions', () => {
       res.expect('localhost:3000')
     })
     it('should handle "referrer"', async () => {
-      const app = (req: Request) => {
-        const res: DummyResponse = {
-          _init: { headers: new Headers({}) },
-          locals: {},
-        }
+      const app = runServer((req, res) => {
         return new Response(getRequestHeader(req)('referrer'), res._init)
-      }
+      })
 
       const res = await makeFetch(app)('/', {
         headers: {
@@ -64,16 +56,12 @@ describe('Request extensions', () => {
   })
   describe('req.xhr', () => {
     it('should be false in node environment', async () => {
-      const app = (req: Request) => {
-        const res: DummyResponse = {
-          _init: { headers: new Headers({}) },
-          locals: {},
-        }
+      const app = runServer((req, res) => {
         return new Response(
           `Browser request: ${checkIfXMLHttpRequest(req) ? 'yes' : 'no'}`,
           res._init,
         )
-      }
+      })
 
       const res = await makeFetch(app)('/')
       res.expect('Browser request: no')
@@ -105,6 +93,35 @@ describe('Request extensions', () => {
         },
       })
       res.expect('text/plain | text/html')
+    })
+  })
+  describe('req.acceptsLanguages()', () => {
+    it('should detect "Accept-Language" header', async () => {
+      const app = runServer((req, res) => {
+        const languages = getAcceptsLanguages(req)()
+        return new Response((languages as string[])[0], res._init)
+      })
+
+      const res = await makeFetch(app)('/', {
+        headers: {
+          'Accept-Language': 'ru-RU'
+        }
+      })
+      res.expect('ru-RU')
+    })
+    it('should parse multiple values', async () => {
+      const app = runServer((req, res) => {
+        const languages = getAcceptsLanguages(req)()
+
+        return new Response((languages as string[]).join(' | '), res._init)
+      })
+
+      const res = await makeFetch(app)('/', {
+        headers: {
+          'Accept-Language': 'ru-RU, ru;q=0.9, en-US;q=0.8'
+        }
+      })
+      res.expect('ru-RU | ru | en-US')
     })
   })
 })
