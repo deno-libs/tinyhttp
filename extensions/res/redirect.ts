@@ -1,20 +1,25 @@
 import { formatResponse } from './format.ts'
 import { setLocationHeader } from './headers.ts'
-import { escapeHtml, getStatus } from '../../deps.ts'
-import { THRequest } from '../../request.ts'
-import { THResponse } from '../../response.ts'
+import { escapeHtml, Status, STATUS_TEXT } from '../../deps.ts'
+import { DummyResponse } from '../../response.ts'
 import { NextFunction } from '../../types.ts'
 
+function toTitleCase(str: string) {
+  return str.replace(
+    /\w\S*/g,
+    (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase(),
+  )
+}
+
 export const redirect = <
-  Request extends THRequest = THRequest,
-  Response extends THResponse = THResponse,
+  Res extends DummyResponse = DummyResponse,
   Next extends NextFunction = NextFunction,
 >(
   req: Request,
-  res: Response,
+  res: Res,
   next: Next,
 ) =>
-(url: string, status = 302) => {
+(url: string, status: Status = Status.Found) => {
   let address = url
 
   let body = ''
@@ -23,20 +28,22 @@ export const redirect = <
     'Location',
   ) as string
 
+  const statusMessage = toTitleCase(
+    (STATUS_TEXT[status] as string).replace('_', ' '),
+  )
+
   formatResponse(
     req,
     res,
     next,
   )({
-    text: () => {
-      body = getStatus(status) + '. Redirecting to ' + address
+    'text/plain': () => {
+      body = statusMessage + '. Redirecting to ' + address
     },
-    html: () => {
+    'text/html': () => {
       const u = escapeHtml(address)
 
-      body = `<p>${
-        getStatus(status)
-      }. Redirecting to <a href="${u}">${u}</a></p>`
+      body = `<p>${statusMessage}. Redirecting to <a href="${u}">${u}</a></p>`
     },
   })
 
@@ -44,11 +51,8 @@ export const redirect = <
 
   res._init.status = status
 
-  if (req.method === 'HEAD') {
-    res._init.status = status
-    res.end()
-  } else {
-    res.end(body)
+  if (req.method !== 'HEAD') {
+    res._body = body
   }
 
   return res

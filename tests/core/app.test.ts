@@ -1,4 +1,4 @@
-import { makeFetch } from 'https://deno.land/x/superfetch@1.0.3/mod.ts'
+import { makeFetch } from 'https://deno.land/x/superfetch@1.0.4/mod.ts'
 import {
   describe,
   expect,
@@ -627,13 +627,13 @@ describe('Route handlers', () => {
         (_, res, n) => {
           res.locals.test = 'hello'
           n()
-        }
+        },
       ],
       [
         (_, res, n) => {
           res.locals.test += ' '
           n()
-        }
+        },
       ],
       [
         (_, res, n) => {
@@ -643,7 +643,7 @@ describe('Route handlers', () => {
         (_, res) => {
           res.end(res.locals.test)
         },
-      ]
+      ],
     )
 
     const fetch = makeFetch(app.handler)

@@ -1,5 +1,4 @@
 import { contentType, path as _path } from '../../../deps.ts'
-import { THRequest } from '../../../request.ts'
 import { DummyResponse } from '../../../response.ts'
 import { createETag } from '../utils.ts'
 import { send } from './send.ts'
@@ -12,7 +11,7 @@ export type SendFileOptions =
     end: number
     start: number
   }>
-  & Deno.OpenOptions
+  & Deno.ReadFileOptions
 
 /**
  * Sends a file by piping a stream to response.
@@ -27,7 +26,7 @@ export const sendFile = <
   Req extends Request = Request,
   Res extends DummyResponse = DummyResponse,
 >(req: Req, res: Res) =>
-async (path: string, opts: SendFileOptions = {}) => {
+async (path: string, { signal, ...opts }: SendFileOptions = {}) => {
   const { root, headers = {}, encoding = 'utf-8', ...options } = opts
 
   if (!_path.isAbsolute(path) && !root) {
@@ -75,7 +74,7 @@ async (path: string, opts: SendFileOptions = {}) => {
 
   res._init.status = status
 
-  const file = await Deno.readFile(path)
+  const file = await Deno.readFile(path, { signal })
 
   await send(req, res)(file)
 

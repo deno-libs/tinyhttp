@@ -15,7 +15,7 @@ export interface THRequest extends Request {
   ip?: string
   ips?: string[]
   subdomains?: string[]
-  accepts: (...types: string[]) => string | undefined
+  accepts: (...types: string[]) => string | string[] | undefined
   acceptsEncodings: (...encodings: string[]) => string | undefined
   acceptsCharsets: (...charsets: string[]) => string | undefined
   acceptsLanguages: (...languages: string[]) => string | undefined
