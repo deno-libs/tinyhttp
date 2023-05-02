@@ -1,12 +1,6 @@
-import { makeFetch } from 'https://deno.land/x/superfetch@1.0.4/mod.ts'
-import {
-  describe,
-  expect,
-  it,
-  run,
-} from 'https://deno.land/x/tincan@1.0.1/mod.ts'
-import { App } from '../../app.ts'
-import { initAppAndTest } from '../util.ts'
+import { describe, expect, it, makeFetch, run } from '../../dev_deps.ts'
+import { App } from '../../mod.ts'
+import { initAppAndTest } from '../util.test.ts'
 
 const decoder = new TextDecoder()
 

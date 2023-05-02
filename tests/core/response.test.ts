@@ -1,5 +1,5 @@
-import { initAppAndTest } from '../util.ts'
-import { describe, it, run } from 'https://deno.land/x/tincan@1.0.1/mod.ts'
+import { initAppAndTest } from '../util.test.ts'
+import { describe, it, run } from '../../dev_deps.ts'
 
 describe('Response properties', () => {
   it('should have default HTTP Response properties', async () => {

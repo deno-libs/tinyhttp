@@ -1,10 +1,4 @@
-import {
-  describe,
-  expect,
-  it,
-  run,
-} from 'https://deno.land/x/tincan@1.0.1/mod.ts'
-import { makeFetch } from 'https://deno.land/x/superfetch@1.0.4/mod.ts'
+import { describe, expect, it, makeFetch, run } from '../../dev_deps.ts'
 import { path } from '../../deps.ts'
 import {
   append,
@@ -23,7 +17,7 @@ import {
   setLocationHeader,
   setVaryHeader,
 } from '../../extensions/res/mod.ts'
-import { DummyResponse } from '../../response.ts'
+import type { DummyResponse } from '../../response.ts'
 const __dirname = path.dirname(import.meta.url)
 
 describe('Response extensions', () => {

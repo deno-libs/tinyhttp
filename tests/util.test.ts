@@ -1,9 +1,8 @@
 import { App } from '../app.ts'
 import type { THRequest } from '../request.ts'
-import type { THResponse, DummyResponse } from '../response.ts'
+import type { DummyResponse, THResponse } from '../response.ts'
 import type { AppConstructor, Handler } from '../types.ts'
-import { makeFetch } from 'https://deno.land/x/superfetch@1.0.4/mod.ts'
-
+import { makeFetch } from '../dev_deps.ts'
 export const supertest = (app: App) => {
   const fetch = makeFetch((req, conn) => app.handler(req, conn))
 
@@ -23,7 +22,9 @@ export const initAppAndTest = (
   return { fetch: supertest(app), app }
 }
 
-export const runServer = (fn: (req: Request, res: DummyResponse) => Response) => {
+export const runServer = (
+  fn: (req: Request, res: DummyResponse) => Response,
+) => {
   const res: DummyResponse = {
     _init: { headers: new Headers({}) },
     locals: {},

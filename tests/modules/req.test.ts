@@ -1,10 +1,4 @@
-import {
-  describe,
-  expect,
-  it,
-  run,
-} from 'https://deno.land/x/tincan@1.0.1/mod.ts'
-import { makeFetch } from 'https://deno.land/x/superfetch@1.0.4/mod.ts'
+import { describe, expect, it, makeFetch, run } from '../../dev_deps.ts'
 import { path } from '../../deps.ts'
 import {
   checkIfXMLHttpRequest,
@@ -16,8 +10,8 @@ import {
   getRequestHeader,
   reqIs,
 } from '../../extensions/req/mod.ts'
-import { DummyResponse } from '../../response.ts'
-import { runServer } from '../util.ts'
+import type { DummyResponse } from '../../response.ts'
+import { runServer } from '../util.test.ts'
 const __dirname = path.dirname(import.meta.url)
 
 describe('Request extensions', () => {
@@ -45,8 +39,8 @@ describe('Request extensions', () => {
       const res = await makeFetch(app)('/', {
         headers: {
           'Referrer-Policy': 'unsafe-url',
-          referer: 'localhost:3000'
-        }
+          referer: 'localhost:3000',
+        },
       })
       res.expect('localhost:3000')
     })
@@ -62,8 +56,8 @@ describe('Request extensions', () => {
       const res = await makeFetch(app)('/', {
         headers: {
           'Referrer-Policy': 'unsafe-url',
-          referrer: 'localhost:3000'
-        }
+          referrer: 'localhost:3000',
+        },
       })
       res.expect('localhost:3000')
     })
@@ -75,7 +69,10 @@ describe('Request extensions', () => {
           _init: { headers: new Headers({}) },
           locals: {},
         }
-        return new Response(`Browser request: ${checkIfXMLHttpRequest(req) ? 'yes' : 'no'}`, res._init)
+        return new Response(
+          `Browser request: ${checkIfXMLHttpRequest(req) ? 'yes' : 'no'}`,
+          res._init,
+        )
       }
 
       const res = await makeFetch(app)('/')
@@ -91,8 +88,8 @@ describe('Request extensions', () => {
 
       const res = await makeFetch(app)('/', {
         headers: {
-          Accept: 'text/plain'
-        }
+          Accept: 'text/plain',
+        },
       })
       res.expect('text/plain')
     })
@@ -102,10 +99,10 @@ describe('Request extensions', () => {
         return new Response((accepts as string[]).join(' | '), res._init)
       })
 
-      const res =await makeFetch(app)('/', {
+      const res = await makeFetch(app)('/', {
         headers: {
-          Accept: 'text/plain, text/html'
-        }
+          Accept: 'text/plain, text/html',
+        },
       })
       res.expect('text/plain | text/html')
     })
