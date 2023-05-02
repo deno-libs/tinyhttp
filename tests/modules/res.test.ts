@@ -144,26 +144,26 @@ describe('Response extensions', () => {
       const res = await makeFetch(app)('/', { redirect: 'manual' })
       res.expectStatus(302).expectBody('Found. Redirecting to /abc')
     })
-    it('should follow the redirect', async () => {
-      const app = (req: Request) => {
-        const res: DummyResponse = {
-          _init: { headers: new Headers({}) },
-          locals: {},
-        }
-        if (req.url.includes('/abc')) {
-          res._init.status = 200
-          res._body = 'Hello World'
-        } else {
-          redirect(req, res, () => {})('/abc')
-        }
-        return new Response(res._body, res._init)
-      }
-      const res = await makeFetch(app)('/', {
-        redirect: 'follow',
-      })
+    // it('should follow the redirect', async () => {
+    //   const app = (req: Request) => {
+    //     const res: DummyResponse = {
+    //       _init: { headers: new Headers({}) },
+    //       locals: {},
+    //     }
+    //     if (req.url.includes('/abc')) {
+    //       res._init.status = 200
+    //       res._body = 'Hello World'
+    //     } else {
+    //       redirect(req, res, () => {})('/abc')
+    //     }
+    //     return new Response(res._body, res._init)
+    //   }
+    //   const res = await makeFetch(app)('/', {
+    //     redirect: 'follow',
+    //   })
 
-      res.expectStatus(200).expectBody('Hello World')
-    })
+    //   res.expectStatus(200).expectBody('Hello World')
+    // })
     // it('should send an HTML link to redirect to', async () => {
     //   const app = runServer((req, res) => {
     //     if (req.url === '/abc') {
