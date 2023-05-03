@@ -1,5 +1,5 @@
 import type { App } from './app.ts'
-import type { RangesSpecifier } from './deps.ts'
+import type { RangesSpecifier, CookieMap } from './deps.ts'
 import type { ConnInfo, Middleware, Protocol } from './types.ts'
 
 export interface THRequest extends Request {
@@ -21,8 +21,7 @@ export interface THRequest extends Request {
   acceptsLanguages: (...languages: string[]) => string | string[] | undefined
   is: (...types: string[]) => string | boolean
   get: (header: string) => string | string[] | undefined
-  cookies?: any
-  signedCookies?: any
+  cookies: CookieMap
   secret?: string | string[]
   fresh?: boolean
   stale?: boolean

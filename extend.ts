@@ -36,6 +36,7 @@ import {
 import type { THRequest } from './request.ts'
 import { renderTemplate, THResponse } from './response.ts'
 import type { NextFunction } from './types.ts'
+import { CookieMap } from './deps.ts'
 
 /**
  * Extends Request and Response objects with custom properties and methods
@@ -71,6 +72,7 @@ export const extendMiddleware = <EngineOptions>(app: App<EngineOptions>) =>
     req.subdomains = getSubdomains(req, app.settings.subdomainOffset)
     req.get = getRequestHeader(req)
     req.query = req._urlObject.searchParams
+    req.cookies = new CookieMap(req.headers)
 
     // Response
     res.end = end(res)

@@ -31,3 +31,4 @@ export {
   Status,
   STATUS_TEXT,
 } from 'https://deno.land/std@0.185.0/http/http_status.ts'
+export { CookieMap } from 'https://deno.land/std@0.185.0/http/cookie_map.ts'

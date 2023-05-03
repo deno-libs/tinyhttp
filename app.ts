@@ -189,10 +189,10 @@ export class App<
     if (matched[0] != null) {
       mw.push({
         type: 'mw',
-        handler: (req, res, next) => {
+        handler: async (req, res, next) => {
           if (req.method === 'HEAD') {
             res.status(204).end('')
-          } else next()
+          } else await next()
         },
         path: '/',
       })
