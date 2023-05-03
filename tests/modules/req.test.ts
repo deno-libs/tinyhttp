@@ -1,9 +1,7 @@
 import { describe, expect, it, makeFetch, run } from '../../dev_deps.ts'
-import { path } from '../../deps.ts'
 import {
   checkIfXMLHttpRequest,
   getAccepts,
-  getAcceptsEncodings,
   getAcceptsLanguages,
   getFreshOrStale,
   getRangeFromHeader,
@@ -13,7 +11,6 @@ import {
 import type { DummyResponse } from '../../response.ts'
 import { runServer } from '../util.test.ts'
 import { setHeader } from '../../extensions/res/headers.ts'
-const __dirname = path.dirname(import.meta.url)
 
 describe('Request extensions', () => {
   describe('req.get(header)', () => {

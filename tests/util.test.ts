@@ -23,11 +23,14 @@ export const initAppAndTest = (
 }
 
 export const runServer = (
-  fn: (req: Request, res: DummyResponse) => Response,
+  fn: (
+    req: Request,
+    res: DummyResponse,
+  ) => Response | Promise<Response>,
 ) => {
   const res: DummyResponse = {
     _init: { headers: new Headers({}) },
     locals: {},
   }
-  return (req: Request) => fn(req, res)
+  return async (req: Request) => await fn(req, res)
 }
