@@ -121,7 +121,7 @@ export function typeofrequest(
  *
  * @param {String} type
  */
-export const normalize = function normalize(type: string): string | undefined {
+export const normalize = (type: string): string | undefined => {
   switch (type) {
     case 'urlencoded':
       return 'application/x-www-form-urlencoded'

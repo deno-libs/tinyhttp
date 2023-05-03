@@ -1,6 +1,5 @@
 import { parseRange } from '../../deps.ts'
 import { is } from '../../utils/type_is.ts'
-import { THRequest } from '../../request.ts'
 import type { DummyResponse } from '../../response.ts'
 import { fresh } from '../../utils/fresh.ts'
 
