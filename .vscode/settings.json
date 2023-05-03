@@ -2,5 +2,8 @@
   "deno.enable": true,
   "deno.config": "./deno.jsonc",
   "deno.codeLens.implementations": true,
-  "deno.codeLens.references": true
+  "deno.codeLens.references": true,
+  "[typescript]": {
+    "editor.defaultFormatter": "denoland.vscode-deno"
+  }
 }
