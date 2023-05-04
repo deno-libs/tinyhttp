@@ -39,7 +39,7 @@ describe('Testing App', () => {
   it('Custom onError works', async () => {
     const app = new App({
       onError: (err, req) =>
-        new Response(`Ouch, ${err} hurt me on ${req.url} page.`, {
+        new Response(`Ouch, ${err} hurt me on ${req?.url} page.`, {
           status: 500,
         }),
     })
