@@ -52,7 +52,7 @@ export class App<
   settings: AppSettings & Record<string, unknown>
   locals: Record<string, string> = {}
   engines: Record<string, TemplateFunc<RenderOptions>> = {}
-  onError: (err: unknown, req: Request) => Response | Promise<Response>
+  onError: (err: unknown, req?: Request) => Response | Promise<Response>
   notFound: Handler<Req, Res>
   attach: (req: Req, res: Res, next: NextFunction) => void
 
