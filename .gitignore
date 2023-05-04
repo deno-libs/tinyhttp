@@ -1,3 +1,4 @@
 *.pem
 eggs-debug.log
 coverage*
+*.sqlite

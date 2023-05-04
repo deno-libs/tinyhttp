@@ -1,5 +1,5 @@
 import type { App } from './app.ts'
-import type { RangesSpecifier, CookieMap } from './deps.ts'
+import type { CookieMap, RangesSpecifier } from './deps.ts'
 import type { ConnInfo, Middleware, Protocol } from './types.ts'
 
 export interface THRequest extends Request {
