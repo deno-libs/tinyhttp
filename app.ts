@@ -69,12 +69,10 @@ export class App<
    * @param file What to render
    * @param data data that is passed to a template
    * @param options Template engine options
-   * @param cb Callback that consumes error and html
    */
-  render(
+  async render(
     file: string,
     data: Record<string, unknown> = {},
-    cb: (err: unknown, html: unknown) => void,
     options: TemplateEngineOptions<RenderOptions> = {},
   ) {
     options.viewsFolder = options.viewsFolder || `${Deno.cwd()}/views`
@@ -92,9 +90,7 @@ export class App<
       ? path.join(options.viewsFolder, file)
       : file
 
-    this.engines[options.ext](dest, locals, options.renderOptions || {}, cb)
-
-    return this
+    return await this.engines[options.ext](dest, locals, options.renderOptions || {})
   }
   use(...args: UseMethodParams<Req, Res, App>): this {
     const base = args[0]
@@ -145,6 +141,21 @@ export class App<
     })
 
     return this
+  }
+  /**
+   * Register a template engine with extension
+   */
+  engine(ext: string, fn: TemplateFunc<RenderOptions>): this {
+    this.engines[ext] = fn
+
+    return this
+  }
+  route(path: string): App {
+    const app = new App()
+
+    this.use(path, app)
+
+    return app
   }
   #find(url: URL) {
     const result = this.middleware.map((m) => {

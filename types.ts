@@ -60,9 +60,8 @@ type TemplateEngineOptions<O = any> = Partial<{
 type TemplateFunc<O> = (
   path: string,
   locals: Record<string, unknown>,
-  opts: TemplateEngineOptions<O>,
-  cb: (err: Error | null, html: unknown) => void,
-) => void
+  opts: TemplateEngineOptions<O>
+) => Promise<string>
 
 export interface ConnInfo {
   /** The local address of the connection. */

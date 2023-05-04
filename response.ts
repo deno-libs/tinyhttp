@@ -6,21 +6,18 @@ import type { SendFileOptions } from './extensions/res/send/sendFile.ts'
 import type { TemplateEngineOptions } from './types.ts'
 
 export const renderTemplate =
-  <O, Res extends THResponse = THResponse>(res: Res, app: App) =>
-  (
+ <O, Res extends THResponse = THResponse>(res: Res, app: App) =>
+  async (
     file: string,
     data?: Record<string, unknown>,
     options?: TemplateEngineOptions<O>,
-  ): THResponse => {
-    app.render(
+  ): Promise<THResponse> => {
+    const result = await app.render(
       file,
       data ? { ...data, ...res.locals } : res.locals,
-      (err: unknown, html: unknown) => {
-        if (err) throw err
-        res.send(html)
-      },
       options,
     )
+    await res.send(result)
     return res
   }
 
@@ -30,7 +27,7 @@ export interface DummyResponse {
   locals: Record<string, any>
 }
 
-export interface THResponse<O = any, B = any> extends DummyResponse {
+export interface THResponse<O = any, B = unknown> extends DummyResponse {
   send(body: B): Promise<THResponse<O, B>>
   sendFile(path: string, opts?: SendFileOptions): Promise<THResponse<O, B>>
   end(body?: BodyInit): THResponse<O, B>
@@ -39,7 +36,7 @@ export interface THResponse<O = any, B = any> extends DummyResponse {
     file: string,
     data?: Record<string, unknown>,
     options?: TemplateEngineOptions<O>,
-  ): THResponse<O, B>
+  ): Promise<THResponse<O, B>>
   vary(field: string): THResponse<O, B>
   format(obj: FormatProps): THResponse<O, B>
   redirect(url: string, status?: number): THResponse<O, B>
