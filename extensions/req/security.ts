@@ -1,5 +1,5 @@
 import { all, compile, isIP, proxyaddr } from '../../deps.ts'
-import type { THRequest } from '../../request.ts'
+import type { ReqWithUrlAndConn } from '../../request.ts'
 import type { ConnInfo, Protocol } from '../../types.ts'
 
 export const trustRemoteAddress = (
@@ -22,8 +22,8 @@ export const trustRemoteAddress = (
   return compile(val)
 }
 
-export const getProtocol = <Request extends THRequest = THRequest>(
-  req: Request,
+export const getProtocol = <Req extends ReqWithUrlAndConn = ReqWithUrlAndConn>(
+  req: Req,
 ): 'http' | 'https' => {
   const proto = req._urlObject.protocol?.includes('https') ? 'https' : 'http'
 
@@ -40,7 +40,7 @@ export const getProtocol = <Request extends THRequest = THRequest>(
     : header.trim()) as Protocol
 }
 
-export const getHostname = (req: THRequest): string | undefined => {
+export const getHostname = <Req extends ReqWithUrlAndConn = ReqWithUrlAndConn>(req: Req): string | undefined => {
   let host: string = req.headers.get('X-Forwarded-Host') as string
 
   if (!host || !trustRemoteAddress(req.conn)) {
@@ -54,16 +54,16 @@ export const getHostname = (req: THRequest): string | undefined => {
   return index !== -1 ? host.substring(0, index) : host
 }
 
-export const getIP = <Request extends THRequest = THRequest>(
-  req: Request,
+export const getIP = <Req extends ReqWithUrlAndConn = ReqWithUrlAndConn>(
+  req: Req,
 ) => proxyaddr(req, trustRemoteAddress(req.conn))?.replace(/^.*:/, '') // striping the redundant prefix addeded by OS to IPv4 address
 
-export const getIPs = <Request extends THRequest = THRequest>(
-  req: Request,
+export const getIPs = <Req extends ReqWithUrlAndConn = ReqWithUrlAndConn>(
+  req: Req,
 ): string[] => all(req, trustRemoteAddress(req.conn))
 
-export const getSubdomains = <Request extends THRequest = THRequest>(
-  req: Request,
+export const getSubdomains = <Req extends ReqWithUrlAndConn = ReqWithUrlAndConn>(
+  req: Req,
   subdomainOffset = 2,
 ): string[] => {
   const hostname = getHostname(req)

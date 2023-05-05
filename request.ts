@@ -2,10 +2,12 @@ import type { App } from './app.ts'
 import type { CookieMap, RangesSpecifier } from './deps.ts'
 import type { ConnInfo, Middleware, Protocol } from './types.ts'
 
-export interface THRequest extends Request {
-  _urlObject: URL
+export interface ReqWithUrlAndConn extends Request {
+  conn: ConnInfo; _urlObject: URL
+}
+
+export interface THRequest extends ReqWithUrlAndConn {
   path: string
-  conn: ConnInfo
   range: () => -1 | -2 | RangesSpecifier | undefined
   query: URLSearchParams
   params: Record<string, string>

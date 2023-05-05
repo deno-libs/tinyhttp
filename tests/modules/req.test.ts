@@ -5,13 +5,17 @@ import {
   getAcceptsEncodings,
   getAcceptsLanguages,
   getFreshOrStale,
+  getIP,
+  getIPs,
   getRangeFromHeader,
   getRequestHeader,
   reqIs,
+  getProtocol,
 } from '../../extensions/req/mod.ts'
 import type { DummyResponse } from '../../response.ts'
 import { runServer } from '../util.test.ts'
 import { setHeader } from '../../extensions/res/headers.ts'
+import { ReqWithUrlAndConn } from "../../request.ts";
 
 describe('Request extensions', () => {
   describe('req.get(header)', () => {
@@ -284,6 +288,75 @@ describe('Request extensions', () => {
         },
       })
     })
+  })
+  describe('Network extensions', () => {
+    it('req.ip & req.ips is being parsed properly', async () => {
+      const app = runServer((_req, _res, conn) => {
+        const req = _req as ReqWithUrlAndConn
+        req.conn = conn 
+        req._urlObject = new URL(req.url)
+        const ip = getIP(req)
+        const ips = getIPs(req)
+        expect(ip).toEqual('1')
+        expect(ips).toEqual(['::1'])
+        return new Response(null)
+      })
+
+      const res = await makeFetch(app)('/')
+      res.expect('')
+    })
+    it('req.protocol is http by default', async () => {
+      const app = runServer((_req, _res, conn) => {
+        const req = _req as ReqWithUrlAndConn
+        req.conn = conn 
+        req._urlObject = new URL(req.url)
+        
+        expect(getProtocol(req)).toEqual('http')
+        return new Response(null)
+      })
+
+      const res = await makeFetch(app)('/')
+      res.expect('')
+    })
+    // it('req.protocol is http by default', async () => {
+    //   const { fetch } = initAppAndTest(
+    //     (req, res) => {
+    //       res.end(`protocol: ${req.protocol}`)
+    //     },
+    //     '/',
+    //     {
+    //       settings: {},
+    //     },
+    //     'get',
+    //   )
+    //   const res = await fetch('/')
+    //   res.expectStatus(200).expectBody(`protocol: http`)
+    // })
+    // it('req.secure is false by default', async () => {
+    //   const { fetch } = initAppAndTest(
+    //     (req, res) => {
+    //       res.end(`secure: ${req.secure}`)
+    //     },
+    //     '/',
+    //     {},
+    //     'get',
+    //   )
+    //   const res = await fetch('/')
+
+    //   res.expect(`secure: false`).expectStatus(200)
+    // })
+    // it('req.subdomains is empty by default', async () => {
+    //   const { fetch } = initAppAndTest(
+    //     (req, res) => {
+    //       res.end(`subdomains: ${req.subdomains?.join(', ')}`)
+    //     },
+    //     '/',
+    //     {},
+    //     'get',
+    //   )
+    //   const res = await fetch('/')
+    //   res.expect('subdomains: ')
+    // })
   })
 })
 
