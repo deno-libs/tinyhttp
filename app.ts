@@ -133,7 +133,7 @@ export class App<
       fns.unshift(...base)
     }
 
-    const path = typeof base === 'string' ? base : ''
+    const path = typeof base === 'string' ? base : '/'
 
     for (const fn of fns) {
       if (fn instanceof App) {

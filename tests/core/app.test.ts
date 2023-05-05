@@ -789,24 +789,24 @@ describe('Subapps', () => {
 
   //     expect(subapp.mountpath).toBe('/subapp')
   //   })
-  //   it('should mount on "/" if path is not specified', () => {
-  //     const app = new App()
+    it('should mount on "/" if path is not specified', () => {
+      const app = new App()
 
-  //     const subapp = new App()
+      const subapp = new App()
 
-  //     app.use(subapp)
+      app.use(subapp)
 
-  //     expect(subapp.mountpath).toBe('/')
-  //   })
-  //   it('app.parent should reference to the app it was mounted on', () => {
-  //     const app = new App()
+      expect(subapp.mountpath).toBe('/')
+    })
+    it('app.parent should reference to the app it was mounted on', () => {
+      const app = new App()
 
-  //     const subapp = new App()
+      const subapp = new App()
 
-  //     app.use(subapp)
+      app.use(subapp)
 
-  //     expect(subapp.parent).toBe(app)
-  //   })
+      expect(subapp.parent).toBe(app)
+    })
   //   it('app.path() should return the mountpath', () => {
   //     const app = new App()
 
@@ -829,17 +829,17 @@ describe('Subapps', () => {
 
   //     expect(subsubapp.path()).toBe('/blog/admin')
   //   })
-  //   it('middlewares of a subapp should preserve the path', () => {
-  //     const app = new App()
+    it('middlewares of a subapp should preserve the path', () => {
+      const app = new App()
 
-  //     const subapp = new App()
+      const subapp = new App()
 
-  //     subapp.use('/path', (_req, _res) => void 0)
+      subapp.use('/path', (_req, _res) => void 0)
 
-  //     app.use('/subapp', subapp)
+      app.use('/subapp', subapp)
 
-  //     expect(subapp.middleware[0].path).toBe('/path')
-  //   })
+      expect(subapp.middleware[0].path).toBe('/path')
+    })
   //   it('matches when mounted on params', async () => {
   //     const app = new App()
 
