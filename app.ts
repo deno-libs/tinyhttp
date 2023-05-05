@@ -105,7 +105,7 @@ export class App<
     data: Record<string, unknown> = {},
     options: TemplateEngineOptions<RenderOptions> = {},
   ) {
-    options.viewsFolder = options.viewsFolder || `${Deno.cwd()}/views`
+    options.viewsFolder = options.viewsFolder || (this.settings.views as string) || `${Deno.cwd()}/views`
     options.ext = options.ext || file.slice(file.lastIndexOf('.') + 1) || 'ejs'
 
     options._locals = options._locals || {}

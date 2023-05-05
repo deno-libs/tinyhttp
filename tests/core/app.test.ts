@@ -1,4 +1,4 @@
-import { describe, expect, it, makeFetch, run } from '../../dev_deps.ts'
+import { describe, expect, it, makeFetch, run, type EtaConfig, renderFileAsync, path } from '../../dev_deps.ts'
 import { App } from '../../mod.ts'
 import { initAppAndTest } from '../util.test.ts'
 
@@ -887,67 +887,71 @@ describe('Subapps', () => {
 
       res.expectStatus(500).expectBody('Ouch, you hurt me on http://localhost:8080/subapp/route page.')
     })
-  //   it('handles errors in sub when onError is defined', async () => {
-  //     const app = new App({
-  //       onError: (err, req, res) => res.status(500).end(`Ouch, ${err} hurt me on ${req.path} page.`)
-  //     })
+    // it('handles errors in sub when onError is defined', async () => {
+    //   const app = new App({
+    //     onError: (err, req) =>
+    //     new Response(`Ouch, ${err} hurt me on ${req?.url} page.`, {
+    //       status: 500,
+    //     })
+    //   })
 
-  //     const subApp = new App({
-  //       onError: (err, req, res) => res.status(500).end(`Handling ${err} from child on ${req.path} page.`)
-  //     })
+    //   const subApp = new App({
+    //     onError: (err, req) =>
+    //     new Response(`Handling ${err} from child on ${req?.url} page.`, {
+    //       status: 500,
+    //     })
+    //   })
 
-  //     subApp.get('/route', (req, res, next) => next('you'))
+    //   subApp.get('/route', async (req, res, next) => await next('you'))
 
-  //     app.use('/subapp', subApp).listen()
+    //   app.use('/subapp', subApp)
 
-  //     const server = app.handler
-  //     const fetch = makeFetch(server)
+    //   const server = app.handler
+    //   const fetch = makeFetch(server)
 
-  //     await fetch('/subapp/route').expect(500, 'Handling you from child on /subapp/route page.')
-  //   })
-  // })
+    //   const res = await fetch('/subapp/route')
+    //   res.expectStatus(500).expectBody('Handling you from child on /subapp/route page.')
+    // })
+  })
+  describe('Template engines', () => {
+    it('works with eta out of the box', async () => {
+      const app = new App<EtaConfig>()
 
-  // describe('Template engines', () => {
-  //   it('works with eta out of the box', async () => {
-  //     const app = new App<EtaConfig>()
+      app.engine('eta', renderFileAsync)
 
-  //     app.engine('eta', renderFile)
+      app.use(async (_, res) => {
+        await res.render(
+          'index.eta',
+          {
+            name: 'Eta'
+          },
+          {
+            viewsFolder: `${Deno.cwd()}/tests/fixtures/views`
+          }
+        )
+      })
 
-  //     app.use((_, res) => {
-  //       res.render(
-  //         'index.eta',
-  //         {
-  //           name: 'Eta'
-  //         },
-  //         {
-  //           viewsFolder: `${process.cwd()}/tests/fixtures/views`
-  //         }
-  //       )
-  //     })
+      const fetch = makeFetch(app.handler)
 
-  //     const server = app.handler
+      const res = await fetch('/')
+      res.expectBody('Hello from Eta')
+    })
+    it('can render without data passed', async () => {
+      const app = new App<EtaConfig>()
+      app.set('views', path.resolve(Deno.cwd(), 'tests/fixtures/views'))
 
-  //     const fetch = makeFetch(server)
+      app.engine('eta', renderFileAsync)
 
-  //     await fetch('/').expectBody('Hello from Eta')
-  //   })
-  //   it('can render without data passed', async () => {
-  //     const app = new App<EtaConfig>()
-  //     app.set('views', path.resolve(process.cwd(), 'tests/fixtures/views'))
+      app.use(async (_, res) => {
+        await res.render('empty.eta')
+      })
 
-  //     app.engine('eta', renderFile)
+      const fetch = makeFetch(app.handler)
 
-  //     app.use((_, res) => {
-  //       res.render('empty.eta')
-  //     })
-
-  //     const server = app.handler
-
-  //     const fetch = makeFetch(server)
-
-  //     await fetch('/').expectBody('Hello World')
-  //   })
-})
+      const res = await fetch('/')
+      res.expectBody('Hello World')
+    })
+  })
 
 describe('App settings', () => {
   describe('xPoweredBy', () => {
