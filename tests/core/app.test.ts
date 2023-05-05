@@ -840,52 +840,53 @@ describe('Subapps', () => {
 
       expect(subapp.middleware[0].path).toBe('/path')
     })
-  //   it('matches when mounted on params', async () => {
-  //     const app = new App()
+    it('matches when mounted on params', async () => {
+      const app = new App()
 
-  //     const subApp = new App()
+      const subApp = new App()
 
-  //     subApp.get('/', (req, res) => res.send(req.params.userID))
+      subApp.get('/', (req, res) => void res.end(req.params.userID))
 
-  //     app.use('/users/:userID', subApp)
+      app.use('/users/:userID', subApp)
 
-  //     const server = app.handler
+      const fetch = makeFetch(app.handler)
 
-  //     const fetch = makeFetch(server)
+      const res = await fetch('/users/123/')
+      res.expect('123')
+    })
+    it('matches when mounted on params and on custom subapp route', async () => {
+      const app = new App()
 
-  //     await fetch('/users/123/').expect(200, '123')
-  //   })
-  //   it('matches when mounted on params and on custom subapp route', async () => {
-  //     const app = new App()
+      const subApp = new App()
 
-  //     const subApp = new App()
+      subApp.get('/route', (req, res) => void res.end(req.params.userID))
 
-  //     subApp.get('/route', (req, res) => res.send(req.params.userID))
+      app.use('/users/:userID', subApp)
 
-  //     app.use('/users/:userID', subApp)
+      const fetch = makeFetch(app.handler)
 
-  //     const server = app.handler
+      const res = await fetch('/users/123/route')
+      res.expect('123')
+    })
+    it('handles errors by parent when no onError specified', async () => {
+      const app = new App({
+        onError: (err, req) =>
+        new Response(`Ouch, ${err} hurt me on ${req?.url} page.`, {
+          status: 500,
+        })
+      })
 
-  //     const fetch = makeFetch(server)
+      const subApp = new App()
 
-  //     await fetch('/users/123/route').expect(200, '123')
-  //   })
-  //   it('handles errors by parent when no onError specified', async () => {
-  //     const app = new App({
-  //       onError: (err, req, res) => res.status(500).end(`Ouch, ${err} hurt me on ${req.path} page.`)
-  //     })
+      subApp.get('/route', (req, res, next) => next('you'))
 
-  //     const subApp = new App()
+      app.use('/subapp', subApp)
 
-  //     subApp.get('/route', (req, res, next) => next('you'))
+      const fetch = makeFetch(app.handler)
+      const res = await fetch('/subapp/route')
 
-  //     app.use('/subapp', subApp).listen()
-
-  //     const server = app.handler
-  //     const fetch = makeFetch(server)
-
-  //     await fetch('/subapp/route').expect(500, 'Ouch, you hurt me on /subapp/route page.')
-  //   })
+      res.expectStatus(500).expectBody('Ouch, you hurt me on http://localhost:8080/subapp/route page.')
+    })
   //   it('handles errors in sub when onError is defined', async () => {
   //     const app = new App({
   //       onError: (err, req, res) => res.status(500).end(`Ouch, ${err} hurt me on ${req.path} page.`)
