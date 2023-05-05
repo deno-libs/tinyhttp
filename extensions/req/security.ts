@@ -2,18 +2,10 @@ import { all, compile, isIP, proxyaddr } from '../../deps.ts'
 import type { ReqWithUrlAndConn } from '../../request.ts'
 import type { ConnInfo, Protocol } from '../../types.ts'
 
-export const trustRemoteAddress = (
+const trustRemoteAddress = (
   conn: ConnInfo,
 ) => {
   const val = (conn.remoteAddr as Deno.NetAddr).hostname
-
-  if (typeof val === 'function') return val
-
-  if (typeof val === 'boolean' && val === true) return () => true
-
-  if (typeof val === 'number') {
-    return (_: unknown, i: number) => (val ? i < val : undefined)
-  }
 
   if (typeof val === 'string') {
     return compile(val.split(',').map((x) => x.trim()))
@@ -24,20 +16,8 @@ export const trustRemoteAddress = (
 
 export const getProtocol = <Req extends ReqWithUrlAndConn = ReqWithUrlAndConn>(
   req: Req,
-): 'http' | 'https' => {
-  const proto = req._urlObject.protocol?.includes('https') ? 'https' : 'http'
-
-  const header = (req.headers.get('X-Forwarded-Proto') as string) ?? proto
-  const index = header.indexOf(',')
-
-  if (!trustRemoteAddress(req.conn)) return proto
-
-  // Note: X-Forwarded-Proto is normally only ever a
-  // single value, but this is to be safe.
-
-  return (index !== -1
-    ? header.substring(0, index).trim()
-    : header.trim()) as Protocol
+): Protocol => {
+  return req._urlObject.protocol?.includes('https') ? 'https' : 'http'
 }
 
 export const getHostname = <Req extends ReqWithUrlAndConn = ReqWithUrlAndConn>(req: Req): string | undefined => {

@@ -11,6 +11,8 @@ import {
   getRequestHeader,
   reqIs,
   getProtocol,
+  getHostname,
+getSubdomains,
 } from '../../extensions/req/mod.ts'
 import type { DummyResponse } from '../../response.ts'
 import { runServer } from '../util.test.ts'
@@ -318,45 +320,32 @@ describe('Request extensions', () => {
       const res = await makeFetch(app)('/')
       res.expect('')
     })
-    // it('req.protocol is http by default', async () => {
-    //   const { fetch } = initAppAndTest(
-    //     (req, res) => {
-    //       res.end(`protocol: ${req.protocol}`)
-    //     },
-    //     '/',
-    //     {
-    //       settings: {},
-    //     },
-    //     'get',
-    //   )
-    //   const res = await fetch('/')
-    //   res.expectStatus(200).expectBody(`protocol: http`)
-    // })
-    // it('req.secure is false by default', async () => {
-    //   const { fetch } = initAppAndTest(
-    //     (req, res) => {
-    //       res.end(`secure: ${req.secure}`)
-    //     },
-    //     '/',
-    //     {},
-    //     'get',
-    //   )
-    //   const res = await fetch('/')
+    it('req.hostname is defined', async () => {
+      const app = runServer((_req, _res, conn) => {
+        const req = _req as ReqWithUrlAndConn
+        req.conn = conn 
+        req._urlObject = new URL(req.url)
+        
+        expect(getHostname(req)).toEqual('localhost')
+        return new Response(null)
+      })
 
-    //   res.expect(`secure: false`).expectStatus(200)
-    // })
-    // it('req.subdomains is empty by default', async () => {
-    //   const { fetch } = initAppAndTest(
-    //     (req, res) => {
-    //       res.end(`subdomains: ${req.subdomains?.join(', ')}`)
-    //     },
-    //     '/',
-    //     {},
-    //     'get',
-    //   )
-    //   const res = await fetch('/')
-    //   res.expect('subdomains: ')
-    // })
+      const res = await makeFetch(app)('/')
+      res.expect('')
+    })
+    it('req.subdomains is empty by default', async () => {
+      const app = runServer((_req, _res, conn) => {
+        const req = _req as ReqWithUrlAndConn
+        req.conn = conn 
+        req._urlObject = new URL(req.url)
+        
+        expect(getSubdomains(req)).toEqual([])
+        return new Response(null)
+      })
+
+      const res = await makeFetch(app)('/')
+      res.expect('')
+    })
   })
 })
 
