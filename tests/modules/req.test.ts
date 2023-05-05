@@ -2,6 +2,7 @@ import { describe, expect, it, makeFetch, run } from '../../dev_deps.ts'
 import {
   checkIfXMLHttpRequest,
   getAccepts,
+  getAcceptsEncodings,
   getAcceptsLanguages,
   getFreshOrStale,
   getRangeFromHeader,
@@ -120,6 +121,35 @@ describe('Request extensions', () => {
         },
       })
       res.expect('ru-RU | ru | en-US')
+    })
+  })
+  describe('req.acceptsEncoding()', () => {
+    it('should detect "Accept-Encoding" header', async () => {
+      const app = runServer((req, res) => {
+        const languages = getAcceptsEncodings(req)()
+        return new Response((languages as string[])[0], res._init)
+      })
+
+      const res = await makeFetch(app)('/', {
+        headers: {
+          'Accept-Encoding': 'gzip',
+        },
+      })
+      res.expect('gzip')
+    })
+    it('should parse multiple values', async () => {
+      const app = runServer((req, res) => {
+        const languages = getAcceptsEncodings(req)()
+
+        return new Response((languages as string[]).join(' | '), res._init)
+      })
+
+      const res = await makeFetch(app)('/', {
+        headers: {
+          'Accept-Encoding': 'deflate, gzip;q=1.0, *;q=0.5',
+        },
+      })
+      res.expect('deflate | gzip | *')
     })
   })
   describe('req.fresh', () => {
