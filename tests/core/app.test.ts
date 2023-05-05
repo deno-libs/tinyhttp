@@ -1,4 +1,13 @@
-import { describe, expect, it, makeFetch, run, type EtaConfig, renderFileAsync, path } from '../../dev_deps.ts'
+import {
+  describe,
+  type EtaConfig,
+  expect,
+  it,
+  makeFetch,
+  path,
+  renderFileAsync,
+  run,
+} from '../../dev_deps.ts'
 import { App } from '../../mod.ts'
 import { initAppAndTest } from '../util.test.ts'
 
@@ -789,24 +798,24 @@ describe('Subapps', () => {
 
   //     expect(subapp.mountpath).toBe('/subapp')
   //   })
-    it('should mount on "/" if path is not specified', () => {
-      const app = new App()
+  it('should mount on "/" if path is not specified', () => {
+    const app = new App()
 
-      const subapp = new App()
+    const subapp = new App()
 
-      app.use(subapp)
+    app.use(subapp)
 
-      expect(subapp.mountpath).toBe('/')
-    })
-    it('app.parent should reference to the app it was mounted on', () => {
-      const app = new App()
+    expect(subapp.mountpath).toBe('/')
+  })
+  it('app.parent should reference to the app it was mounted on', () => {
+    const app = new App()
 
-      const subapp = new App()
+    const subapp = new App()
 
-      app.use(subapp)
+    app.use(subapp)
 
-      expect(subapp.parent).toBe(app)
-    })
+    expect(subapp.parent).toBe(app)
+  })
   //   it('app.path() should return the mountpath', () => {
   //     const app = new App()
 
@@ -829,129 +838,131 @@ describe('Subapps', () => {
 
   //     expect(subsubapp.path()).toBe('/blog/admin')
   //   })
-    it('middlewares of a subapp should preserve the path', () => {
-      const app = new App()
+  it('middlewares of a subapp should preserve the path', () => {
+    const app = new App()
 
-      const subapp = new App()
+    const subapp = new App()
 
-      subapp.use('/path', (_req, _res) => void 0)
+    subapp.use('/path', (_req, _res) => void 0)
 
-      app.use('/subapp', subapp)
+    app.use('/subapp', subapp)
 
-      expect(subapp.middleware[0].path).toBe('/path')
-    })
-    it('matches when mounted on params', async () => {
-      const app = new App()
+    expect(subapp.middleware[0].path).toBe('/path')
+  })
+  it('matches when mounted on params', async () => {
+    const app = new App()
 
-      const subApp = new App()
+    const subApp = new App()
 
-      subApp.get('/', (req, res) => void res.end(req.params.userID))
+    subApp.get('/', (req, res) => void res.end(req.params.userID))
 
-      app.use('/users/:userID', subApp)
+    app.use('/users/:userID', subApp)
 
-      const fetch = makeFetch(app.handler)
+    const fetch = makeFetch(app.handler)
 
-      const res = await fetch('/users/123/')
-      res.expect('123')
-    })
-    it('matches when mounted on params and on custom subapp route', async () => {
-      const app = new App()
+    const res = await fetch('/users/123/')
+    res.expect('123')
+  })
+  it('matches when mounted on params and on custom subapp route', async () => {
+    const app = new App()
 
-      const subApp = new App()
+    const subApp = new App()
 
-      subApp.get('/route', (req, res) => void res.end(req.params.userID))
+    subApp.get('/route', (req, res) => void res.end(req.params.userID))
 
-      app.use('/users/:userID', subApp)
+    app.use('/users/:userID', subApp)
 
-      const fetch = makeFetch(app.handler)
+    const fetch = makeFetch(app.handler)
 
-      const res = await fetch('/users/123/route')
-      res.expect('123')
-    })
-    it('handles errors by parent when no onError specified', async () => {
-      const app = new App({
-        onError: (err, req) =>
+    const res = await fetch('/users/123/route')
+    res.expect('123')
+  })
+  it('handles errors by parent when no onError specified', async () => {
+    const app = new App({
+      onError: (err, req) =>
         new Response(`Ouch, ${err} hurt me on ${req?.url} page.`, {
           status: 500,
-        })
-      })
-
-      const subApp = new App()
-
-      subApp.get('/route', (req, res, next) => next('you'))
-
-      app.use('/subapp', subApp)
-
-      const fetch = makeFetch(app.handler)
-      const res = await fetch('/subapp/route')
-
-      res.expectStatus(500).expectBody('Ouch, you hurt me on http://localhost:8080/subapp/route page.')
+        }),
     })
-    // it('handles errors in sub when onError is defined', async () => {
-    //   const app = new App({
-    //     onError: (err, req) =>
-    //     new Response(`Ouch, ${err} hurt me on ${req?.url} page.`, {
-    //       status: 500,
-    //     })
-    //   })
 
-    //   const subApp = new App({
-    //     onError: (err, req) =>
-    //     new Response(`Handling ${err} from child on ${req?.url} page.`, {
-    //       status: 500,
-    //     })
-    //   })
+    const subApp = new App()
 
-    //   subApp.get('/route', async (req, res, next) => await next('you'))
+    subApp.get('/route', (req, res, next) => next('you'))
 
-    //   app.use('/subapp', subApp)
+    app.use('/subapp', subApp)
 
-    //   const server = app.handler
-    //   const fetch = makeFetch(server)
+    const fetch = makeFetch(app.handler)
+    const res = await fetch('/subapp/route')
 
-    //   const res = await fetch('/subapp/route')
-    //   res.expectStatus(500).expectBody('Handling you from child on /subapp/route page.')
-    // })
+    res.expectStatus(500).expectBody(
+      'Ouch, you hurt me on http://localhost:8080/subapp/route page.',
+    )
   })
-  describe('Template engines', () => {
-    it('works with eta out of the box', async () => {
-      const app = new App<EtaConfig>()
+  // it('handles errors in sub when onError is defined', async () => {
+  //   const app = new App({
+  //     onError: (err, req) =>
+  //     new Response(`Ouch, ${err} hurt me on ${req?.url} page.`, {
+  //       status: 500,
+  //     })
+  //   })
 
-      app.engine('eta', renderFileAsync)
+  //   const subApp = new App({
+  //     onError: (err, req) =>
+  //     new Response(`Handling ${err} from child on ${req?.url} page.`, {
+  //       status: 500,
+  //     })
+  //   })
 
-      app.use(async (_, res) => {
-        await res.render(
-          'index.eta',
-          {
-            name: 'Eta'
-          },
-          {
-            viewsFolder: `${Deno.cwd()}/tests/fixtures/views`
-          }
-        )
-      })
+  //   subApp.get('/route', async (req, res, next) => await next('you'))
 
-      const fetch = makeFetch(app.handler)
+  //   app.use('/subapp', subApp)
 
-      const res = await fetch('/')
-      res.expectBody('Hello from Eta')
+  //   const server = app.handler
+  //   const fetch = makeFetch(server)
+
+  //   const res = await fetch('/subapp/route')
+  //   res.expectStatus(500).expectBody('Handling you from child on /subapp/route page.')
+  // })
+})
+describe('Template engines', () => {
+  it('works with eta out of the box', async () => {
+    const app = new App<EtaConfig>()
+
+    app.engine('eta', renderFileAsync)
+
+    app.use(async (_, res) => {
+      await res.render(
+        'index.eta',
+        {
+          name: 'Eta',
+        },
+        {
+          viewsFolder: `${Deno.cwd()}/tests/fixtures/views`,
+        },
+      )
     })
-    it('can render without data passed', async () => {
-      const app = new App<EtaConfig>()
-      app.set('views', path.resolve(Deno.cwd(), 'tests/fixtures/views'))
 
-      app.engine('eta', renderFileAsync)
+    const fetch = makeFetch(app.handler)
 
-      app.use(async (_, res) => {
-        await res.render('empty.eta')
-      })
-
-      const fetch = makeFetch(app.handler)
-
-      const res = await fetch('/')
-      res.expectBody('Hello World')
-    })
+    const res = await fetch('/')
+    res.expectBody('Hello from Eta')
   })
+  it('can render without data passed', async () => {
+    const app = new App<EtaConfig>()
+    app.set('views', path.resolve(Deno.cwd(), 'tests/fixtures/views'))
+
+    app.engine('eta', renderFileAsync)
+
+    app.use(async (_, res) => {
+      await res.render('empty.eta')
+    })
+
+    const fetch = makeFetch(app.handler)
+
+    const res = await fetch('/')
+    res.expectBody('Hello World')
+  })
+})
 
 describe('App settings', () => {
   describe('xPoweredBy', () => {

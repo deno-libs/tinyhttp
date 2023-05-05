@@ -32,6 +32,47 @@
 const CACHE_CONTROL_NO_CACHE_REGEXP = /(?:^|,)\s*?no-cache\s*?(?:,|$)/
 
 /**
+ * Parse an HTTP Date into a number.
+ */
+function parseHttpDate(date: string): number {
+  const timestamp = date && Date.parse(date)
+
+  return typeof timestamp === 'number' ? timestamp : NaN
+}
+
+/**
+ * Parse a HTTP token list.
+ */
+function parseTokenList(str: string): string[] {
+  const list: string[] = []
+  let start = 0
+  let end = 0
+
+  // gather tokens
+  for (let i = 0, len = str.length; i < len; i++) {
+    switch (str.charCodeAt(i)) {
+      case 0x20: /*   */
+        if (start === end) {
+          start = end = i + 1
+        }
+        break
+      case 0x2c: /* , */
+        list.push(str.substring(start, end))
+        start = end = i + 1
+        break
+      default:
+        end = i + 1
+        break
+    }
+  }
+
+  // final token
+  list.push(str.substring(start, end))
+
+  return list
+}
+
+/**
  * Check freshness of the response using request and response headers.
  */
 export function fresh(reqHeaders: Headers, resHeaders: Headers): boolean {
@@ -86,45 +127,4 @@ export function fresh(reqHeaders: Headers, resHeaders: Headers): boolean {
   }
 
   return true
-}
-
-/**
- * Parse an HTTP Date into a number.
- */
-export function parseHttpDate(date: string): number {
-  const timestamp = date && Date.parse(date)
-
-  return typeof timestamp === 'number' ? timestamp : NaN
-}
-
-/**
- * Parse a HTTP token list.
- */
-export function parseTokenList(str: string): string[] {
-  const list: string[] = []
-  let start = 0
-  let end = 0
-
-  // gather tokens
-  for (let i = 0, len = str.length; i < len; i++) {
-    switch (str.charCodeAt(i)) {
-      case 0x20: /*   */
-        if (start === end) {
-          start = end = i + 1
-        }
-        break
-      case 0x2c: /* , */
-        list.push(str.substring(start, end))
-        start = end = i + 1
-        break
-      default:
-        end = i + 1
-        break
-    }
-  }
-
-  // final token
-  list.push(str.substring(start, end))
-
-  return list
 }

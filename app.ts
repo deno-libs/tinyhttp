@@ -105,7 +105,8 @@ export class App<
     data: Record<string, unknown> = {},
     options: TemplateEngineOptions<RenderOptions> = {},
   ) {
-    options.viewsFolder = options.viewsFolder || (this.settings.views as string) || `${Deno.cwd()}/views`
+    options.viewsFolder = options.viewsFolder ||
+      (this.settings.views as string) || `${Deno.cwd()}/views`
     options.ext = options.ext || file.slice(file.lastIndexOf('.') + 1) || 'ejs'
 
     options._locals = options._locals || {}
@@ -120,7 +121,11 @@ export class App<
       ? path.join(options.viewsFolder, file)
       : file
 
-    return await this.engines[options.ext](dest, locals, options.renderOptions || {})
+    return await this.engines[options.ext](
+      dest,
+      locals,
+      options.renderOptions || {},
+    )
   }
   use(...args: UseMethodParams<Req, Res, App>): this {
     const base = args[0]
@@ -148,7 +153,6 @@ export class App<
     const handlerPaths = []
     const handlerFunctions = []
     const handlerPathBase = path === '/' ? '' : lead(path)
-
 
     for (const fn of fns) {
       if (fn instanceof App && fn.middleware?.length) {
@@ -195,7 +199,11 @@ export class App<
         ...m,
         pattern: new URLPattern({
           pathname: m.type === 'mw'
-            ? m.path === '/' ? '*' : `${path.endsWith('/') ? path.slice(0, path.length - 1) : path}/([^\/]*)?`
+            ? m.path === '/'
+              ? '*'
+              : `${
+                path.endsWith('/') ? path.slice(0, path.length - 1) : path
+              }/([^\/]*)?`
             : path,
         }),
       }

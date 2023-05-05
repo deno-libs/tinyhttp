@@ -60,7 +60,7 @@ type TemplateEngineOptions<O = any> = Partial<{
 type TemplateFunc<O> = (
   path: string,
   locals: Record<string, unknown>,
-  opts: TemplateEngineOptions<O>
+  opts: TemplateEngineOptions<O>,
 ) => Promise<string>
 
 export interface ConnInfo {

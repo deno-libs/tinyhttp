@@ -6,7 +6,7 @@ import type { SendFileOptions } from './extensions/res/send/sendFile.ts'
 import type { TemplateEngineOptions } from './types.ts'
 
 export const renderTemplate =
- <O, Res extends THResponse = THResponse>(res: Res, app: App) =>
+  <O, Res extends THResponse = THResponse>(res: Res, app: App) =>
   async (
     file: string,
     data?: Record<string, unknown>,

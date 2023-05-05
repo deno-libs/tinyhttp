@@ -1,6 +1,6 @@
-import {renderFileAsync } from 'https://deno.land/x/eta@v2.0.1/mod.ts'
+import { renderFileAsync } from 'https://deno.land/x/eta@v2.0.1/mod.ts'
 import type { EtaConfig } from 'https://deno.land/x/eta@v2.0.1/config.ts'
-import { App } from "../../mod.ts";
+import { App } from '../../mod.ts'
 
 const app = new App<EtaConfig>()
 
@@ -15,17 +15,18 @@ function func() {
 }
 
 app.use(
-  async (_, res) =>
-   { await res.render(
+  async (_, res) => {
+    await res.render(
       'index.eta',
       { name: 'Eta', func },
       {
         renderOptions: {
           async: true,
-          cache: true
-        }
-      }
-    )}
+          cache: true,
+        },
+      },
+    )
+  },
 )
 
 app.listen(3000, () => console.log(`Listening on http://localhost:3000`))
