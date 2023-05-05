@@ -191,6 +191,33 @@ describe('fresh(reqHeaders, resHeaders)', () => {
       }),
     )).toBe(false)
   })
+  describe('when requested with Cache-Control: no-cache', function () {
+    it('should be stale', () => {
+      expect(fresh(
+        new Headers({
+          'cache-control': ' no-cache',
+        }),
+        new Headers({}),
+      )).toBe(false)
+    })
+
+    it('when ETags match should be stale', function () {
+      expect(fresh(
+        new Headers({ 'cache-control': ' no-cache', 'if-none-match': '"foo"' }),
+        new Headers({ etag: '"foo"' }),
+      )).toBe(false)
+    })
+
+    it('when unmodified since the date should be stale', function () {
+      expect(fresh(
+        new Headers({
+          'cache-control': ' no-cache',
+          'if-modified-since': 'Sat, 01 Jan 2000 01:00:00 GMT',
+        }),
+        new Headers({ 'last-modified': 'Sat, 01 Jan 2000 00:00:00 GMT' }),
+      )).toBe(false)
+    })
+  })
 })
 
 run()
