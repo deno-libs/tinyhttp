@@ -275,8 +275,8 @@ describe('App methods', () => {
   it(`app.enable enables a setting`, () => {
     const app = new App({
       settings: {
-        xPoweredBy: false
-      }
+        xPoweredBy: false,
+      },
     }).enable('xPoweredBy')
 
     expect(app.settings.xPoweredBy).toBe(true)
@@ -284,8 +284,8 @@ describe('App methods', () => {
   it(`app.disable disables a setting`, () => {
     const app = new App({
       settings: {
-        xPoweredBy: true
-      }
+        xPoweredBy: true,
+      },
     }).disable('xPoweredBy')
 
     expect(app.settings.xPoweredBy).toBe(false)
@@ -314,8 +314,6 @@ describe('App methods', () => {
   //     .get((_, res) => void res.end('GET request'))
   //     .post((_, res) => void res.end('POST request'))
 
-    
-
   //   const res1 = await makeFetch(app.handler)('/')
   //   res1.expect(200, 'GET request')
 
@@ -334,23 +332,38 @@ describe('HTTP methods', () => {
     res.expect('GET')
   })
   it('app.post handles post request', async () => {
-    const { fetch } = initAppAndTest((req, res) => void res.end(req.method), '/', {}, 'POST')
+    const { fetch } = initAppAndTest(
+      (req, res) => void res.end(req.method),
+      '/',
+      {},
+      'POST',
+    )
 
     const res = await fetch('/', {
-      method: 'POST'
+      method: 'POST',
     })
     res.expect('POST')
   })
   it('app.put handles put request', async () => {
-    const { fetch } = initAppAndTest((req, res) => void res.end(req.method), '/', {}, 'PUT')
+    const { fetch } = initAppAndTest(
+      (req, res) => void res.end(req.method),
+      '/',
+      {},
+      'PUT',
+    )
 
     const res = await fetch('/', {
-      method: 'PUT'
+      method: 'PUT',
     })
     res.expect('PUT')
   })
   it('app.patch handles patch request', async () => {
-    const { fetch } = initAppAndTest((req, res) => void res.end(req.method), '/', {}, 'PATCH')
+    const { fetch } = initAppAndTest(
+      (req, res) => void res.end(req.method),
+      '/',
+      {},
+      'PATCH',
+    )
 
     const res = await fetch('/', { method: 'PATCH' })
     res.expect('PATCH')
@@ -690,269 +703,249 @@ describe('Subapps', () => {
     const res = await fetch('/')
     res.expect('Hello World!')
   })
-//   it('multiple sub-apps mount on root', async () => {
-//     const app = new App()
+  // it('multiple sub-apps mount on root', async () => {
+  //   const app = new App()
 
-//     const route1 = new App()
-//     route1.get('/route1', (_req, res) => res.send('route1'))
+  //   const route1 = new App()
+  //   route1.get('/route1', (_req, res) => void res.end('route1'))
 
-//     const route2 = new App()
-//     route2.get('/route2', (_req, res) => res.send('route2'))
+  //   const route2 = new App()
+  //   route2.get('/route2', (_req, res) => void res.end('route2'))
 
-//     app.use(route1)
-//     app.use(route2)
+  //   app.use(route1)
+  //   app.use(route2)
 
-//     await makeFetch(app.handler)('/route1').expect(200, 'route1')
+  //   const res1 = await makeFetch(app.handler)('/route1')
+  //   res1.expect('route1')
 
-//     await makeFetch(app.handler)('/route2').expect(200, 'route2')
-//   })
-//   it('sub-app handles its own path', async () => {
-//     const app = new App()
+  //   const res2 = await makeFetch(app.handler)('/route2')
+  //   res2.expect('route2')
+  // })
+  it('sub-app handles its own path', async () => {
+    const app = new App()
 
-//     const subApp = new App()
+    const subApp = new App()
 
-//     subApp.use((_, res) => void res.send('Hello World!'))
+    subApp.use((_, res) => void res.end('Hello World!'))
 
-//     app.use('/subapp', subApp)
+    app.use('/subapp', subApp)
 
-//     const server = app.handler
+    const fetch = makeFetch(app.handler)
 
-//     const fetch = makeFetch(server)
+    const res = await fetch('/subapp')
+    res.expect('Hello World!')
+  })
+  it('sub-app paths get prefixed with the mount path', async () => {
+    const app = new App()
 
-//     await fetch('/subapp').expect(200, 'Hello World!')
-//   })
-//   it('sub-app paths get prefixed with the mount path', async () => {
-//     const app = new App()
+    const subApp = new App()
 
-//     const subApp = new App()
+    subApp.get(
+      '/route',
+      (_, res) => void res.end(`Hello from ${subApp.mountpath}`),
+    )
 
-//     subApp.get('/route', (_, res) => res.send(`Hello from ${subApp.mountpath}`))
+    app.use('/subapp', subApp)
 
-//     app.use('/subapp', subApp)
+    const server = app.handler
 
-//     const server = app.handler
+    const fetch = makeFetch(server)
 
-//     const fetch = makeFetch(server)
+    const res = await fetch('/subapp/route')
+    res.expect('Hello from /subapp')
+  })
+  //   it('sub-app gets mounted via `app.route`', async () => {
+  //     const app = new App()
 
-//     await fetch('/subapp/route').expect(200, 'Hello from /subapp')
-//   })
-//   it('sub-app gets mounted via `app.route`', async () => {
-//     const app = new App()
+  //     app.route('/path').get((_, res) => res.send('Hello World'))
+  //   })
 
-//     app.route('/path').get((_, res) => res.send('Hello World'))
-//   })
-//   /* it('req.originalUrl does not change', async () => {
-//     const app = new App()
+  it('lets other wares handle the URL if subapp doesnt have that path', async () => {
+    const app = new App()
 
-//     const subApp = new App()
+    const subApp = new App()
 
-//     subApp.get('/route', (req, res) =>
-//       res.send({
-//         origUrl: req.originalUrl,
-//         url: req.url,
-//         path: req.path
-//       })
-//     )
+    subApp.get('/route', (_, res) => void res.end(subApp.mountpath))
 
-//     app.use('/subapp', subApp)
+    app.use('/test', subApp)
 
-//     const server = app.handler
+    app.use('/test3', (req, res) => void res.end(req.url))
 
-//     const fetch = makeFetch(server)
+    const fetch1 = makeFetch(app.handler)
 
-//     await fetch('/subapp/route').expect(200, {
-//       origUrl: '/subapp/route',
-//       url: '/route',
-//       path: '/route'
-//     })
-//   }) */
+    const res1 = await fetch1('/test/route')
+    res1.expect('/test')
+    const fetch2 = makeFetch(app.handler)
+    const res2 = await fetch2('/test3/abc')
+    res2.expect('http://localhost:8080/test3/abc')
+  })
 
-//   it('lets other wares handle the URL if subapp doesnt have that path', async () => {
-//     const app = new App()
+  //   it('should mount app on a specified path', () => {
+  //     const app = new App()
 
-//     const subApp = new App()
+  //     const subapp = new App()
 
-//     subApp.get('/route', (_, res) => res.send(subApp.mountpath))
+  //     app.use('/subapp', subapp)
 
-//     app.use('/test', subApp)
+  //     expect(subapp.mountpath).toBe('/subapp')
+  //   })
+  //   it('should mount on "/" if path is not specified', () => {
+  //     const app = new App()
 
-//     app.use('/test3', (req, res) => res.send(req.url))
+  //     const subapp = new App()
 
-//     const server = app.handler
+  //     app.use(subapp)
 
-//     const fetch = makeFetch(server)
+  //     expect(subapp.mountpath).toBe('/')
+  //   })
+  //   it('app.parent should reference to the app it was mounted on', () => {
+  //     const app = new App()
 
-//     await fetch('/test/route').expect(200, '/test')
+  //     const subapp = new App()
 
-//     await fetch('/test3/abc').expect(200, '/abc')
-//   })
+  //     app.use(subapp)
 
-//   it('should mount app on a specified path', () => {
-//     const app = new App()
+  //     expect(subapp.parent).toBe(app)
+  //   })
+  //   it('app.path() should return the mountpath', () => {
+  //     const app = new App()
 
-//     const subapp = new App()
+  //     const subapp = new App()
 
-//     app.use('/subapp', subapp)
+  //     app.use('/subapp', subapp)
 
-//     expect(subapp.mountpath).toBe('/subapp')
-//   })
-//   it('should mount on "/" if path is not specified', () => {
-//     const app = new App()
+  //     expect(subapp.path()).toBe('/subapp')
+  //   })
+  //   it('app.path() should nest mountpaths', () => {
+  //     const app = new App()
 
-//     const subapp = new App()
+  //     const subapp = new App()
 
-//     app.use(subapp)
+  //     const subsubapp = new App()
 
-//     expect(subapp.mountpath).toBe('/')
-//   })
-//   it('app.parent should reference to the app it was mounted on', () => {
-//     const app = new App()
+  //     subapp.use('/admin', subsubapp)
 
-//     const subapp = new App()
+  //     app.use('/blog', subapp)
 
-//     app.use(subapp)
+  //     expect(subsubapp.path()).toBe('/blog/admin')
+  //   })
+  //   it('middlewares of a subapp should preserve the path', () => {
+  //     const app = new App()
 
-//     expect(subapp.parent).toBe(app)
-//   })
-//   it('app.path() should return the mountpath', () => {
-//     const app = new App()
+  //     const subapp = new App()
 
-//     const subapp = new App()
+  //     subapp.use('/path', (_req, _res) => void 0)
 
-//     app.use('/subapp', subapp)
+  //     app.use('/subapp', subapp)
 
-//     expect(subapp.path()).toBe('/subapp')
-//   })
-//   it('app.path() should nest mountpaths', () => {
-//     const app = new App()
+  //     expect(subapp.middleware[0].path).toBe('/path')
+  //   })
+  //   it('matches when mounted on params', async () => {
+  //     const app = new App()
 
-//     const subapp = new App()
+  //     const subApp = new App()
 
-//     const subsubapp = new App()
+  //     subApp.get('/', (req, res) => res.send(req.params.userID))
 
-//     subapp.use('/admin', subsubapp)
+  //     app.use('/users/:userID', subApp)
 
-//     app.use('/blog', subapp)
+  //     const server = app.handler
 
-//     expect(subsubapp.path()).toBe('/blog/admin')
-//   })
-//   it('middlewares of a subapp should preserve the path', () => {
-//     const app = new App()
+  //     const fetch = makeFetch(server)
 
-//     const subapp = new App()
+  //     await fetch('/users/123/').expect(200, '123')
+  //   })
+  //   it('matches when mounted on params and on custom subapp route', async () => {
+  //     const app = new App()
 
-//     subapp.use('/path', (_req, _res) => void 0)
+  //     const subApp = new App()
 
-//     app.use('/subapp', subapp)
+  //     subApp.get('/route', (req, res) => res.send(req.params.userID))
 
-//     expect(subapp.middleware[0].path).toBe('/path')
-//   })
-//   it('matches when mounted on params', async () => {
-//     const app = new App()
+  //     app.use('/users/:userID', subApp)
 
-//     const subApp = new App()
+  //     const server = app.handler
 
-//     subApp.get('/', (req, res) => res.send(req.params.userID))
+  //     const fetch = makeFetch(server)
 
-//     app.use('/users/:userID', subApp)
+  //     await fetch('/users/123/route').expect(200, '123')
+  //   })
+  //   it('handles errors by parent when no onError specified', async () => {
+  //     const app = new App({
+  //       onError: (err, req, res) => res.status(500).end(`Ouch, ${err} hurt me on ${req.path} page.`)
+  //     })
 
-//     const server = app.handler
+  //     const subApp = new App()
 
-//     const fetch = makeFetch(server)
+  //     subApp.get('/route', (req, res, next) => next('you'))
 
-//     await fetch('/users/123/').expect(200, '123')
-//   })
-//   it('matches when mounted on params and on custom subapp route', async () => {
-//     const app = new App()
+  //     app.use('/subapp', subApp).listen()
 
-//     const subApp = new App()
+  //     const server = app.handler
+  //     const fetch = makeFetch(server)
 
-//     subApp.get('/route', (req, res) => res.send(req.params.userID))
+  //     await fetch('/subapp/route').expect(500, 'Ouch, you hurt me on /subapp/route page.')
+  //   })
+  //   it('handles errors in sub when onError is defined', async () => {
+  //     const app = new App({
+  //       onError: (err, req, res) => res.status(500).end(`Ouch, ${err} hurt me on ${req.path} page.`)
+  //     })
 
-//     app.use('/users/:userID', subApp)
+  //     const subApp = new App({
+  //       onError: (err, req, res) => res.status(500).end(`Handling ${err} from child on ${req.path} page.`)
+  //     })
 
-//     const server = app.handler
+  //     subApp.get('/route', (req, res, next) => next('you'))
 
-//     const fetch = makeFetch(server)
+  //     app.use('/subapp', subApp).listen()
 
-//     await fetch('/users/123/route').expect(200, '123')
-//   })
-//   it('handles errors by parent when no onError specified', async () => {
-//     const app = new App({
-//       onError: (err, req, res) => res.status(500).end(`Ouch, ${err} hurt me on ${req.path} page.`)
-//     })
+  //     const server = app.handler
+  //     const fetch = makeFetch(server)
 
-//     const subApp = new App()
+  //     await fetch('/subapp/route').expect(500, 'Handling you from child on /subapp/route page.')
+  //   })
+  // })
 
-//     subApp.get('/route', (req, res, next) => next('you'))
+  // describe('Template engines', () => {
+  //   it('works with eta out of the box', async () => {
+  //     const app = new App<EtaConfig>()
 
-//     app.use('/subapp', subApp).listen()
+  //     app.engine('eta', renderFile)
 
-//     const server = app.handler
-//     const fetch = makeFetch(server)
+  //     app.use((_, res) => {
+  //       res.render(
+  //         'index.eta',
+  //         {
+  //           name: 'Eta'
+  //         },
+  //         {
+  //           viewsFolder: `${process.cwd()}/tests/fixtures/views`
+  //         }
+  //       )
+  //     })
 
-//     await fetch('/subapp/route').expect(500, 'Ouch, you hurt me on /subapp/route page.')
-//   })
-//   it('handles errors in sub when onError is defined', async () => {
-//     const app = new App({
-//       onError: (err, req, res) => res.status(500).end(`Ouch, ${err} hurt me on ${req.path} page.`)
-//     })
+  //     const server = app.handler
 
-//     const subApp = new App({
-//       onError: (err, req, res) => res.status(500).end(`Handling ${err} from child on ${req.path} page.`)
-//     })
+  //     const fetch = makeFetch(server)
 
-//     subApp.get('/route', (req, res, next) => next('you'))
+  //     await fetch('/').expectBody('Hello from Eta')
+  //   })
+  //   it('can render without data passed', async () => {
+  //     const app = new App<EtaConfig>()
+  //     app.set('views', path.resolve(process.cwd(), 'tests/fixtures/views'))
 
-//     app.use('/subapp', subApp).listen()
+  //     app.engine('eta', renderFile)
 
-//     const server = app.handler
-//     const fetch = makeFetch(server)
+  //     app.use((_, res) => {
+  //       res.render('empty.eta')
+  //     })
 
-//     await fetch('/subapp/route').expect(500, 'Handling you from child on /subapp/route page.')
-//   })
-// })
+  //     const server = app.handler
 
-// describe('Template engines', () => {
-//   it('works with eta out of the box', async () => {
-//     const app = new App<EtaConfig>()
+  //     const fetch = makeFetch(server)
 
-//     app.engine('eta', renderFile)
-
-//     app.use((_, res) => {
-//       res.render(
-//         'index.eta',
-//         {
-//           name: 'Eta'
-//         },
-//         {
-//           viewsFolder: `${process.cwd()}/tests/fixtures/views`
-//         }
-//       )
-//     })
-
-//     const server = app.handler
-
-//     const fetch = makeFetch(server)
-
-//     await fetch('/').expectBody('Hello from Eta')
-//   })
-//   it('can render without data passed', async () => {
-//     const app = new App<EtaConfig>()
-//     app.set('views', path.resolve(process.cwd(), 'tests/fixtures/views'))
-
-//     app.engine('eta', renderFile)
-
-//     app.use((_, res) => {
-//       res.render('empty.eta')
-//     })
-
-//     const server = app.handler
-
-//     const fetch = makeFetch(server)
-
-//     await fetch('/').expectBody('Hello World')
-//   })
+  //     await fetch('/').expectBody('Hello World')
+  //   })
 })
 
 describe('App settings', () => {

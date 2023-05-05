@@ -133,7 +133,7 @@ export class App<
       fns.unshift(...base)
     }
 
-    const path = typeof base === 'string' ? base : '/'
+    const path = typeof base === 'string' ? base : ''
 
     for (const fn of fns) {
       if (fn instanceof App) {
@@ -149,12 +149,13 @@ export class App<
     const handlerFunctions = []
     const handlerPathBase = path === '/' ? '' : lead(path)
 
+
     for (const fn of fns) {
       if (fn instanceof App && fn.middleware?.length) {
         for (const mw of fn.middleware) {
           handlerPaths.push(handlerPathBase + lead(mw.path!))
           handlerFunctions.push(fn)
-          mw.fullPath = handlerPathBase + lead(mw.path!) // hotfix
+          mw.fullPath = handlerPathBase + (mw.path!) // hotfix
         }
       } else {
         handlerPaths.push('')
@@ -189,12 +190,12 @@ export class App<
   }
   #find(url: URL) {
     const result = this.middleware.map((m) => {
-      const path = m.fullPath || m.path
+      const path = m.fullPath! || m.path!
       return {
         ...m,
         pattern: new URLPattern({
           pathname: m.type === 'mw'
-            ? m.path === '/' ? '*' : `${path}/([^\/]*)?`
+            ? m.path === '/' ? '*' : `${path.endsWith('/') ? path.slice(0, path.length - 1) : path}/([^\/]*)?`
             : path,
         }),
       }
