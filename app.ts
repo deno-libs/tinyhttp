@@ -65,6 +65,36 @@ export class App<
     this.attach = (req, res) => this.#prepare.bind(this, req, res)()
   }
   /**
+   * Set app setting
+   * @param setting setting name
+   * @param value setting value
+   */
+  set<T = unknown>(setting: string, value: T): this {
+    this.settings[setting] = value
+
+    return this
+  }
+
+  /**
+   * Enable app setting
+   * @param setting Setting name
+   */
+  enable(setting: string): this {
+    this.settings[setting] = true
+
+    return this
+  }
+
+  /**
+   * Disable app setting
+   * @param setting
+   */
+  disable(setting: string): this {
+    this.settings[setting] = false
+
+    return this
+  }
+  /**
    * Render a template
    * @param file What to render
    * @param data data that is passed to a template

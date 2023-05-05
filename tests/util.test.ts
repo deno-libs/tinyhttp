@@ -13,11 +13,11 @@ export const initAppAndTest = (
   handler: Handler,
   route = '/',
   settings: AppConstructor<Request, THResponse> = {},
-  method: 'get' | 'post' | 'patch' | 'put' | 'use' = 'use',
+  method: string | 'get' | 'post' | 'patch' | 'put' | 'use' = 'use',
 ) => {
   const app = new App<unknown, THRequest, THResponse>(settings)
 
-  app[method](route, handler)
+  app[method.toLowerCase() as 'get'](route, handler)
 
   return { fetch: supertest(app), app }
 }

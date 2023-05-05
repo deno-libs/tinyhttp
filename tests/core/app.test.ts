@@ -134,7 +134,7 @@ describe('Testing App routing', () => {
   // it('"*" should catch all undefined routes', async () => {
   //   const app = new App()
 
-  //   const server = app.listen()
+  //   const server = app.handler
 
   //   app
   //     .get('/route', (_req, res) => void res.send('A different route'))
@@ -266,272 +266,277 @@ describe('next(err)', () => {
   })
 })
 
-// describe('App methods', () => {
-//   it('`app.set` sets a setting', () => {
-//     const app = new App().set('subdomainOffset', 1)
-
-//     expect(app.settings.subdomainOffset).toBe(1)
-//   })
-//   it(`app.enable enables a setting`, () => {
-//     const app = new App({
-//       settings: {
-//         xPoweredBy: false
-//       }
-//     }).enable('xPoweredBy')
-
-//     expect(app.settings.xPoweredBy).toBe(true)
-//   })
-//   it(`app.disable disables a setting`, async () => {
-//     const app = new App({
-//       settings: {
-//         xPoweredBy: true
-//       }
-//     }).disable('xPoweredBy')
-
-//     expect(app.settings.xPoweredBy).toBe(false)
-//   })
-//   it('app.route works properly', async () => {
-//     const app = new App()
-
-//     app.route('/').get((req, res) => res.end(req.url))
+describe('App methods', () => {
+  it('`app.set` sets a setting', () => {
+    const app = new App().set('subdomainOffset', 1)
+
+    expect(app.settings.subdomainOffset).toBe(1)
+  })
+  it(`app.enable enables a setting`, () => {
+    const app = new App({
+      settings: {
+        xPoweredBy: false
+      }
+    }).enable('xPoweredBy')
+
+    expect(app.settings.xPoweredBy).toBe(true)
+  })
+  it(`app.disable disables a setting`, () => {
+    const app = new App({
+      settings: {
+        xPoweredBy: true
+      }
+    }).disable('xPoweredBy')
+
+    expect(app.settings.xPoweredBy).toBe(false)
+  })
+  // it('app.route works properly', async () => {
+  //   const app = new App()
+
+  //   app.route('/').get((req, res) => void res.end(req.url))
+
+  //   const res = await makeFetch(app.handler)('/')
+  //   res.expect(200)
+  // })
+  // it('app.route supports chaining route methods', async () => {
+  //   const app = new App()
+
+  //   app.route('/').get((req, res) => void res.end(req.url))
+
+  //   const res = await makeFetch(app.handler)('/')
+  //   res.expect(200)
+  // })
+  // it('app.route supports chaining route methods', async () => {
+  //   const app = new App()
+
+  //   app
+  //     .route('/')
+  //     .get((_, res) => void res.end('GET request'))
+  //     .post((_, res) => void res.end('POST request'))
+
+    
+
+  //   const res1 = await makeFetch(app.handler)('/')
+  //   res1.expect(200, 'GET request')
+
+  //   const res2 = await makeFetch(app.handler)('/', { method: 'POST' })
+  //   res2.expect(200, 'POST request')
+  // })
+})
+
+describe('HTTP methods', () => {
+  it('app.get handles get request', async () => {
+    const app = new App()
+
+    app.get('/', (req, res) => void res.end(req.method))
+
+    const res = await makeFetch(app.handler)('/')
+    res.expect('GET')
+  })
+  it('app.post handles post request', async () => {
+    const { fetch } = initAppAndTest((req, res) => void res.end(req.method), '/', {}, 'POST')
+
+    const res = await fetch('/', {
+      method: 'POST'
+    })
+    res.expect('POST')
+  })
+  it('app.put handles put request', async () => {
+    const { fetch } = initAppAndTest((req, res) => void res.end(req.method), '/', {}, 'PUT')
+
+    const res = await fetch('/', {
+      method: 'PUT'
+    })
+    res.expect('PUT')
+  })
+  it('app.patch handles patch request', async () => {
+    const { fetch } = initAppAndTest((req, res) => void res.end(req.method), '/', {}, 'PATCH')
 
-//     const server = app.listen()
+    const res = await fetch('/', { method: 'PATCH' })
+    res.expect('PATCH')
+  })
+  // it('app.head handles head request', async () => {
+  //   const app = new App()
 
-//     await makeFetch(server)('/').expect(200)
-//   })
-//   it('app.route supports chaining route methods', async () => {
-//     const app = new App()
+  //   app.head('/', (req, res) => void res.end(req.method))
 
-//     app.route('/').get((req, res) => res.end(req.url))
-
-//     const server = app.listen()
+  //   const server = app.handler
+  //   const fetch = makeFetch(server)
 
-//     await makeFetch(server)('/').expect(200)
-//   })
-//   it('app.route supports chaining route methods', async () => {
-//     const app = new App()
+  //   await fetch('/', { method: 'HEAD' }).expect(200, '')
+  // })
+  // it('app.delete handles delete request', async () => {
+  //   const app = new App()
 
-//     app
-//       .route('/')
-//       .get((_, res) => res.send('GET request'))
-//       .post((_, res) => res.send('POST request'))
+  //   app.delete('/', (req, res) => void res.end(req.method))
 
-//     const server = app.listen()
+  //   const server = app.handler
+  //   const fetch = makeFetch(server)
 
-//     await makeFetch(server)('/').expect(200, 'GET request')
+  //   await fetch('/', { method: 'DELETE' }).expect(200, 'DELETE')
+  // })
+  // it('app.checkout handles checkout request', async () => {
+  //   const app = new App()
 
-//     await makeFetch(server)('/', { method: 'POST' }).expect(200, 'POST request')
-//   })
-// })
+  //   app.checkout('/', (req, res) => void res.end(req.method))
 
-// describe('HTTP methods', () => {
-//   it('app.get handles get request', async () => {
-//     const app = new App()
+  //   const server = app.handler
+  //   const fetch = makeFetch(server)
 
-//     app.get('/', (req, res) => void res.send(req.method))
+  //   await fetch('/', { method: 'CHECKOUT' }).expect(200, 'CHECKOUT')
+  // })
+  // it('app.copy handles copy request', async () => {
+  //   const app = new App()
 
-//     await makeFetch(app.listen())('/').expect(200, 'GET')
-//   })
-//   it('app.post handles post request', async () => {
-//     const { fetch } = initAppAndTest((req, res) => void res.send(req.method), '/', 'POST')
+  //   app.copy('/', (req, res) => void res.end(req.method))
 
-//     await fetch('/', {
-//       method: 'POST'
-//     }).expect(200, 'POST')
-//   })
-//   it('app.put handles put request', async () => {
-//     const { fetch } = initAppAndTest((req, res) => void res.send(req.method), '/', 'PUT')
+  //   const server = app.handler
+  //   const fetch = makeFetch(server)
 
-//     await fetch('/', {
-//       method: 'PUT'
-//     }).expect(200, 'PUT')
-//   })
-//   it('app.patch handles patch request', async () => {
-//     const { fetch } = initAppAndTest((req, res) => void res.send(req.method), '/', 'PATCH')
+  //   await fetch('/', { method: 'COPY' }).expect(200, 'COPY')
+  // })
+  // it('app.lock handles lock request', async () => {
+  //   const app = new App()
 
-//     await fetch('/', { method: 'PATCH' }).expect(200, 'PATCH')
-//   })
-//   it('app.head handles head request', async () => {
-//     const app = new App()
+  //   app.lock('/', (req, res) => void res.end(req.method))
 
-//     app.head('/', (req, res) => void res.send(req.method))
+  //   const server = app.handler
+  //   const fetch = makeFetch(server)
 
-//     const server = app.listen()
-//     const fetch = makeFetch(server)
+  //   await fetch('/', { method: 'LOCK' }).expect(200, 'LOCK')
+  // })
+  // it('app.merge handles merge request', async () => {
+  //   const app = new App()
 
-//     await fetch('/', { method: 'HEAD' }).expect(200, '')
-//   })
-//   it('app.delete handles delete request', async () => {
-//     const app = new App()
+  //   app.merge('/', (req, res) => void res.end(req.method))
 
-//     app.delete('/', (req, res) => void res.send(req.method))
+  //   const server = app.handler
+  //   const fetch = makeFetch(server)
 
-//     const server = app.listen()
-//     const fetch = makeFetch(server)
+  //   await fetch('/', { method: 'MERGE' }).expect(200, 'MERGE')
+  // })
+  // it('app.mkactivity handles mkactivity request', async () => {
+  //   const app = new App()
 
-//     await fetch('/', { method: 'DELETE' }).expect(200, 'DELETE')
-//   })
-//   it('app.checkout handles checkout request', async () => {
-//     const app = new App()
+  //   app.mkactivity('/', (req, res) => void res.end(req.method))
 
-//     app.checkout('/', (req, res) => void res.send(req.method))
+  //   const server = app.handler
 
-//     const server = app.listen()
-//     const fetch = makeFetch(server)
+  //   const fetch = makeFetch(server)
 
-//     await fetch('/', { method: 'CHECKOUT' }).expect(200, 'CHECKOUT')
-//   })
-//   it('app.copy handles copy request', async () => {
-//     const app = new App()
+  //   await fetch('/', { method: 'MKACTIVITY' }).expect(200, 'MKACTIVITY')
+  // })
+  // it('app.mkcol handles mkcol request', async () => {
+  //   const app = new App()
 
-//     app.copy('/', (req, res) => void res.send(req.method))
+  //   app.mkcol('/', (req, res) => void res.end(req.method))
 
-//     const server = app.listen()
-//     const fetch = makeFetch(server)
+  //   const server = app.handler
+  //   const fetch = makeFetch(server)
 
-//     await fetch('/', { method: 'COPY' }).expect(200, 'COPY')
-//   })
-//   it('app.lock handles lock request', async () => {
-//     const app = new App()
+  //   await fetch('/', { method: 'MKCOL' }).expect(200, 'MKCOL')
+  // })
+  // it('app.move handles move request', async () => {
+  //   const app = new App()
 
-//     app.lock('/', (req, res) => void res.send(req.method))
+  //   app.move('/', (req, res) => void res.end(req.method))
 
-//     const server = app.listen()
-//     const fetch = makeFetch(server)
+  //   const server = app.handler
+  //   const fetch = makeFetch(server)
 
-//     await fetch('/', { method: 'LOCK' }).expect(200, 'LOCK')
-//   })
-//   it('app.merge handles merge request', async () => {
-//     const app = new App()
+  //   await fetch('/', { method: 'MOVE' }).expect(200, 'MOVE')
+  // })
+  // it('app.search handles search request', async () => {
+  //   const app = new App()
 
-//     app.merge('/', (req, res) => void res.send(req.method))
+  //   app.search('/', (req, res) => void res.end(req.method))
 
-//     const server = app.listen()
-//     const fetch = makeFetch(server)
+  //   const server = app.handler
+  //   const fetch = makeFetch(server)
 
-//     await fetch('/', { method: 'MERGE' }).expect(200, 'MERGE')
-//   })
-//   it('app.mkactivity handles mkactivity request', async () => {
-//     const app = new App()
+  //   await fetch('/', { method: 'SEARCH' }).expect(200, 'SEARCH')
+  // })
+  // it('app.notify handles notify request', async () => {
+  //   const app = new App()
 
-//     app.mkactivity('/', (req, res) => void res.send(req.method))
+  //   app.notify('/', (req, res) => void res.end(req.method))
 
-//     const server = app.listen()
+  //   const server = app.handler
+  //   const fetch = makeFetch(server)
 
-//     const fetch = makeFetch(server)
+  //   await fetch('/', { method: 'NOTIFY' }).expect(200, 'NOTIFY')
+  // })
+  // it('app.purge handles purge request', async () => {
+  //   const app = new App()
 
-//     await fetch('/', { method: 'MKACTIVITY' }).expect(200, 'MKACTIVITY')
-//   })
-//   it('app.mkcol handles mkcol request', async () => {
-//     const app = new App()
+  //   app.purge('/', (req, res) => void res.end(req.method))
 
-//     app.mkcol('/', (req, res) => void res.send(req.method))
+  //   const server = app.handler
+  //   const fetch = makeFetch(server)
 
-//     const server = app.listen()
-//     const fetch = makeFetch(server)
+  //   await fetch('/', { method: 'PURGE' }).expect(200, 'PURGE')
+  // })
+  // it('app.report handles report request', async () => {
+  //   const app = new App()
 
-//     await fetch('/', { method: 'MKCOL' }).expect(200, 'MKCOL')
-//   })
-//   it('app.move handles move request', async () => {
-//     const app = new App()
+  //   app.report('/', (req, res) => void res.end(req.method))
 
-//     app.move('/', (req, res) => void res.send(req.method))
+  //   const fetch = makeFetch(app.handler)
 
-//     const server = app.listen()
-//     const fetch = makeFetch(server)
+  //   await fetch('/', { method: 'REPORT' }).expect(200, 'REPORT')
+  // })
+  // it('app.subscribe handles subscribe request', async () => {
+  //   const app = new App()
 
-//     await fetch('/', { method: 'MOVE' }).expect(200, 'MOVE')
-//   })
-//   it('app.search handles search request', async () => {
-//     const app = new App()
+  //   app.subscribe('/', (req, res) => void res.end(req.method))
 
-//     app.search('/', (req, res) => void res.send(req.method))
+  //   const server = app.handler
+  //   const fetch = makeFetch(server)
 
-//     const server = app.listen()
-//     const fetch = makeFetch(server)
+  //   await fetch('/', { method: 'SUBSCRIBE' }).expect(200, 'SUBSCRIBE')
+  // })
+  // it('app.unsubscribe handles unsubscribe request', async () => {
+  //   const app = new App()
 
-//     await fetch('/', { method: 'SEARCH' }).expect(200, 'SEARCH')
-//   })
-//   it('app.notify handles notify request', async () => {
-//     const app = new App()
+  //   app.unsubscribe('/', (req, res) => void res.end(req.method))
 
-//     app.notify('/', (req, res) => void res.send(req.method))
+  //   const server = app.handler
+  //   const fetch = makeFetch(server)
 
-//     const server = app.listen()
-//     const fetch = makeFetch(server)
+  //   await fetch('/', { method: 'UNSUBSCRIBE' }).expect(200, 'UNSUBSCRIBE')
+  // })
+  // it('app.trace handles trace request', async () => {
+  //   const app = new App()
 
-//     await fetch('/', { method: 'NOTIFY' }).expect(200, 'NOTIFY')
-//   })
-//   it('app.purge handles purge request', async () => {
-//     const app = new App()
+  //   app.trace('/', (req, res) => void res.end(req.method))
 
-//     app.purge('/', (req, res) => void res.send(req.method))
+  //   const server = app.handler
+  //   const fetch = makeFetch(server)
 
-//     const server = app.listen()
-//     const fetch = makeFetch(server)
+  //   await fetch('/', { method: 'TRACE' }).expect(200, 'TRACE')
+  // })
+  it('HEAD request works when any of the method handlers are defined', async () => {
+    const app = new App()
 
-//     await fetch('/', { method: 'PURGE' }).expect(200, 'PURGE')
-//   })
-//   it('app.report handles report request', async () => {
-//     const app = new App()
+    app.get('/', (_, res) => void res.end('It works'))
 
-//     app.report('/', (req, res) => void res.send(req.method))
+    const fetch = makeFetch(app.handler)
 
-//     const fetch = makeFetch(app.listen())
+    const res = await fetch('/', { method: 'HEAD' })
+    res.expect(200)
+  })
+  it('HEAD request does not work for undefined handlers', async () => {
+    const app = new App()
 
-//     await fetch('/', { method: 'REPORT' }).expect(200, 'REPORT')
-//   })
-//   it('app.subscribe handles subscribe request', async () => {
-//     const app = new App()
+    app.get('/', (_, res) => void res.end('It works'))
 
-//     app.subscribe('/', (req, res) => void res.send(req.method))
+    const server = app.handler
+    const fetch = makeFetch(server)
 
-//     const server = app.listen()
-//     const fetch = makeFetch(server)
-
-//     await fetch('/', { method: 'SUBSCRIBE' }).expect(200, 'SUBSCRIBE')
-//   })
-//   it('app.unsubscribe handles unsubscribe request', async () => {
-//     const app = new App()
-
-//     app.unsubscribe('/', (req, res) => void res.send(req.method))
-
-//     const server = app.listen()
-//     const fetch = makeFetch(server)
-
-//     await fetch('/', { method: 'UNSUBSCRIBE' }).expect(200, 'UNSUBSCRIBE')
-//   })
-//   it('app.trace handles trace request', async () => {
-//     const app = new App()
-
-//     app.trace('/', (req, res) => void res.send(req.method))
-
-//     const server = app.listen()
-//     const fetch = makeFetch(server)
-
-//     await fetch('/', { method: 'TRACE' }).expect(200, 'TRACE')
-//   })
-//   it('HEAD request works when any of the method handlers are defined', async () => {
-//     const app = new App()
-
-//     app.get('/', (_, res) => res.send('It works'))
-
-//     const server = app.listen()
-//     const fetch = makeFetch(server)
-
-//     await fetch('/', { method: 'HEAD' }).expect(200)
-//   })
-//   it('HEAD request does not work for undefined handlers', async () => {
-//     const app = new App()
-
-//     app.get('/', (_, res) => res.send('It works'))
-
-//     const server = app.listen()
-//     const fetch = makeFetch(server)
-
-//     await fetch('/hello', { method: 'HEAD' }).expect(404)
-//   })
-// })
+    const res = await fetch('/hello', { method: 'HEAD' })
+    res.expect(404)
+  })
+})
 
 describe('Route handlers', () => {
   it('router accepts array of middlewares', async () => {
@@ -662,31 +667,29 @@ describe('Route handlers', () => {
   })
 })
 
-// describe('Subapps', () => {
-//   it('sub-app mounts on a specific path', () => {
-//     const app = new App()
+describe('Subapps', () => {
+  it('sub-app mounts on a specific path', () => {
+    const app = new App()
 
-//     const subApp = new App()
+    const subApp = new App()
 
-//     app.use('/subapp', subApp)
+    app.use('/subapp', subApp)
 
-//     expect(subApp.mountpath).toBe('/subapp')
-//   })
-//   it('sub-app mounts on root', async () => {
-//     const app = new App()
+    expect(subApp.mountpath).toBe('/subapp')
+  })
+  it('sub-app mounts on root', async () => {
+    const app = new App()
 
-//     const subApp = new App()
+    const subApp = new App()
 
-//     subApp.use((_, res) => void res.send('Hello World!'))
+    subApp.use((_, res) => void res.end('Hello World!'))
 
-//     app.use(subApp)
+    app.use(subApp)
+    const fetch = makeFetch(app.handler)
 
-//     const server = app.listen()
-
-//     const fetch = makeFetch(server)
-
-//     await fetch('/').expect(200, 'Hello World!')
-//   })
+    const res = await fetch('/')
+    res.expect('Hello World!')
+  })
 //   it('multiple sub-apps mount on root', async () => {
 //     const app = new App()
 
@@ -699,9 +702,9 @@ describe('Route handlers', () => {
 //     app.use(route1)
 //     app.use(route2)
 
-//     await makeFetch(app.listen())('/route1').expect(200, 'route1')
+//     await makeFetch(app.handler)('/route1').expect(200, 'route1')
 
-//     await makeFetch(app.listen())('/route2').expect(200, 'route2')
+//     await makeFetch(app.handler)('/route2').expect(200, 'route2')
 //   })
 //   it('sub-app handles its own path', async () => {
 //     const app = new App()
@@ -712,7 +715,7 @@ describe('Route handlers', () => {
 
 //     app.use('/subapp', subApp)
 
-//     const server = app.listen()
+//     const server = app.handler
 
 //     const fetch = makeFetch(server)
 
@@ -727,7 +730,7 @@ describe('Route handlers', () => {
 
 //     app.use('/subapp', subApp)
 
-//     const server = app.listen()
+//     const server = app.handler
 
 //     const fetch = makeFetch(server)
 
@@ -753,7 +756,7 @@ describe('Route handlers', () => {
 
 //     app.use('/subapp', subApp)
 
-//     const server = app.listen()
+//     const server = app.handler
 
 //     const fetch = makeFetch(server)
 
@@ -775,7 +778,7 @@ describe('Route handlers', () => {
 
 //     app.use('/test3', (req, res) => res.send(req.url))
 
-//     const server = app.listen()
+//     const server = app.handler
 
 //     const fetch = makeFetch(server)
 
@@ -853,7 +856,7 @@ describe('Route handlers', () => {
 
 //     app.use('/users/:userID', subApp)
 
-//     const server = app.listen()
+//     const server = app.handler
 
 //     const fetch = makeFetch(server)
 
@@ -868,7 +871,7 @@ describe('Route handlers', () => {
 
 //     app.use('/users/:userID', subApp)
 
-//     const server = app.listen()
+//     const server = app.handler
 
 //     const fetch = makeFetch(server)
 
@@ -885,7 +888,7 @@ describe('Route handlers', () => {
 
 //     app.use('/subapp', subApp).listen()
 
-//     const server = app.listen()
+//     const server = app.handler
 //     const fetch = makeFetch(server)
 
 //     await fetch('/subapp/route').expect(500, 'Ouch, you hurt me on /subapp/route page.')
@@ -903,7 +906,7 @@ describe('Route handlers', () => {
 
 //     app.use('/subapp', subApp).listen()
 
-//     const server = app.listen()
+//     const server = app.handler
 //     const fetch = makeFetch(server)
 
 //     await fetch('/subapp/route').expect(500, 'Handling you from child on /subapp/route page.')
@@ -928,7 +931,7 @@ describe('Route handlers', () => {
 //       )
 //     })
 
-//     const server = app.listen()
+//     const server = app.handler
 
 //     const fetch = makeFetch(server)
 
@@ -944,13 +947,13 @@ describe('Route handlers', () => {
 //       res.render('empty.eta')
 //     })
 
-//     const server = app.listen()
+//     const server = app.handler
 
 //     const fetch = makeFetch(server)
 
 //     await fetch('/').expectBody('Hello World')
 //   })
-// })
+})
 
 describe('App settings', () => {
   describe('xPoweredBy', () => {
