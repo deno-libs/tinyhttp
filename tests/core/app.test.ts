@@ -299,36 +299,36 @@ describe('App methods', () => {
 
     expect(app.settings.xPoweredBy).toBe(false)
   })
-  // it('app.route works properly', async () => {
-  //   const app = new App()
+  it.skip('app.route works properly', async () => {
+    const app = new App()
 
-  //   app.route('/').get((req, res) => void res.end(req.url))
+    app.route('/').get((req, res) => void res.end(req.url))
 
-  //   const res = await makeFetch(app.handler)('/')
-  //   res.expect(200)
-  // })
-  // it('app.route supports chaining route methods', async () => {
-  //   const app = new App()
+    const res = await makeFetch(app.handler)('/')
+    res.expect(200)
+  })
+  it.skip('app.route supports chaining route methods', async () => {
+    const app = new App()
 
-  //   app.route('/').get((req, res) => void res.end(req.url))
+    app.route('/').get((req, res) => void res.end(req.url))
 
-  //   const res = await makeFetch(app.handler)('/')
-  //   res.expect(200)
-  // })
-  // it('app.route supports chaining route methods', async () => {
-  //   const app = new App()
+    const res = await makeFetch(app.handler)('/')
+    res.expect(200)
+  })
+  it.skip('app.route supports chaining route methods', async () => {
+    const app = new App()
 
-  //   app
-  //     .route('/')
-  //     .get((_, res) => void res.end('GET request'))
-  //     .post((_, res) => void res.end('POST request'))
+    app
+      .route('/')
+      .get((_, res) => void res.end('GET request'))
+      .post((_, res) => void res.end('POST request'))
 
-  //   const res1 = await makeFetch(app.handler)('/')
-  //   res1.expect(200, 'GET request')
+    const res1 = await makeFetch(app.handler)('/')
+    res1.expect('GET request')
 
-  //   const res2 = await makeFetch(app.handler)('/', { method: 'POST' })
-  //   res2.expect(200, 'POST request')
-  // })
+    const res2 = await makeFetch(app.handler)('/', { method: 'POST' })
+    res2.expect('POST request')
+  })
 })
 
 describe('HTTP methods', () => {
@@ -712,24 +712,24 @@ describe('Subapps', () => {
     const res = await fetch('/')
     res.expect('Hello World!')
   })
-  // it('multiple sub-apps mount on root', async () => {
-  //   const app = new App()
+  it.skip('multiple sub-apps mount on root', async () => {
+    const app = new App()
 
-  //   const route1 = new App()
-  //   route1.get('/route1', (_req, res) => void res.end('route1'))
+    const route1 = new App()
+    route1.get('/route1', (_req, res) => void res.end('route1'))
 
-  //   const route2 = new App()
-  //   route2.get('/route2', (_req, res) => void res.end('route2'))
+    const route2 = new App()
+    route2.get('/route2', (_req, res) => void res.end('route2'))
 
-  //   app.use(route1)
-  //   app.use(route2)
+    app.use(route1)
+    app.use(route2)
 
-  //   const res1 = await makeFetch(app.handler)('/route1')
-  //   res1.expect('route1')
+    const res1 = await makeFetch(app.handler)('/route1')
+    res1.expect('route1')
 
-  //   const res2 = await makeFetch(app.handler)('/route2')
-  //   res2.expect('route2')
-  // })
+    const res2 = await makeFetch(app.handler)('/route2')
+    res2.expect('route2')
+  })
   it('sub-app handles its own path', async () => {
     const app = new App()
 
@@ -816,28 +816,28 @@ describe('Subapps', () => {
 
     expect(subapp.parent).toBe(app)
   })
-  //   it('app.path() should return the mountpath', () => {
-  //     const app = new App()
+  it('app.path() should return the mountpath', () => {
+    const app = new App()
 
-  //     const subapp = new App()
+    const subapp = new App()
 
-  //     app.use('/subapp', subapp)
+    app.use('/subapp', subapp)
 
-  //     expect(subapp.path()).toBe('/subapp')
-  //   })
-  //   it('app.path() should nest mountpaths', () => {
-  //     const app = new App()
+    expect(subapp.path()).toBe('/subapp')
+  })
+    it('app.path() should nest mountpaths', () => {
+      const app = new App()
 
-  //     const subapp = new App()
+      const subapp = new App()
 
-  //     const subsubapp = new App()
+      const subsubapp = new App()
 
-  //     subapp.use('/admin', subsubapp)
+      subapp.use('/admin', subsubapp)
 
-  //     app.use('/blog', subapp)
+      app.use('/blog', subapp)
 
-  //     expect(subsubapp.path()).toBe('/blog/admin')
-  //   })
+      expect(subsubapp.path()).toBe('/blog/admin')
+    })
   it('middlewares of a subapp should preserve the path', () => {
     const app = new App()
 
@@ -898,31 +898,31 @@ describe('Subapps', () => {
       'Ouch, you hurt me on http://localhost:8080/subapp/route page.',
     )
   })
-  // it('handles errors in sub when onError is defined', async () => {
-  //   const app = new App({
-  //     onError: (err, req) =>
-  //     new Response(`Ouch, ${err} hurt me on ${req?.url} page.`, {
-  //       status: 500,
-  //     })
-  //   })
+  it.skip('handles errors in sub when onError is defined', async () => {
+    const app = new App({
+      onError: (err, req) =>
+      new Response(`Ouch, ${err} hurt me on ${req?.url} page.`, {
+        status: 500,
+      })
+    })
 
-  //   const subApp = new App({
-  //     onError: (err, req) =>
-  //     new Response(`Handling ${err} from child on ${req?.url} page.`, {
-  //       status: 500,
-  //     })
-  //   })
+    const subApp = new App({
+      onError: (err, req) =>
+      new Response(`Handling ${err} from child on ${req?.url} page.`, {
+        status: 500,
+      })
+    })
 
-  //   subApp.get('/route', async (req, res, next) => await next('you'))
+    subApp.get('/route', async (req, res, next) => await next('you'))
 
-  //   app.use('/subapp', subApp)
+    app.use('/subapp', subApp)
 
-  //   const server = app.handler
-  //   const fetch = makeFetch(server)
+    const server = app.handler
+    const fetch = makeFetch(server)
 
-  //   const res = await fetch('/subapp/route')
-  //   res.expectStatus(500).expectBody('Handling you from child on /subapp/route page.')
-  // })
+    const res = await fetch('/subapp/route')
+    res.expectStatus(500).expectBody('Handling you from child on /subapp/route page.')
+  })
 })
 describe('Template engines', () => {
   it('works with eta out of the box', async () => {
