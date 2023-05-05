@@ -98,6 +98,99 @@ describe('fresh(reqHeaders, resHeaders)', () => {
       ).toBe(false)
     })
   })
+  describe('when requested with If-Modified-Since', () => {
+    it('when modified since the date should be stale', () => {
+      expect(
+        fresh(
+          new Headers({ 'if-modified-since': 'Sat, 01 Jan 2000 00:00:00 GMT' }),
+          new Headers({ 'last-modified': 'Sat, 01 Jan 2000 01:00:00 GMT' }),
+        ),
+      ).toBe(false)
+    })
+    it('when unmodified since the date should be fresh', () => {
+      expect(
+        fresh(
+          new Headers({ 'if-modified-since': 'Sat, 01 Jan 2000 01:00:00 GMT' }),
+          new Headers({ 'last-modified': 'Sat, 01 Jan 2000 00:00:00 GMT' }),
+        ),
+      ).toBe(true)
+    })
+    it('when Last-Modified is missing should be stale', () => {
+      expect(
+        fresh(
+          new Headers({ 'if-modified-since': 'Sat, 01 Jan 2000 00:00:00 GMT' }),
+          new Headers({}),
+        ),
+      ).toBe(false)
+    })
+    it('with invalid If-Modified-Since date should be stale', () => {
+      expect(
+        fresh(
+          new Headers({ 'if-modified-since': 'foo' }),
+          new Headers({ 'last-modified': 'Sat, 01 Jan 2000 00:00:00 GMT' }),
+        ),
+      ).toBe(false)
+    })
+    it('with invalid Last-Modified date should be stale', () => {
+      expect(
+        fresh(
+          new Headers({ 'if-modified-since': 'Sat, 01 Jan 2000 00:00:00 GMT' }),
+          new Headers({ 'last-modified': 'foo' }),
+        ),
+      ).toBe(false)
+    })
+  })
+  it('when requested with If-Modified-Since and If-None-Match and both match should be fresh', () => {
+    expect(fresh(
+      new Headers({
+        'if-none-match': '"foo"',
+        'if-modified-since': 'Sat, 01 Jan 2000 01:00:00 GMT',
+      }),
+      new Headers({
+        etag: '"foo"',
+        'last-modified': 'Sat, 01 Jan 2000 00:00:00 GMT',
+      }),
+    )).toBe(true)
+  })
+
+  it('when only ETag matches should be stale', () => {
+    expect(fresh(
+      new Headers({
+        'if-none-match': '"foo"',
+        'if-modified-since': 'Sat, 01 Jan 2000 00:00:00 GMT',
+      }),
+      new Headers({
+        etag: '"foo"',
+        'last-modified': 'Sat, 01 Jan 2000 01:00:00 GMT',
+      }),
+    )).toBe(false)
+  })
+
+  it('when only Last-Modified matches should be stale', () => {
+    expect(fresh(
+      new Headers({
+        'if-none-match': '"foo"',
+        'if-modified-since': 'Sat, 01 Jan 2000 01:00:00 GMT',
+      }),
+      new Headers({
+        etag: '"bar"',
+        'last-modified': 'Sat, 01 Jan 2000 00:00:00 GMT',
+      }),
+    )).toBe(false)
+  })
+
+  it('when none match should be stale', () => {
+    expect(fresh(
+      new Headers({
+        'if-none-match': '"foo"',
+        'if-modified-since': 'Sat, 01 Jan 2000 00:00:00 GMT',
+      }),
+      new Headers({
+        etag: '"bar"',
+        'last-modified': 'Sat, 01 Jan 2000 01:00:00 GMT',
+      }),
+    )).toBe(false)
+  })
 })
 
 run()
