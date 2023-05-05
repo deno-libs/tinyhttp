@@ -48,66 +48,6 @@ export function is(mediaType: string, types?: string[]): boolean | string {
 }
 
 /**
- * Check if a request's header has a request body.
- * A request with a body __must__ either have `transfer-encoding`
- * or `content-length` headers set.
- * http://www.w3.org/Protocols/rfc2616/rfc2616-sec4.html#sec4.3
- *
- * @param {Object} request
- * @return {Boolean}
- */
-export function hasBody(header: Headers): boolean {
-  return header.get('transfer-encoding') !== null ||
-    !isNaN(parseInt(header.get('content-length') || '', 10))
-}
-
-/**
- * Check if the incoming request's header contains the "Content-Type"
- * header field, and it contains any of the give mime `type`s.
- * If there is no request body, `null` is returned.
- * If there is no content type, `false` is returned.
- * Otherwise, it returns the first `type` that matches.
- *
- * Examples:
- *
- *     // With Content-Type: text/html; charset=utf-8
- *     typeofrequest(header, [ 'html' ]); // => 'html'
- *     typeofrequest(header, ['text/html' ]); // => 'text/html'
- *     typeofrequest(header, ['text/*', 'application/json' ]); // => 'text/html'
- *
- *     // When Content-Type is application/json
- *     typeofrequest(header, [ 'json', 'urlencoded' ]); // => 'json'
- *     typeofrequest(header, [ 'application/json' ]); // => 'application/json'
- *     typeofrequest(header, [ 'html', 'application/*' ]); // => 'application/json'
- *
- *     typeofrequest(header, [ 'html' ]); // => false
- *
- * @param {String|Array} types...
- * @return {String|false|null}
- */
-
-export function typeofrequest(
-  header: Headers,
-  types_?: string[],
-): null | boolean | string {
-  const types = types_
-
-  // no body
-  if (!hasBody(header)) {
-    return null
-  }
-
-  // request content type
-  const value = header.get('content-type')
-
-  if (!value) {
-    return false
-  }
-
-  return is(value, types)
-}
-
-/**
  * Normalize a mime type.
  * If it's a shorthand, expand it to a valid mime type.
  *
@@ -121,7 +61,7 @@ export function typeofrequest(
  *
  * @param {String} type
  */
-export const normalize = (type: string): string | undefined => {
+const normalize = (type: string): string | undefined => {
   switch (type) {
     case 'urlencoded':
       return 'application/x-www-form-urlencoded'
@@ -162,11 +102,11 @@ function mimeMatch(expected: string, actual: string): boolean {
   }
 
   // validate suffix wildcard
-  if (expectedParts[1].substr(0, 2) === '*+') {
+  if (expectedParts[1].substring(0, 2) === '*+') {
     return (
       expectedParts[1].length <= actualParts[1].length + 1 &&
-      expectedParts[1].substr(1) ===
-        actualParts[1].substr(1 - expectedParts[1].length)
+      expectedParts[1].substring(1) ===
+        actualParts[1].substring(1 - expectedParts[1].length)
     )
   }
 
