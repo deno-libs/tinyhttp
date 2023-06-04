@@ -1,4 +1,4 @@
-import { path } from './deps.ts'
+import { path, rg } from './deps.ts'
 import { extendMiddleware } from './extend.ts'
 import { getRouteFromApp } from './extensions/req/route.ts'
 import { onErrorHandler } from './onError.ts'
@@ -30,6 +30,7 @@ const applyHandler =
     try {
       await h(req, res, next!)
     } catch (e) {
+      console.error("e", e);
       await next(e)
     }
   }
@@ -139,11 +140,9 @@ export class App<
     }
 
     const path = typeof base === 'string' ? base : '/'
-
     for (const fn of fns) {
       if (fn instanceof App) {
         fn.mountpath = path
-
         this.apps[path] = fn
 
         fn.parent = this as any
@@ -200,17 +199,16 @@ export class App<
         pattern: new URLPattern({
           pathname: m.type === 'mw'
             ? m.path === '/'
-              ? '*'
-              : `${
-                path.endsWith('/') ? path.slice(0, path.length - 1) : path
-              }/([^\/]*)?`
+              ? 
+              `${path.endsWith('/') ? path.slice(0, path.length - 1) : path }/([^\/]*)?` 
+              : '*'
             : path,
         }),
       }
     }).filter((m) => {
-      return m.pattern.test(url)
+      const res = m.pattern.test(url)
+      return res
     })
-
     return result
   }
   /**
@@ -221,12 +219,12 @@ export class App<
     req: Req,
     res: { _init?: ResponseInit; _body?: BodyInit },
   ) {
+    console.log("kkkkkk",req.url)
     req._urlObject = new URL(req.url)
     const exts = extendMiddleware<RenderOptions>(this as unknown as App)
     const matched = this.#find(req._urlObject).filter((x) =>
       req.method === 'HEAD' || (x.method ? x.method === req.method : true)
     )
-
     const mw: Middleware<Req, Res>[] = 'fresh' in req ? matched : [
       {
         handler: exts,
@@ -248,6 +246,7 @@ export class App<
       })
     }
     mw.push({ type: 'mw', handler: this.notFound, path: '/' })
+    console.log("mw", mw)
 
     const handle =
       (mw: Middleware<Req, Res>) =>
@@ -317,7 +316,6 @@ export class App<
   async listen(port: number, cb?: () => void, hostname?: string) {
     const listener = Deno.listen({ hostname, port })
     cb?.()
-
     for await (const conn of listener) {
       const requests = Deno.serveHttp(conn)
       for await (const { request, respondWith } of requests) {
@@ -327,5 +325,6 @@ export class App<
         }
       }
     }
+    return listener
   }
 }
