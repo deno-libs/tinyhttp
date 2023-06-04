@@ -132,13 +132,7 @@
     "https://esm.sh/v124/ipaddr.js@2.0.1/deno/ipaddr.mjs": "774ed6749a35b0e19baf8c37eeadb7972827caf8eb42c67781326c8a55566117",
     "https://esm.sh/v124/ipaddr.js@2.0.1/lib/ipaddr.js.d.ts": "0ec88999f2e6e874ad776d0c2ab262843eb481b1398691086e008b5f6f2987e6",
     "https://raw.githubusercontent.com/aarontravass/superfetch/aaron/test/deps.ts": "dd5b09bea472d8c533322836f3339332d48cd97c5c8b122ab0366933a07a8e19",
-    "https://raw.githubusercontent.com/aarontravass/superfetch/aaron/test/mod.ts": "bbe36400ffc4b25c90675f88682df3328e69bc6e0081bb8e19132d641523837d",
-    "https://raw.githubusercontent.com/aarontravass/superfetch/aaron/test/types.ts": "6f4cc8eb685320002138980dd0893f5eeafe2a9725c8918f8dc21743f99e6b18",
-    "https://raw.githubusercontent.com/aarontravass/superfetch/d32b59a6282d447a5b41c9288fd7b6cbdbad3ade/deps.ts": "dd5b09bea472d8c533322836f3339332d48cd97c5c8b122ab0366933a07a8e19",
-    "https://raw.githubusercontent.com/aarontravass/superfetch/d32b59a6282d447a5b41c9288fd7b6cbdbad3ade/mod.ts": "7bd92583f8b49e9a73bb9aa79da4bd5301d281aff3c8acf7fc34845cda79fc4b",
-    "https://raw.githubusercontent.com/aarontravass/superfetch/d32b59a6282d447a5b41c9288fd7b6cbdbad3ade/types.ts": "6f4cc8eb685320002138980dd0893f5eeafe2a9725c8918f8dc21743f99e6b18",
-    "https://raw.githubusercontent.com/aarontravass/superfetch/faa344d57c49e0c3623a371dfb930a00c3a16aa9/deps.ts": "dd5b09bea472d8c533322836f3339332d48cd97c5c8b122ab0366933a07a8e19",
-    "https://raw.githubusercontent.com/aarontravass/superfetch/faa344d57c49e0c3623a371dfb930a00c3a16aa9/mod.ts": "4b68042f14a9cdf99c5c2d97ad034921493c2fdaf0561516adac2ead9777b4f2",
-    "https://raw.githubusercontent.com/aarontravass/superfetch/faa344d57c49e0c3623a371dfb930a00c3a16aa9/types.ts": "6f4cc8eb685320002138980dd0893f5eeafe2a9725c8918f8dc21743f99e6b18"
+    "https://raw.githubusercontent.com/aarontravass/superfetch/aaron/test/mod.ts": "7bd92583f8b49e9a73bb9aa79da4bd5301d281aff3c8acf7fc34845cda79fc4b",
+    "https://raw.githubusercontent.com/aarontravass/superfetch/aaron/test/types.ts": "6f4cc8eb685320002138980dd0893f5eeafe2a9725c8918f8dc21743f99e6b18"
   }
 }

@@ -1,4 +1,4 @@
-import { path, rg } from './deps.ts'
+import { path } from './deps.ts'
 import { extendMiddleware } from './extend.ts'
 import { getRouteFromApp } from './extensions/req/route.ts'
 import { onErrorHandler } from './onError.ts'
@@ -205,10 +205,7 @@ export class App<
             : path,
         }),
       }
-    }).filter((m) => {
-      const res = m.pattern.test(url)
-      return res
-    })
+    }).filter((m) => m.pattern.test(url))
     return result
   }
   /**
@@ -219,7 +216,6 @@ export class App<
     req: Req,
     res: { _init?: ResponseInit; _body?: BodyInit },
   ) {
-    console.log("kkkkkk",req.url)
     req._urlObject = new URL(req.url)
     const exts = extendMiddleware<RenderOptions>(this as unknown as App)
     const matched = this.#find(req._urlObject).filter((x) =>
@@ -246,8 +242,6 @@ export class App<
       })
     }
     mw.push({ type: 'mw', handler: this.notFound, path: '/' })
-    console.log("mw", mw)
-
     const handle =
       (mw: Middleware<Req, Res>) =>
       async (req: Req, res: Res, next: NextFunction) => {
@@ -313,18 +307,24 @@ export class App<
    * @param Server callback after server starts listening
    * @param host server listening host
    */
-  async listen(port: number, cb?: () => void, hostname?: string) {
+  async listen(port: number, hostname?: string, cb?: () => void, ) {
     const listener = Deno.listen({ hostname, port })
-    cb?.()
+    
+    // cb?.()
+    let i = 0;
+    console.log(i)
     for await (const conn of listener) {
+      console.log("conni", i++);
       const requests = Deno.serveHttp(conn)
       for await (const { request, respondWith } of requests) {
+        console.log("requestsi", i++);
         const response = await this.handler.bind(this, request, conn)()
         if (response) {
           respondWith(response)
         }
       }
     }
+    console.log(listener.addr)
     return listener
   }
 }
