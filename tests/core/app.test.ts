@@ -728,16 +728,16 @@ describe('Subapps', () => {
       app.use(route2)
       app.use(route3)
 
-      await app.listen(3156).then(async server=>{
-        console.log(server.rid)
-        const fetch = makeFetch(server)
-        const res = await fetch('/route3')
-        res.expect('route3')
-       
-        const res_2 = await fetch('/route2')
-        res_2.expect('route2')
-      })
+     
       
+      const fetch = makeFetch(app.handler)
+      const res = await fetch('/route3')
+      res.expect('route3')
+      
+      const fetch_2 = makeFetch(app.handler)
+      const res_2 = await fetch_2('/route2')
+      res_2.expect('route2')
+    
     
   })
   it.skip('sub-app handles its own path', async () => {

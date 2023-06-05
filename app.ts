@@ -30,7 +30,7 @@ const applyHandler =
     try {
       await h(req, res, next!)
     } catch (e) {
-      console.error("e", e);
+      console.error('e', e)
       await next(e)
     }
   }
@@ -199,8 +199,9 @@ export class App<
         pattern: new URLPattern({
           pathname: m.type === 'mw'
             ? m.path === '/'
-              ? 
-              `${path.endsWith('/') ? path.slice(0, path.length - 1) : path }/([^\/]*)?` 
+              ? `${
+                path.endsWith('/') ? path.slice(0, path.length - 1) : path
+              }/([^\/]*)?`
               : '*'
             : path,
         }),
@@ -307,23 +308,21 @@ export class App<
    * @param Server callback after server starts listening
    * @param host server listening host
    */
-  async listen(port: number, hostname?: string, cb?: () => void, ) {
+  async listen(port: number, hostname?: string, cb?: (error: any) => void) {
     const listener = Deno.listen({ hostname, port })
-    
-    // cb?.()
-    let i = 0;
-    console.log(i)
-    for await (const conn of listener) {
-      console.log("conni", i++);
-      const requests = Deno.serveHttp(conn)
-      for await (const { request, respondWith } of requests) {
-        console.log("requestsi", i++);
-        const response = await this.handler.bind(this, request, conn)()
-        if (response) {
-          respondWith(response)
+
+    const denoListener = async () => {
+      for await (const conn of listener) {
+        const requests = Deno.serveHttp(conn)
+        for await (const { request, respondWith } of requests) {
+          const response = await this.handler.bind(this, request, conn)()
+          if (response) {
+            respondWith(response)
+          }
         }
       }
     }
+    await denoListener.bind(this)().catch(error => cb!(error))
     console.log(listener.addr)
     return listener
   }
