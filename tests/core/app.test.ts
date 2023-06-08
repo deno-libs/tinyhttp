@@ -716,27 +716,20 @@ describe('Subapps', () => {
     
     const app = new App()
 
-    app.get('/route1', (_, res)=> void res.end('route1'))
-
-      const route2 = new App()
-      route2.get('/route2', (_req, res) => void res.end('route2'))
-
-      const route3 = new App()
-      route3.get('/route3', (_req, res) => void res.end('route3'))
-
-     
-      app.use(route2)
-      app.use(route3)
-
-     
-      
-      const fetch = makeFetch(app.handler)
-      const res = await fetch('/route3')
-      res.expect('route3')
-      
-      const fetch_2 = makeFetch(app.handler)
-      const res_2 = await fetch_2('/route2')
-      res_2.expect('route2')
+    const route1 = new App()
+    route1.get('/route1', (_req, res) => void res.end('route1'))
+    
+    const route2 = new App()
+    route2.get('/route2', (_req, res) => void res.end('route2'))
+    
+    app.use(route1)
+    app.use(route2)
+    
+    const res1 = await makeFetch(app.handler, 8080)('/route1')
+    res1.expect('route1')
+    
+    const res2 = await makeFetch(app.handler, 8081)('/route2')
+    res2.expect('route2')
     
     
   })

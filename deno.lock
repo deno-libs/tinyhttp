@@ -133,6 +133,12 @@
     "https://esm.sh/v124/ipaddr.js@2.0.1/lib/ipaddr.js.d.ts": "0ec88999f2e6e874ad776d0c2ab262843eb481b1398691086e008b5f6f2987e6",
     "https://raw.githubusercontent.com/aarontravass/superfetch/aaron/test/deps.ts": "dd5b09bea472d8c533322836f3339332d48cd97c5c8b122ab0366933a07a8e19",
     "https://raw.githubusercontent.com/aarontravass/superfetch/aaron/test/mod.ts": "7bd92583f8b49e9a73bb9aa79da4bd5301d281aff3c8acf7fc34845cda79fc4b",
-    "https://raw.githubusercontent.com/aarontravass/superfetch/aaron/test/types.ts": "6f4cc8eb685320002138980dd0893f5eeafe2a9725c8918f8dc21743f99e6b18"
+    "https://raw.githubusercontent.com/aarontravass/superfetch/aaron/test/types.ts": "6f4cc8eb685320002138980dd0893f5eeafe2a9725c8918f8dc21743f99e6b18",
+    "https://raw.githubusercontent.com/aarontravass/superfetch/f87edea4e2ca7ec4d8c76f3072f7f69c503af32b/deps.ts": "dd5b09bea472d8c533322836f3339332d48cd97c5c8b122ab0366933a07a8e19",
+    "https://raw.githubusercontent.com/aarontravass/superfetch/f87edea4e2ca7ec4d8c76f3072f7f69c503af32b/mod.ts": "dade241a4430c8df578795fd1bc0597aeff2911655ee482b5fffd321abc8b817",
+    "https://raw.githubusercontent.com/aarontravass/superfetch/f87edea4e2ca7ec4d8c76f3072f7f69c503af32b/types.ts": "6f4cc8eb685320002138980dd0893f5eeafe2a9725c8918f8dc21743f99e6b18",
+    "https://raw.githubusercontent.com/aarontravass/superfetch/fa666a6af9e0e96ee6f4a11c8655c98b816afd43/deps.ts": "dd5b09bea472d8c533322836f3339332d48cd97c5c8b122ab0366933a07a8e19",
+    "https://raw.githubusercontent.com/aarontravass/superfetch/fa666a6af9e0e96ee6f4a11c8655c98b816afd43/mod.ts": "2b500aacf1769b4120e0fc45c32735946fa953466002819ed3457553d67fa090",
+    "https://raw.githubusercontent.com/aarontravass/superfetch/fa666a6af9e0e96ee6f4a11c8655c98b816afd43/types.ts": "6f4cc8eb685320002138980dd0893f5eeafe2a9725c8918f8dc21743f99e6b18"
   }
 }
