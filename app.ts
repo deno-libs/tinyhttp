@@ -30,7 +30,6 @@ const applyHandler =
     try {
       await h(req, res, next!)
     } catch (e) {
-      console.error("e", e);
       await next(e)
     }
   }
@@ -219,7 +218,6 @@ export class App<
     req: Req,
     res: { _init?: ResponseInit; _body?: BodyInit },
   ) {
-    console.log("kkkkkk",req.url)
     req._urlObject = new URL(req.url)
     const exts = extendMiddleware<RenderOptions>(this as unknown as App)
     const matched = this.#find(req._urlObject).filter((x) =>
@@ -246,7 +244,6 @@ export class App<
       })
     }
     mw.push({ type: 'mw', handler: this.notFound, path: '/' })
-    console.log("mw", mw)
 
     const handle =
       (mw: Middleware<Req, Res>) =>
