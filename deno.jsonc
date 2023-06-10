@@ -7,7 +7,7 @@
     "semiColons": false
   },
   "tasks": {
-    "test": "deno test --allow-net --allow-read",
+    "test": "deno test --allow-net --allow-read --coverage=coverage",
     "cov": "deno coverage coverage --lcov > coverage.lcov"
   }
   // "test": {

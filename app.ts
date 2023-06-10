@@ -1,4 +1,4 @@
-import { path, rg } from './deps.ts'
+import { path } from './deps.ts'
 import { extendMiddleware } from './extend.ts'
 import { getRouteFromApp } from './extensions/req/route.ts'
 import { onErrorHandler } from './onError.ts'
