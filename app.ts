@@ -30,7 +30,6 @@ const applyHandler =
     try {
       await h(req, res, next!)
     } catch (e) {
-      console.error('e', e)
       await next(e)
     }
   }
@@ -140,6 +139,7 @@ export class App<
     }
 
     const path = typeof base === 'string' ? base : '/'
+    
     for (const fn of fns) {
       if (fn instanceof App) {
         fn.mountpath = path
@@ -148,7 +148,6 @@ export class App<
         fn.parent = this as any
       }
     }
-
     const handlerPaths = []
     const handlerFunctions = []
     const handlerPathBase = path === '/' ? '' : lead(path)
@@ -158,7 +157,6 @@ export class App<
         for (const mw of fn.middleware) {
           handlerPaths.push(handlerPathBase + lead(mw.path!))
           handlerFunctions.push(fn)
-          mw.fullPath = handlerPathBase + (mw.path!) // hotfix
         }
       } else {
         handlerPaths.push('')
@@ -193,7 +191,7 @@ export class App<
   }
   #find(url: URL) {
     const result = this.middleware.map((m) => {
-      const path = m.fullPath! || m.path!
+      const path = m.fullPath! || (m.path!)
       return {
         ...m,
         pattern: new URLPattern({
@@ -206,7 +204,11 @@ export class App<
             : path,
         }),
       }
-    }).filter((m) => m.pattern.test(url))
+    }).filter((m) => {
+      if(m.fullPath) return m.pattern.test(url)
+      const reg =  new RegExp('/'+m.pattern.pathname.split('/').slice(1).join('\/') + '(\/.*)*')
+      return reg.test(url.pathname);
+    })
     return result
   }
   /**
@@ -215,13 +217,14 @@ export class App<
    */
   async #prepare(
     req: Req,
-    res: { _init?: ResponseInit; _body?: BodyInit },
+    res: { _init?: ResponseInit; _body?: BodyInit }
   ) {
     req._urlObject = new URL(req.url)
     const exts = extendMiddleware<RenderOptions>(this as unknown as App)
     const matched = this.#find(req._urlObject).filter((x) =>
       req.method === 'HEAD' || (x.method ? x.method === req.method : true)
     )
+    
     const mw: Middleware<Req, Res>[] = 'fresh' in req ? matched : [
       {
         handler: exts,
@@ -230,7 +233,7 @@ export class App<
       },
       ...matched,
     ]
-
+    
     if (matched[0] != null) {
       mw.push({
         type: 'mw',
@@ -247,7 +250,6 @@ export class App<
       (mw: Middleware<Req, Res>) =>
       async (req: Req, res: Res, next: NextFunction) => {
         const { handler, type, pattern } = mw
-
         const params =
           type === 'route' && pattern?.exec(req.url)?.pathname.groups || {}
 
@@ -256,27 +258,28 @@ export class App<
         if (this.settings?.enableReqRoute) {
           req.route = getRouteFromApp(this.middleware as any, handler as any)
         }
-        await applyHandler<Req, Res>(handler)(req, res, next)
+        await applyHandler(handler)(req, res, next)
       }
+    
+    try {
+      let idx = 0;
+      const next: NextFunction = async (error) => {
+        if (error) { 
+          if(error instanceof Response) throw error
+          throw await this.onError(error, req);
+        }
+        return await loop()
+      }
+      const loop = async () =>
+        idx < mw.length ? await handle(mw[idx++])(req, res as Res, next): undefined
 
-    let idx = 0, err: unknown | undefined
-    const next: NextFunction = async (error) => {
-      if (error) err = error
-      return await loop()
+      await loop()
+      return new Response(res._body, res._init) 
+    } catch (error) {
+      throw error
     }
-    const loop = async () =>
-      idx < mw.length
-        ? await handle(mw[idx++])(
-          req,
-          res as Res,
-          next,
-        )
-        : undefined
-
-    await loop()
-
-    if (err) throw err
   }
+
   handler = async (_req: Request, connInfo?: ConnInfo) => {
     const req = _req.clone() as Req
     req.conn = connInfo!
@@ -296,11 +299,11 @@ export class App<
       locals: {},
     }
     try {
-      await this.#prepare(req, res)
-    } catch (e) {
-      return await this.onError(e, req)
+      const rs = await this.#prepare(req, res);
+      return rs;
+    } catch (error) {
+      return error
     }
-    return new Response(res._body, res._init)
   }
   /**
    * Creates HTTP server and dispatches middleware
@@ -323,7 +326,6 @@ export class App<
       }
     }
     await denoListener.bind(this)().catch(error => cb!(error))
-    console.log(listener.addr)
     return listener
   }
 }
