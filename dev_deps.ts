@@ -1,4 +1,4 @@
-export { makeFetch } from 'https://raw.githubusercontent.com/deno-libs/superfetch/a42dd5ce9fdc1b598e1f22ac4caffb10ec2df4ed/mod.ts'
+export { makeFetch } from 'https://deno.land/x/superfetch@1.0.5/mod.ts'
 export {
   describe,
   expect,

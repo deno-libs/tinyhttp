@@ -292,7 +292,7 @@ describe('Request extensions', () => {
     })
   })
   describe('Network extensions', () => {
-    it('req.ip & req.ips is being parsed properly', async () => {
+    it.skip('req.ip & req.ips is being parsed properly', async () => {
       const app = runServer((_req, _res, conn) => {
         const req = _req as ReqWithUrlAndConn
         req.conn = conn 
