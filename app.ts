@@ -307,10 +307,10 @@ export class App<
   /**
    * Creates HTTP server and dispatches middleware
    * @param port server listening port
-   * @param host server listening host
    * @param Server callback after server starts listening
+   * @param host server listening host
    */
-  async listen(port: number, hostname?: string, cb?: (error: any) => void) {
+  async listen(port: number, cb?: (error: any) => void, hostname?: string) {
     const listener = Deno.listen({ hostname, port })
 
     const denoListener = async () => {
