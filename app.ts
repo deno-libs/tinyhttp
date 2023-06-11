@@ -56,12 +56,15 @@ export class App<
   notFound: Handler<Req, Res>
   attach: (req: Req, res: Res, next: NextFunction) => void
 
+  readonly #customErrorHandler: boolean;
+
   constructor(options: AppConstructor<Req, Res> = {}) {
     super()
     this.settings = options.settings || { xPoweredBy: true }
     this.middleware = []
     this.onError = options?.onError || onErrorHandler
     this.notFound = options?.noMatchHandler || notFound
+    this.#customErrorHandler = !!(options?.onError);
     this.attach = (req, res) => this.#prepare.bind(this, req, res)()
   }
   /**
@@ -139,7 +142,7 @@ export class App<
     }
 
     const path = typeof base === 'string' ? base : '/'
-    
+
     for (const fn of fns) {
       if (fn instanceof App) {
         fn.mountpath = path
@@ -205,9 +208,11 @@ export class App<
         }),
       }
     }).filter((m) => {
-      if(m.fullPath) return m.pattern.test(url)
-      const reg =  new RegExp('/'+m.pattern.pathname.split('/').slice(1).join('\/') + '(\/.*)*')
-      return reg.test(url.pathname);
+      if (m.fullPath) return m.pattern.test(url)
+      const reg = new RegExp(
+        '/' + m.pattern.pathname.split('/').slice(1).join('\/') + '(\/.*)*',
+      )
+      return reg.test(url.pathname)
     })
     return result
   }
@@ -217,14 +222,14 @@ export class App<
    */
   async #prepare(
     req: Req,
-    res: { _init?: ResponseInit; _body?: BodyInit }
+    res: { _init?: ResponseInit; _body?: BodyInit },
   ) {
     req._urlObject = new URL(req.url)
     const exts = extendMiddleware<RenderOptions>(this as unknown as App)
     const matched = this.#find(req._urlObject).filter((x) =>
       req.method === 'HEAD' || (x.method ? x.method === req.method : true)
     )
-    
+
     const mw: Middleware<Req, Res>[] = 'fresh' in req ? matched : [
       {
         handler: exts,
@@ -233,7 +238,7 @@ export class App<
       },
       ...matched,
     ]
-    
+
     if (matched[0] != null) {
       mw.push({
         type: 'mw',
@@ -260,24 +265,28 @@ export class App<
         }
         await applyHandler(handler)(req, res, next)
       }
-    
-    try {
-      let idx = 0;
-      const next: NextFunction = async (error) => {
-        if (error) { 
-          if(error instanceof Response) throw error
-          throw await this.onError(error, req);
-        }
-        return await loop()
-      }
-      const loop = async () =>
-        idx < mw.length ? await handle(mw[idx++])(req, res as Res, next): undefined
 
-      await loop()
-      return new Response(res._body, res._init) 
-    } catch (error) {
-      throw error
+    let idx = 0, err: any;
+    const next: NextFunction = async (error) => {
+      if (error) {
+        err = error
+        return
+      }
+      return await loop()
     }
+    const loop = async () =>
+      idx < mw.length
+        ? await handle(mw[idx++])(req, res as Res, next)
+        : undefined
+
+    await loop()
+
+    if(err instanceof Response) throw err;
+    else if(err) {
+      if(this.#customErrorHandler) throw await this.onError(err, req);
+      else throw err;
+    }
+    throw new Response(res._body, res._init)
   }
 
   handler = async (_req: Request, connInfo?: ConnInfo) => {
@@ -298,12 +307,15 @@ export class App<
       _body: undefined,
       locals: {},
     }
+    let err;
     try {
-      const rs = await this.#prepare(req, res);
-      return rs;
+      await this.#prepare(req, res)
     } catch (error) {
-      return error
+      err = error;
     }
+    if(err instanceof Response) return err;
+      return await this.onError(err, req);
+   
   }
   /**
    * Creates HTTP server and dispatches middleware
@@ -325,7 +337,7 @@ export class App<
         }
       }
     }
-    await denoListener.bind(this)().catch(error => cb!(error))
+    await denoListener.bind(this)().catch((error) => cb!(error))
     return listener
   }
 }
