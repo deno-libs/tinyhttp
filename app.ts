@@ -15,7 +15,7 @@ import type {
   TemplateEngineOptions,
   TemplateFunc,
 } from './types.ts'
-import {hasSetCustomErrorHandler} from './symbols.ts'
+import { hasSetCustomErrorHandler } from './symbols.ts'
 
 /**
  * Add leading slash if not present (e.g. path -> /path, /path -> /path)
@@ -55,7 +55,7 @@ export class App<
   engines: Record<string, TemplateFunc<RenderOptions>> = {}
   onError: (err: unknown, req?: Request) => Response | Promise<Response>
   notFound: Handler<Req, Res>
-  attach: (req: Req, res: Res, next: NextFunction) => void
+  attach: (req: Req, res: Res, next: NextFunction) => void;
 
   [hasSetCustomErrorHandler]: boolean
 
@@ -252,7 +252,7 @@ export class App<
       })
     }
     mw.push({ type: 'mw', handler: this.notFound, path: '/' })
-    console.log('mw', mw)
+    //console.log('mw', mw)
     const handle =
       (mw: Middleware<Req, Res>) =>
       async (req: Req, res: Res, next: NextFunction) => {
@@ -261,19 +261,18 @@ export class App<
           type === 'route' && pattern?.exec(req.url)?.pathname.groups || {}
 
         req.params = params as Record<string, string>
-
+        console.log(pattern?.exec(req.url)?.pathname.groups)
+        if(!req.path) req.path = req.url;
         if (this.settings?.enableReqRoute) {
           req.route = getRouteFromApp(this.middleware as any, handler as any)
         }
-        await applyHandler(handler)(req, res, next)
+        await applyHandler<Req, Res>(handler)(req, res, next)
       }
 
-    let idx = 0, err: any = null;
+    let idx = 0, err: any = null
     const next: NextFunction = async (error) => {
       if (error) {
-        err = error
-        console.error(err, !!this.parent)
-        return
+        err = error        
       }
       return await loop()
     }
