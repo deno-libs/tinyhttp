@@ -15,6 +15,7 @@ import type {
   TemplateEngineOptions,
   TemplateFunc,
 } from './types.ts'
+import {hasSetCustomErrorHandler} from './symbols.ts'
 
 /**
  * Add leading slash if not present (e.g. path -> /path, /path -> /path)
@@ -56,7 +57,7 @@ export class App<
   notFound: Handler<Req, Res>
   attach: (req: Req, res: Res, next: NextFunction) => void
 
-  readonly #customErrorHandler: boolean;
+  [hasSetCustomErrorHandler]: boolean
 
   constructor(options: AppConstructor<Req, Res> = {}) {
     super()
@@ -64,7 +65,7 @@ export class App<
     this.middleware = []
     this.onError = options?.onError || onErrorHandler
     this.notFound = options?.noMatchHandler || notFound
-    this.#customErrorHandler = !!(options?.onError);
+    this[hasSetCustomErrorHandler] = !!(options?.onError)
     this.attach = (req, res) => this.#prepare.bind(this, req, res)()
   }
   /**
@@ -251,6 +252,7 @@ export class App<
       })
     }
     mw.push({ type: 'mw', handler: this.notFound, path: '/' })
+    console.log('mw', mw)
     const handle =
       (mw: Middleware<Req, Res>) =>
       async (req: Req, res: Res, next: NextFunction) => {
@@ -266,10 +268,11 @@ export class App<
         await applyHandler(handler)(req, res, next)
       }
 
-    let idx = 0, err: any;
+    let idx = 0, err: any = null;
     const next: NextFunction = async (error) => {
       if (error) {
         err = error
+        console.error(err, !!this.parent)
         return
       }
       return await loop()
@@ -281,11 +284,12 @@ export class App<
 
     await loop()
 
-    if(err instanceof Response) throw err;
-    else if(err) {
-      if(this.#customErrorHandler) throw await this.onError(err, req);
-      else throw err;
+    if (err instanceof Response) throw err
+    else if (err) {
+      if (this[hasSetCustomErrorHandler]) throw await this.onError(err, req)
+      else throw err
     }
+    //console.log(res._body?.toString())
     throw new Response(res._body, res._init)
   }
 
@@ -307,15 +311,14 @@ export class App<
       _body: undefined,
       locals: {},
     }
-    let err;
+    let err
     try {
       await this.#prepare(req, res)
     } catch (error) {
-      err = error;
+      err = error
     }
-    if(err instanceof Response) return err;
-      return await this.onError(err, req);
-   
+    if (err instanceof Response) return err
+    return await this.onError(err, req)
   }
   /**
    * Creates HTTP server and dispatches middleware
