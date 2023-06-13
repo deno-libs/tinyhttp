@@ -202,17 +202,15 @@ export class App<
         ...m,
         pattern: new URLPattern({
           pathname: m.type === 'mw'
-            ? m.path !== '/'
-              ? `${pathJoin(true, false, this.mountpath, urlPath)}/([^\/]*)?`
+            ? m.path === '/'
+              ? `${pathJoin(true, true, urlPath)}([^\/]*)?`
               : '*'
             : pathJoin(true, urlPath === '/', this.mountpath, urlPath),
         }),
       }
     }).filter((m) => {
-      //console.log(m.pattern, url, m.pattern.test(url))
       return m.pattern.test(url)
     })
-    //console.log(this.middleware)
     return result
   }
   /**
@@ -259,7 +257,6 @@ export class App<
           type === 'route' && pattern?.exec(req.url)?.pathname.groups || {}
 
         req.params = params as Record<string, string>
-        console.log(req.url, mw, !!this.parent)
         if (!req.path) req.path = req._urlObject.pathname
         if (this.settings?.enableReqRoute) {
           req.route = getRouteFromApp(this.middleware as any, handler as any)
@@ -286,7 +283,6 @@ export class App<
       if (this[hasSetCustomErrorHandler]) throw await this.onError(err, req)
       else throw err
     }
-    //console.log(res._body?.toString())
     throw new Response(res._body, res._init)
   }
 

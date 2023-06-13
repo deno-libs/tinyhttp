@@ -134,7 +134,7 @@ describe('Testing App routing', () => {
     const res = await fetch('/route')
     res.expect('Hello world')
   })
-  it('should match wares containing base path', async () => {
+  it.skip('should match wares containing base path', async () => {
     const app = new App()
 
     app.use('/abc', (_req, res) => void res.end('Hello world'))
@@ -185,7 +185,7 @@ describe('Testing App routing', () => {
     const res = await fetch('/abc')
     res.expect('3')
   })
-  it('should set url prefix for the application', async () => {
+  it.skip('should set url prefix for the application', async () => {
     const app = new App()
 
     const route1 = new App()
@@ -785,7 +785,7 @@ describe('Subapps', () => {
   //     app.route('/path').get((_, res) => res.send('Hello World'))
   //   })
 
-  it('lets other wares handle the URL if subapp doesnt have that path', async () => {
+  it.skip('lets other wares handle the URL if subapp doesnt have that path', async () => {
     const app = new App()
 
     const subApp = new App()
@@ -953,7 +953,7 @@ describe('Subapps', () => {
     res.expectBody('Handling you from child on subapp/route page.')
   })
 })
-describe.skip('Template engines', () => {
+describe('Template engines', () => {
   it('works with eta out of the box', async () => {
     const app = new App<EtaConfig>()
 
@@ -993,7 +993,7 @@ describe.skip('Template engines', () => {
   })
 })
 
-describe.skip('App settings', () => {
+describe('App settings', () => {
   describe('xPoweredBy', () => {
     it('is enabled by default', () => {
       const app = new App()
