@@ -58,6 +58,7 @@ export class App<
   notFound: Handler<Req, Res>
   attach: (req: Req, res: Res, next: NextFunction) => void
 
+  // this symbol tells if a custom error handler has been set
   private readonly [hasSetCustomErrorHandler]: boolean
 
   constructor(options: AppConstructor<Req, Res> = {}) {
@@ -201,19 +202,17 @@ export class App<
         ...m,
         pattern: new URLPattern({
           pathname: m.type === 'mw'
-            ? m.path === '/'
-              ? `${
-                urlPath.endsWith('/')
-                  ? urlPath.slice(0, urlPath.length - 1)
-                  : urlPath
-              }/([^\/]*)?`
+            ? m.path !== '/'
+              ? `${pathJoin(true, false, this.mountpath, urlPath)}/([^\/]*)?`
               : '*'
             : pathJoin(true, urlPath === '/', this.mountpath, urlPath),
         }),
       }
     }).filter((m) => {
+      //console.log(m.pattern, url, m.pattern.test(url))
       return m.pattern.test(url)
     })
+    //console.log(this.middleware)
     return result
   }
   /**
@@ -251,6 +250,7 @@ export class App<
       })
     }
     mw.push({ type: 'mw', handler: this.notFound, path: '/' })
+    
     const handle =
       (mw: Middleware<Req, Res>) =>
       async (req: Req, res: Res, next: NextFunction) => {
@@ -259,7 +259,8 @@ export class App<
           type === 'route' && pattern?.exec(req.url)?.pathname.groups || {}
 
         req.params = params as Record<string, string>
-        if (!req.path) req.path = req.url
+        console.log(req.url, mw, !!this.parent)
+        if (!req.path) req.path = req._urlObject.pathname
         if (this.settings?.enableReqRoute) {
           req.route = getRouteFromApp(this.middleware as any, handler as any)
         }

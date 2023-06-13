@@ -1,0 +1,1 @@
+console.log((new URLPattern({pathname:"/route1"})).test("http://localhost:1748/route1"))

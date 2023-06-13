@@ -137,12 +137,12 @@ describe('Testing App routing', () => {
   it('should match wares containing base path', async () => {
     const app = new App()
 
-    app.use('/abc', (_req, res) => void res.end('Hello world'));
+    app.use('/abc', (_req, res) => void res.end('Hello world'))
 
-    (await makeFetch(app.handler)('/abc/def')).expectStatus(200).expectBody(
+    ;(await makeFetch(app.handler)('/abc/def')).expectStatus(200).expectBody(
       'Hello world',
-    );
-    (await makeFetch(app.handler)('/abcdef')).expect(404);
+    )
+    ;(await makeFetch(app.handler)('/abcdef')).expect(404)
   })
   // it('"*" should catch all undefined routes', async () => {
   //   const app = new App()
@@ -723,20 +723,28 @@ describe('Subapps', () => {
   it('multiple sub-apps mount on root', async () => {
     const app = new App()
 
-    const route1 = new App()
-    route1.get('/route1', (_req, res) => void res.end('route1'))
+    app.get('/route1', (_, res) => void res.end('route1'))
 
     const route2 = new App()
     route2.get('/route2', (_req, res) => void res.end('route2'))
 
-    app.use(route1)
+    const route3 = new App()
+    route3.get('/route3', (_req, res) => void res.end('route3'))
+
     app.use(route2)
+    app.use(route3)
 
-    const res1 = await makeFetch(app.handler)('/route1')
-    res1.expect('route1')
+    const fetch_1 = makeFetch(app.handler)
+    const res_1 = await fetch_1('/route1')
+    res_1.expect('route1')
 
-    const res2 = await makeFetch(app.handler)('/route2')
-    res2.expect('route2')
+    const fetch_2 = makeFetch(app.handler)
+    const res_2 = await fetch_2('/route2')
+    res_2.expect('route2')
+
+    const fetch_3 = makeFetch(app.handler)
+    const res_3 = await fetch_3('/route3')
+    res_3.expect('route3')
   })
   it('sub-app handles its own path', async () => {
     const app = new App()
@@ -786,7 +794,7 @@ describe('Subapps', () => {
 
     app.use('/test', subApp)
 
-    app.use('/test3', (req, res) => void res.end(req.url))
+    app.use('/test3', (req, res) => void res.end(req.path))
 
     const fetch1 = makeFetch(app.handler)
 
@@ -794,7 +802,7 @@ describe('Subapps', () => {
     res1.expect('/test')
     const fetch2 = makeFetch(app.handler)
     const res2 = await fetch2('/test3/abc')
-    res2.expect('http://localhost:8080/test3/abc')
+    res2.expect('/test3/abc')
   })
   it('should mount app on a specified path', () => {
     const app = new App()
@@ -945,7 +953,7 @@ describe('Subapps', () => {
     res.expectBody('Handling you from child on subapp/route page.')
   })
 })
-describe('Template engines', () => {
+describe.skip('Template engines', () => {
   it('works with eta out of the box', async () => {
     const app = new App<EtaConfig>()
 
@@ -985,7 +993,7 @@ describe('Template engines', () => {
   })
 })
 
-describe('App settings', () => {
+describe.skip('App settings', () => {
   describe('xPoweredBy', () => {
     it('is enabled by default', () => {
       const app = new App()

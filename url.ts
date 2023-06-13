@@ -23,7 +23,9 @@ const pathJoin = (padLeft: boolean, padRight: boolean, ...path: string[]) => {
   })
   let finalString = pathArray.join('/')
 
-  if (padLeft && finalString.charCodeAt(0) !== 47) finalString = '/' + finalString
+  if (padLeft && finalString.charCodeAt(0) !== 47) {
+    finalString = '/' + finalString
+  }
   if (padRight && finalString.charCodeAt(finalString.length - 1) !== 47) {
     finalString += '/'
   }
