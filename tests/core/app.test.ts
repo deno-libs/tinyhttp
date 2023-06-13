@@ -138,7 +138,6 @@ describe('Testing App routing', () => {
     const app = new App()
 
     app.use('/abc', (_req, res) => void res.end('Hello world'))
-
     ;(await makeFetch(app.handler)('/abc/def')).expectStatus(200).expectBody(
       'Hello world',
     )
@@ -223,22 +222,18 @@ describe('next(err)', () => {
     res.expect(200).expectBody({ log: '/' })
   })
   it('next function handles errors', async () => {
-    try {
-      const app = new App()
+    const app = new App()
 
-      app.use((req, res, next) => {
-        if (req.path === '/broken') {
-          next('Your appearance destroyed this world.')
-        } else {
-          res.end('Welcome back')
-        }
-      })
-      const fetch = makeFetch(app.handler)
-      const res = await fetch('/broken')
-      res.expectStatus(500).expectBody('Your appearance destroyed this world.')
-    } catch (error) {
-      console.error(error)
-    }
+    app.use((req, res, next) => {
+      if (req.path === '/broken') {
+        next('Your appearance destroyed this world.')
+      } else {
+        res.end('Welcome back')
+      }
+    })
+    const fetch = makeFetch(app.handler)
+    const res = await fetch('/broken')
+    res.expectStatus(500).expectBody('Your appearance destroyed this world.')
   })
   it('next function sends error message if it\'s not an HTTP status code or string', async () => {
     const app = new App()
