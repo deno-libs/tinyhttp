@@ -16,6 +16,7 @@ import type {
   TemplateFunc,
 } from './types.ts'
 import { hasSetCustomErrorHandler } from './symbols.ts'
+import { pathJoin } from './url.ts'
 
 /**
  * Add leading slash if not present (e.g. path -> /path, /path -> /path)
@@ -55,9 +56,9 @@ export class App<
   engines: Record<string, TemplateFunc<RenderOptions>> = {}
   onError: (err: unknown, req?: Request) => Response | Promise<Response>
   notFound: Handler<Req, Res>
-  attach: (req: Req, res: Res, next: NextFunction) => void;
+  attach: (req: Req, res: Res, next: NextFunction) => void
 
-  [hasSetCustomErrorHandler]: boolean
+  private readonly [hasSetCustomErrorHandler]: boolean
 
   constructor(options: AppConstructor<Req, Res> = {}) {
     super()
@@ -195,25 +196,23 @@ export class App<
   }
   #find(url: URL) {
     const result = this.middleware.map((m) => {
-      const path = m.fullPath! || (m.path!)
+      const urlPath = m.fullPath! || (m.path!)
       return {
         ...m,
         pattern: new URLPattern({
           pathname: m.type === 'mw'
             ? m.path === '/'
               ? `${
-                path.endsWith('/') ? path.slice(0, path.length - 1) : path
+                urlPath.endsWith('/')
+                  ? urlPath.slice(0, urlPath.length - 1)
+                  : urlPath
               }/([^\/]*)?`
               : '*'
-            : path,
+            : pathJoin(true, urlPath === '/', this.mountpath, urlPath),
         }),
       }
     }).filter((m) => {
-      if (m.fullPath) return m.pattern.test(url)
-      const reg = new RegExp(
-        '/' + m.pattern.pathname.split('/').slice(1).join('\/') + '(\/.*)*',
-      )
-      return reg.test(url.pathname)
+      return m.pattern.test(url)
     })
     return result
   }
@@ -252,7 +251,6 @@ export class App<
       })
     }
     mw.push({ type: 'mw', handler: this.notFound, path: '/' })
-    //console.log('mw', mw)
     const handle =
       (mw: Middleware<Req, Res>) =>
       async (req: Req, res: Res, next: NextFunction) => {
@@ -261,8 +259,7 @@ export class App<
           type === 'route' && pattern?.exec(req.url)?.pathname.groups || {}
 
         req.params = params as Record<string, string>
-        console.log(pattern?.exec(req.url)?.pathname.groups)
-        if(!req.path) req.path = req.url;
+        if (!req.path) req.path = req.url
         if (this.settings?.enableReqRoute) {
           req.route = getRouteFromApp(this.middleware as any, handler as any)
         }
@@ -272,7 +269,7 @@ export class App<
     let idx = 0, err: any = null
     const next: NextFunction = async (error) => {
       if (error) {
-        err = error        
+        err = error
       }
       return await loop()
     }

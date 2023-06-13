@@ -13,7 +13,7 @@ import { initAppAndTest } from '../util.test.ts'
 
 const decoder = new TextDecoder()
 
-describe.skip('Testing App', () => {
+describe('Testing App', () => {
   it('should launch a basic server', async () => {
     const { fetch } = initAppAndTest((_req, res) => void res.end('Hello World'))
     const res = await fetch('/')
@@ -104,7 +104,7 @@ describe.skip('Testing App', () => {
   })
 })
 
-describe.skip('Testing App routing', () => {
+describe('Testing App routing', () => {
   it('should add routes added before app.use', async () => {
     const app = new App()
 
@@ -137,12 +137,12 @@ describe.skip('Testing App routing', () => {
   it('should match wares containing base path', async () => {
     const app = new App()
 
-    app.use('/abc', (_req, res) => void res.end('Hello world'))
+    app.use('/abc', (_req, res) => void res.end('Hello world'));
 
-    ;(await makeFetch(app.handler)('/abc/def')).expectStatus(200).expectBody(
+    (await makeFetch(app.handler)('/abc/def')).expectStatus(200).expectBody(
       'Hello world',
-    )
-    ;(await makeFetch(app.handler)('/abcdef')).expect(404)
+    );
+    (await makeFetch(app.handler)('/abcdef')).expect(404);
   })
   // it('"*" should catch all undefined routes', async () => {
   //   const app = new App()
@@ -206,7 +206,7 @@ describe.skip('Testing App routing', () => {
     res2.expect('route2')
   })
 })
-describe.skip('next(err)', () => {
+describe('next(err)', () => {
   it('next function skips current middleware', async () => {
     const app = new App()
 
@@ -283,7 +283,7 @@ describe.skip('next(err)', () => {
   })
 })
 
-describe.skip('App methods', () => {
+describe('App methods', () => {
   it('`app.set` sets a setting', () => {
     const app = new App().set('subdomainOffset', 1)
 
@@ -339,7 +339,7 @@ describe.skip('App methods', () => {
   })
 })
 
-describe.skip('HTTP methods', () => {
+describe('HTTP methods', () => {
   it('app.get handles get request', async () => {
     const app = new App()
 
@@ -568,7 +568,7 @@ describe.skip('HTTP methods', () => {
   })
 })
 
-describe.skip('Route handlers', () => {
+describe('Route handlers', () => {
   it('router accepts array of middlewares', async () => {
     const app = new App()
 
@@ -698,7 +698,7 @@ describe.skip('Route handlers', () => {
 })
 
 describe('Subapps', () => {
-  it.skip('sub-app mounts on a specific path', () => {
+  it('sub-app mounts on a specific path', () => {
     const app = new App()
 
     const subApp = new App()
@@ -707,7 +707,7 @@ describe('Subapps', () => {
 
     expect(subApp.mountpath).toBe('/subapp')
   })
-  it.skip('sub-app mounts on root', async () => {
+  it('sub-app mounts on root', async () => {
     const app = new App()
 
     const subApp = new App()
@@ -720,7 +720,7 @@ describe('Subapps', () => {
     const res = await fetch('/')
     res.expect('Hello World!')
   })
-  it.skip('multiple sub-apps mount on root', async () => {
+  it('multiple sub-apps mount on root', async () => {
     const app = new App()
 
     const route1 = new App()
@@ -738,7 +738,7 @@ describe('Subapps', () => {
     const res2 = await makeFetch(app.handler)('/route2')
     res2.expect('route2')
   })
-  it.skip('sub-app handles its own path', async () => {
+  it('sub-app handles its own path', async () => {
     const app = new App()
 
     const subApp = new App()
@@ -752,7 +752,7 @@ describe('Subapps', () => {
     const res = await fetch('/subapp')
     res.expect('Hello World!')
   })
-  it.skip('sub-app paths get prefixed with the mount path', async () => {
+  it('sub-app paths get prefixed with the mount path', async () => {
     const app = new App()
 
     const subApp = new App()
@@ -777,7 +777,7 @@ describe('Subapps', () => {
   //     app.route('/path').get((_, res) => res.send('Hello World'))
   //   })
 
-  it.skip('lets other wares handle the URL if subapp doesnt have that path', async () => {
+  it('lets other wares handle the URL if subapp doesnt have that path', async () => {
     const app = new App()
 
     const subApp = new App()
@@ -796,7 +796,7 @@ describe('Subapps', () => {
     const res2 = await fetch2('/test3/abc')
     res2.expect('http://localhost:8080/test3/abc')
   })
-  it.skip('should mount app on a specified path', () => {
+  it('should mount app on a specified path', () => {
     const app = new App()
 
     const subapp = new App()
@@ -805,7 +805,7 @@ describe('Subapps', () => {
 
     expect(subapp.mountpath).toBe('/subapp')
   })
-  it.skip('should mount on "/" if path is not specified', () => {
+  it('should mount on "/" if path is not specified', () => {
     const app = new App()
 
     const subapp = new App()
@@ -814,7 +814,7 @@ describe('Subapps', () => {
 
     expect(subapp.mountpath).toBe('/')
   })
-  it.skip('app.parent should reference to the app it was mounted on', () => {
+  it('app.parent should reference to the app it was mounted on', () => {
     const app = new App()
 
     const subapp = new App()
@@ -823,7 +823,7 @@ describe('Subapps', () => {
 
     expect(subapp.parent).toBe(app)
   })
-  it.skip('app.path() should return the mountpath', () => {
+  it('app.path() should return the mountpath', () => {
     const app = new App()
 
     const subapp = new App()
@@ -832,7 +832,7 @@ describe('Subapps', () => {
 
     expect(subapp.path()).toBe('/subapp')
   })
-  it.skip('app.path() should nest mountpaths', () => {
+  it('app.path() should nest mountpaths', () => {
     const app = new App()
 
     const subapp = new App()
@@ -845,7 +845,7 @@ describe('Subapps', () => {
 
     expect(subsubapp.path()).toBe('/blog/admin')
   })
-  it.skip('middlewares of a subapp should preserve the path', () => {
+  it('middlewares of a subapp should preserve the path', () => {
     const app = new App()
 
     const subapp = new App()
@@ -883,7 +883,7 @@ describe('Subapps', () => {
     const res = await fetch('/users/123/route')
     res.expect('123')
   })
-  it.skip('handles errors by parent when no onError specified', async () => {
+  it('handles errors by parent when no onError specified', async () => {
     const app = new App({
       onError: (err, req) =>
         new Response(
@@ -909,7 +909,7 @@ describe('Subapps', () => {
       'Ouch, you hurt me on subapp/route page.',
     )
   })
-  it.skip('handles errors in subapp when onError is defined', async () => {
+  it('handles errors in subapp when onError is defined', async () => {
     const app = new App({
       onError: (err, req) =>
         new Response(
@@ -945,7 +945,7 @@ describe('Subapps', () => {
     res.expectBody('Handling you from child on subapp/route page.')
   })
 })
-describe.skip('Template engines', () => {
+describe('Template engines', () => {
   it('works with eta out of the box', async () => {
     const app = new App<EtaConfig>()
 
@@ -985,7 +985,7 @@ describe.skip('Template engines', () => {
   })
 })
 
-describe.skip('App settings', () => {
+describe('App settings', () => {
   describe('xPoweredBy', () => {
     it('is enabled by default', () => {
       const app = new App()
