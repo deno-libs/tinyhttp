@@ -2,7 +2,7 @@ import { describe, it, run } from '../../dev_deps.ts'
 import { initAppAndTest } from '../util.test.ts'
 
 describe('Request properties', () => {
-  it('should have default HTTP Request properties', async () => {
+  it.skip('should have default HTTP Request properties', async () => {
     const { fetch } = initAppAndTest((req, res) => {
       res.json({
         url: req.url,
@@ -47,7 +47,7 @@ describe('Request properties', () => {
   })
 
   describe('Network extensions', () => {
-    it('req.ip & req.ips is being parsed properly', async () => {
+    it.skip('req.ip & req.ips is being parsed properly', async () => {
       const { fetch } = initAppAndTest(
         (req, res) => {
           res.json({

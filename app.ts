@@ -202,9 +202,7 @@ export class App<
         ...m,
         pattern: new URLPattern({
           pathname: m.type === 'mw'
-            ? m.path === '/'
-              ? `${pathJoin(true, true, urlPath)}([^\/]*)?`
-              : '*'
+            ? m.path === '/' ? `${pathJoin(true, true, urlPath)}([^\/]*)?` : '*'
             : pathJoin(true, urlPath === '/', this.mountpath, urlPath),
         }),
       }
