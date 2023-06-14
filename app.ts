@@ -261,7 +261,7 @@ export class App<
         await applyHandler<Req, Res>(handler)(req, res, next)
       }
 
-    let idx = 0, err: any = null
+    let idx = 0, err: unknown | undefined = null
     const next: NextFunction = async (error) => {
       if (error) {
         err = error
