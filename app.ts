@@ -248,7 +248,6 @@ export class App<
       })
     }
     mw.push({ type: 'mw', handler: this.notFound, path: '/' })
-    
     const handle =
       (mw: Middleware<Req, Res>) =>
       async (req: Req, res: Res, next: NextFunction) => {
@@ -319,21 +318,18 @@ export class App<
    * @param Server callback after server starts listening
    * @param host server listening host
    */
-  async listen(port: number, cb?: (error: any) => void, hostname?: string) {
+  async listen(port: number, cb?: () => void, hostname?: string) {
     const listener = Deno.listen({ hostname, port })
+    cb?.()
 
-    const denoListener = async () => {
-      for await (const conn of listener) {
-        const requests = Deno.serveHttp(conn)
-        for await (const { request, respondWith } of requests) {
-          const response = await this.handler.bind(this, request, conn)()
-          if (response) {
-            respondWith(response)
-          }
+    for await (const conn of listener) {
+      const requests = Deno.serveHttp(conn)
+      for await (const { request, respondWith } of requests) {
+        const response = await this.handler.bind(this, request, conn)()
+        if (response) {
+          respondWith(response)
         }
       }
     }
-    await denoListener.bind(this)().catch((error) => cb!(error))
-    return listener
   }
 }
