@@ -205,8 +205,7 @@ export class App<
         }),
       }
     }).filter((m) => {
-      const res = m.pattern.test(url)
-      return res
+      return m.pattern.test(url)
     })
     return result
   }
@@ -310,7 +309,7 @@ export class App<
    * @param Server callback after server starts listening
    * @param host server listening host
    */
-  async listen(port: number, cb?: (error: any) => void, hostname?: string) {
+  async listen(port: number, cb?: () => void, hostname?: string) {
     const listener = Deno.listen({ hostname, port })
 
     const denoListener = async () => {
@@ -324,7 +323,7 @@ export class App<
         }
       }
     }
-    await denoListener.bind(this)().catch(error => cb!(error))
+    await denoListener.bind(this)()
     return listener
   }
 }
