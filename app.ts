@@ -198,8 +198,9 @@ export class App<
         pattern: new URLPattern({
           pathname: m.type === 'mw'
             ? m.path === '/'
-              ? 
-              `${path.endsWith('/') ? path.slice(0, path.length - 1) : path }/([^\/]*)?` 
+              ? `${
+                path.endsWith('/') ? path.slice(0, path.length - 1) : path
+              }/([^\/]*)?`
               : '*'
             : path,
         }),
@@ -311,19 +312,16 @@ export class App<
    */
   async listen(port: number, cb?: () => void, hostname?: string) {
     const listener = Deno.listen({ hostname, port })
+    cb?.()
 
-    const denoListener = async () => {
-      for await (const conn of listener) {
-        const requests = Deno.serveHttp(conn)
-        for await (const { request, respondWith } of requests) {
-          const response = await this.handler.bind(this, request, conn)()
-          if (response) {
-            respondWith(response)
-          }
+    for await (const conn of listener) {
+      const requests = Deno.serveHttp(conn)
+      for await (const { request, respondWith } of requests) {
+        const response = await this.handler.bind(this, request, conn)()
+        if (response) {
+          respondWith(response)
         }
       }
     }
-    await denoListener.bind(this)()
-    return listener
   }
 }

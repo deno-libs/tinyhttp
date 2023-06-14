@@ -5,19 +5,19 @@ import {
   getAcceptsEncodings,
   getAcceptsLanguages,
   getFreshOrStale,
+  getHostname,
   getIP,
   getIPs,
+  getProtocol,
   getRangeFromHeader,
   getRequestHeader,
+  getSubdomains,
   reqIs,
-  getProtocol,
-  getHostname,
-getSubdomains,
 } from '../../extensions/req/mod.ts'
 import type { DummyResponse } from '../../response.ts'
 import { runServer } from '../util.test.ts'
 import { setHeader } from '../../extensions/res/headers.ts'
-import { ReqWithUrlAndConn } from "../../request.ts";
+import { ReqWithUrlAndConn } from '../../request.ts'
 
 describe('Request extensions', () => {
   describe('req.get(header)', () => {
@@ -295,7 +295,7 @@ describe('Request extensions', () => {
     it.skip('req.ip & req.ips is being parsed properly', async () => {
       const app = runServer((_req, _res, conn) => {
         const req = _req as ReqWithUrlAndConn
-        req.conn = conn 
+        req.conn = conn
         req._urlObject = new URL(req.url)
         const ip = getIP(req)
         const ips = getIPs(req)
@@ -310,9 +310,9 @@ describe('Request extensions', () => {
     it('req.protocol is http by default', async () => {
       const app = runServer((_req, _res, conn) => {
         const req = _req as ReqWithUrlAndConn
-        req.conn = conn 
+        req.conn = conn
         req._urlObject = new URL(req.url)
-        
+
         expect(getProtocol(req)).toEqual('http')
         return new Response(null)
       })
@@ -323,9 +323,9 @@ describe('Request extensions', () => {
     it('req.hostname is defined', async () => {
       const app = runServer((_req, _res, conn) => {
         const req = _req as ReqWithUrlAndConn
-        req.conn = conn 
+        req.conn = conn
         req._urlObject = new URL(req.url)
-        
+
         expect(getHostname(req)).toEqual('localhost')
         return new Response(null)
       })
@@ -336,9 +336,9 @@ describe('Request extensions', () => {
     it('req.subdomains is empty by default', async () => {
       const app = runServer((_req, _res, conn) => {
         const req = _req as ReqWithUrlAndConn
-        req.conn = conn 
+        req.conn = conn
         req._urlObject = new URL(req.url)
-        
+
         expect(getSubdomains(req)).toEqual([])
         return new Response(null)
       })

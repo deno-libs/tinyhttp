@@ -20,7 +20,9 @@ export const getProtocol = <Req extends ReqWithUrlAndConn = ReqWithUrlAndConn>(
   return req._urlObject.protocol?.includes('https') ? 'https' : 'http'
 }
 
-export const getHostname = <Req extends ReqWithUrlAndConn = ReqWithUrlAndConn>(req: Req): string | undefined => {
+export const getHostname = <Req extends ReqWithUrlAndConn = ReqWithUrlAndConn>(
+  req: Req,
+): string | undefined => {
   let host: string = req.headers.get('X-Forwarded-Host') as string
 
   if (!host || !trustRemoteAddress(req.conn)) {
@@ -42,7 +44,9 @@ export const getIPs = <Req extends ReqWithUrlAndConn = ReqWithUrlAndConn>(
   req: Req,
 ): string[] => all(req, trustRemoteAddress(req.conn))
 
-export const getSubdomains = <Req extends ReqWithUrlAndConn = ReqWithUrlAndConn>(
+export const getSubdomains = <
+  Req extends ReqWithUrlAndConn = ReqWithUrlAndConn,
+>(
   req: Req,
   subdomainOffset = 2,
 ): string[] => {

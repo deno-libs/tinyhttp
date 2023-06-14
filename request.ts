@@ -3,7 +3,8 @@ import type { CookieMap, RangesSpecifier } from './deps.ts'
 import type { ConnInfo, Middleware, Protocol } from './types.ts'
 
 export interface ReqWithUrlAndConn extends Request {
-  conn: ConnInfo; _urlObject: URL
+  conn: ConnInfo
+  _urlObject: URL
 }
 
 export interface THRequest extends ReqWithUrlAndConn {
