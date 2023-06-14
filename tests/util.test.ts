@@ -3,7 +3,7 @@ import type { ReqWithUrlAndConn, THRequest } from '../request.ts'
 import type { DummyResponse, THResponse } from '../response.ts'
 import type { AppConstructor, Handler } from '../types.ts'
 import { makeFetch } from '../dev_deps.ts'
-import { ConnInfo } from "https://deno.land/x/superfetch@1.0.4/types.ts";
+import { ConnInfo } from 'https://deno.land/x/superfetch@1.0.4/types.ts'
 export const supertest = (app: App) => {
   const fetch = makeFetch((req, conn) => app.handler(req, conn))
 
@@ -27,7 +27,7 @@ export const runServer = (
   fn: (
     req: Request,
     res: DummyResponse,
-    conn: ConnInfo
+    conn: ConnInfo,
   ) => Response | Promise<Response>,
 ) => {
   const res: DummyResponse = {

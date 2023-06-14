@@ -707,28 +707,24 @@ describe('Subapps', () => {
     subApp.use((_, res) => void res.end('Hello World!'))
 
     app.use(subApp)
-    const fetch = makeFetch(app.handler)
-
-    const res = await fetch('/')
-    res.expect('Hello World!')
+    ;(await makeFetch(app.handler)('/')).expect('Hello World!')
   })
-  it.skip('multiple sub-apps mount on root', async () => {
+  it('multiple sub-apps mount on root', async () => {
     const app = new App()
 
-    const route1 = new App()
-    route1.get('/route1', (_req, res) => void res.end('route1'))
+    app.get('/route1', (_, res) => void res.end('route1'))
 
     const route2 = new App()
     route2.get('/route2', (_req, res) => void res.end('route2'))
 
-    app.use(route1)
+    const route3 = new App()
+    route3.get('/route3', (_req, res) => void res.end('route3'))
+
     app.use(route2)
-
-    const res1 = await makeFetch(app.handler)('/route1')
-    res1.expect('route1')
-
-    const res2 = await makeFetch(app.handler)('/route2')
-    res2.expect('route2')
+    app.use(route3)
+    ;(await makeFetch(app.handler)('/route1')).expect('route1')
+    ;(await makeFetch(app.handler)('/route2')).expect('route2')
+    ;(await makeFetch(app.handler)('/route3')).expect('route3')
   })
   it('sub-app handles its own path', async () => {
     const app = new App()
@@ -738,11 +734,7 @@ describe('Subapps', () => {
     subApp.use((_, res) => void res.end('Hello World!'))
 
     app.use('/subapp', subApp)
-
-    const fetch = makeFetch(app.handler)
-
-    const res = await fetch('/subapp')
-    res.expect('Hello World!')
+    ;(await makeFetch(app.handler)('/subapp')).expect('Hello World!')
   })
   it('sub-app paths get prefixed with the mount path', async () => {
     const app = new App()
@@ -755,13 +747,9 @@ describe('Subapps', () => {
     )
 
     app.use('/subapp', subApp)
-
-    const server = app.handler
-
-    const fetch = makeFetch(server)
-
-    const res = await fetch('/subapp/route')
-    res.expect('Hello from /subapp')
+    ;(await makeFetch(app.handler)('/subapp/route')).expect(
+      'Hello from /subapp',
+    )
   })
   //   it('sub-app gets mounted via `app.route`', async () => {
   //     const app = new App()
@@ -779,14 +767,10 @@ describe('Subapps', () => {
     app.use('/test', subApp)
 
     app.use('/test3', (req, res) => void res.end(req.url))
-
-    const fetch1 = makeFetch(app.handler)
-
-    const res1 = await fetch1('/test/route')
-    res1.expect('/test')
-    const fetch2 = makeFetch(app.handler)
-    const res2 = await fetch2('/test3/abc')
-    res2.expect('http://localhost:8080/test3/abc')
+    ;(await makeFetch(app.handler)('/test/route')).expect('/test')
+    ;(await makeFetch(app.handler)('/test3/abc')).expect(
+      'http://localhost:8080/test3/abc',
+    )
   })
 
   //   it('should mount app on a specified path', () => {
@@ -825,19 +809,19 @@ describe('Subapps', () => {
 
     expect(subapp.path()).toBe('/subapp')
   })
-    it('app.path() should nest mountpaths', () => {
-      const app = new App()
+  it('app.path() should nest mountpaths', () => {
+    const app = new App()
 
-      const subapp = new App()
+    const subapp = new App()
 
-      const subsubapp = new App()
+    const subsubapp = new App()
 
-      subapp.use('/admin', subsubapp)
+    subapp.use('/admin', subsubapp)
 
-      app.use('/blog', subapp)
+    app.use('/blog', subapp)
 
-      expect(subsubapp.path()).toBe('/blog/admin')
-    })
+    expect(subsubapp.path()).toBe('/blog/admin')
+  })
   it('middlewares of a subapp should preserve the path', () => {
     const app = new App()
 
@@ -857,11 +841,7 @@ describe('Subapps', () => {
     subApp.get('/', (req, res) => void res.end(req.params.userID))
 
     app.use('/users/:userID', subApp)
-
-    const fetch = makeFetch(app.handler)
-
-    const res = await fetch('/users/123/')
-    res.expect('123')
+    ;(await makeFetch(app.handler)('/users/123/')).expect('123')
   })
   it('matches when mounted on params and on custom subapp route', async () => {
     const app = new App()
@@ -872,10 +852,7 @@ describe('Subapps', () => {
 
     app.use('/users/:userID', subApp)
 
-    const fetch = makeFetch(app.handler)
-
-    const res = await fetch('/users/123/route')
-    res.expect('123')
+    ;(await makeFetch(app.handler)('/users/123/route')).expect('123')
   })
   it('handles errors by parent when no onError specified', async () => {
     const app = new App({
@@ -891,37 +868,34 @@ describe('Subapps', () => {
 
     app.use('/subapp', subApp)
 
-    const fetch = makeFetch(app.handler)
-    const res = await fetch('/subapp/route')
-
-    res.expectStatus(500).expectBody(
-      'Ouch, you hurt me on http://localhost:8080/subapp/route page.',
-    )
+    ;(await makeFetch(app.handler)('/subapp/route')).expectStatus(500)
+      .expectBody(
+        'Ouch, you hurt me on http://localhost:8080/subapp/route page.',
+      )
   })
-  it.skip('handles errors in sub when onError is defined', async () => {
+  it('handles errors in sub when onError is defined', async () => {
     const app = new App({
       onError: (err, req) =>
-      new Response(`Ouch, ${err} hurt me on ${req?.url} page.`, {
-        status: 500,
-      })
+        new Response(`Ouch, ${err} hurt me on ${req?.url} page.`, {
+          status: 500,
+        }),
     })
 
     const subApp = new App({
       onError: (err, req) =>
-      new Response(`Handling ${err} from child on ${req?.url} page.`, {
-        status: 500,
-      })
+        new Response(`Handling ${err} from child on ${req?.url} page.`, {
+          status: 500,
+        }),
     })
 
     subApp.get('/route', async (req, res, next) => await next('you'))
 
     app.use('/subapp', subApp)
 
-    const server = app.handler
-    const fetch = makeFetch(server)
-
-    const res = await fetch('/subapp/route')
-    res.expectStatus(500).expectBody('Handling you from child on /subapp/route page.')
+    ;(await makeFetch(app.handler)('/subapp/route')).expectStatus(500)
+      .expectBody(
+        'Handling you from child on /subapp/route page.',
+      )
   })
 })
 describe('Template engines', () => {
