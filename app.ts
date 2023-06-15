@@ -202,7 +202,7 @@ export class App<
         ...m,
         pattern: new URLPattern({
           pathname: m.type === 'mw'
-            ? m.path === '/' ? `${pathJoin(true, true, urlPath)}([^\/]*)?` : '*'
+            ? m.path === '/' ? `${pathJoin(true, true,this.mountpath, urlPath)}([^\/]*)?` : '*'
             : pathJoin(true, urlPath === '/', this.mountpath, urlPath),
         }),
       }
@@ -275,12 +275,12 @@ export class App<
 
     await loop()
 
-    if (err instanceof Response) throw err
+    if (err instanceof Response) return err
     else if (err) {
-      if (this[hasSetCustomErrorHandler]) throw await this.onError(err, req)
-      else throw err
+      if (this[hasSetCustomErrorHandler]) return await this.onError(err, req)
+      else return err
     }
-    throw new Response(res._body, res._init)
+    return new Response(res._body, res._init)
   }
 
   handler = async (_req: Request, connInfo?: ConnInfo) => {
@@ -301,14 +301,13 @@ export class App<
       _body: undefined,
       locals: {},
     }
-    let err
-    try {
-      await this.#prepare(req, res)
-    } catch (error) {
-      err = error
-    }
-    if (err instanceof Response) return err
-    return await this.onError(err, req)
+    
+   
+    const k = await this.#prepare(req, res)
+   
+    
+    if (k instanceof Response) return k
+    return await this.onError(k, req)
   }
   /**
    * Creates HTTP server and dispatches middleware

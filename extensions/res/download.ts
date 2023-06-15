@@ -1,7 +1,7 @@
 import { sendFile, SendFileOptions } from './send/sendFile.ts'
 import { setContentType, setHeader } from './headers.ts'
 import { DummyResponse } from '../../response.ts'
-import { contentDisposition, extname } from '../../deps.ts'
+import { contentDisposition, extname, basename } from '../../deps.ts'
 
 export type DownloadOptions =
   & SendFileOptions
@@ -46,8 +46,10 @@ async (
 export const attachment =
   <Res extends DummyResponse = DummyResponse>(res: Res) =>
   (filename?: string): Res => {
-    if (filename) setContentType(res)(extname(filename))
-
+    if (filename) {
+      setContentType(res)(extname(filename))
+      filename = basename(filename)
+    }
     setHeader(res)('Content-Disposition', contentDisposition(filename))
 
     return res

@@ -1,5 +1,5 @@
 import { App } from '../app.ts'
-import type { ReqWithUrlAndConn, THRequest } from '../request.ts'
+import type { THRequest } from '../request.ts'
 import type { DummyResponse, THResponse } from '../response.ts'
 import type { AppConstructor, Handler } from '../types.ts'
 import { makeFetch } from '../dev_deps.ts'
