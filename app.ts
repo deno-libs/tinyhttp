@@ -23,7 +23,7 @@ import type {
 const lead = (x: string) => (x.charCodeAt(0) === 47 ? x : '/' + x)
 
 /**
- * Add trailing slash if not present (e.g. path -> /path, /path -> /path)
+ * Add trailing slash if not present (e.g. path -> path/, path/ -> path/)
  * @param x
  */
 const trail = (x: string) => (x.charCodeAt(x.length - 1) === 47 ? x : x + '/')
@@ -63,6 +63,7 @@ export class App<
   attach: (req: Req, res: Res, next: NextFunction) => void
 
   // this symbol tells if a custom error handler has been set
+  // and thus, helps determine the error handling precedence
   #hasSetCustomErrorHandler: boolean
 
   constructor(options: AppConstructor<Req, Res> = {}) {
