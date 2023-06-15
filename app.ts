@@ -59,7 +59,7 @@ export class App<
   attach: (req: Req, res: Res, next: NextFunction) => void
 
   // this symbol tells if a custom error handler has been set
-  private readonly [hasSetCustomErrorHandler]: boolean
+  [hasSetCustomErrorHandler]: boolean
 
   constructor(options: AppConstructor<Req, Res> = {}) {
     super()
@@ -261,11 +261,9 @@ export class App<
         await applyHandler<Req, Res>(handler)(req, res, next)
       }
 
-    let idx = 0, err: unknown | undefined = null
+    let idx = 0, err: unknown | undefined
     const next: NextFunction = async (error) => {
-      if (error) {
-        err = error
-      }
+      if (error) err = error
       return await loop()
     }
     const loop = async () =>
@@ -275,12 +273,12 @@ export class App<
 
     await loop()
 
-    if (err instanceof Response) return err
+    if (err instanceof Response) throw err
     else if (err) {
-      if (this[hasSetCustomErrorHandler]) return await this.onError(err, req)
-      else return err
+      if (this[hasSetCustomErrorHandler]) throw await this.onError(err, req)
+      else throw err
     }
-    return new Response(res._body, res._init)
+    throw new Response(res._body, res._init)
   }
 
   handler = async (_req: Request, connInfo?: ConnInfo) => {
@@ -302,12 +300,14 @@ export class App<
       locals: {},
     }
     
-   
-    const k = await this.#prepare(req, res)
-   
-    
-    if (k instanceof Response) return k
-    return await this.onError(k, req)
+    let err
+    try {
+      await this.#prepare(req, res)
+    } catch (error) {
+      err = error
+    }
+    if (err instanceof Response) return err
+    return await this.onError(err, req)
   }
   /**
    * Creates HTTP server and dispatches middleware

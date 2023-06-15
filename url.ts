@@ -1,12 +1,3 @@
-const stripSlash = (path: string) => {
-  const leadingSlash = path.charCodeAt(0) === 47
-  const trailingSlash = path.charCodeAt(path.length - 1) === 47
-  const start = leadingSlash ? 1 : 0
-  path = path.slice(start)
-  if (path.length && trailingSlash) path = path.slice(0, path.length - 1)
-  return path
-}
-
 /**
  * This function joins a list of paths with / (forward slash)
  * @param {boolean} padLeft - pads the final path with leading slash if it does not exist
@@ -33,4 +24,4 @@ const pathJoin = (padLeft: boolean, padRight: boolean, ...path: string[]) => {
   return finalString
 }
 
-export { pathJoin, stripSlash }
+export { pathJoin }
