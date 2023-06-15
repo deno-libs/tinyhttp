@@ -292,23 +292,21 @@ describe('Request extensions', () => {
     })
   })
   describe('Network extensions', () => {
-    if(Deno.env.get('GITHUB_ACTION')){
-      it('req.ip & req.ips is being parsed properly', async () => {
-        const app = runServer((_req, _res, conn) => {
-          const req = _req as ReqWithUrlAndConn
-          req.conn = conn
-          req._urlObject = new URL(req.url)
-          const ip = getIP(req)
-          const ips = getIPs(req)
-          expect(ip).toEqual('1')
-          expect(ips).toEqual(['::1'])
-          return new Response(null)
-        })
-  
-        const res = await makeFetch(app)('/')
-        res.expect('')
+    it('req.ip & req.ips is being parsed properly', async () => {
+      const app = runServer((_req, _res, conn) => {
+        const req = _req as ReqWithUrlAndConn
+        req.conn = conn
+        req._urlObject = new URL(req.url)
+        const ip = getIP(req)
+        const ips = getIPs(req)
+        expect(ip).toEqual('1')
+        expect(ips).toEqual(['::1'])
+        return new Response(null)
       })
-    }
+
+      const res = await makeFetch(app)('/')
+      res.expect('')
+    })
     it('req.protocol is http by default', async () => {
       const app = runServer((_req, _res, conn) => {
         const req = _req as ReqWithUrlAndConn

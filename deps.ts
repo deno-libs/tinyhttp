@@ -19,7 +19,7 @@ export * as base64 from 'https://deno.land/std@0.185.0/encoding/base64.ts'
 export { parseMediaType } from 'https://deno.land/std@0.185.0/media_types/parse_media_type.ts'
 export * as mediaTyper from 'https://deno.land/x/media_typer@1.0.1/mod.ts'
 export { contentDisposition } from 'https://esm.sh/@tinyhttp/content-disposition@2.0.9'
-export { extname, basename } from 'https://deno.land/std@0.185.0/path/mod.ts'
+export { basename, extname } from 'https://deno.land/std@0.185.0/path/mod.ts'
 export {
   accepts,
   acceptsEncodings,

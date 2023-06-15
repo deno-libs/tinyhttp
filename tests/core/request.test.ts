@@ -5,7 +5,7 @@ describe('Request properties', () => {
   it('should have default HTTP Request properties', async () => {
     const { fetch } = initAppAndTest((req, res) => {
       res.json({
-        url: req.url
+        url: req.url,
       })
     })
     const res = await fetch('/')
@@ -47,28 +47,26 @@ describe('Request properties', () => {
   })
 
   describe('Network extensions', () => {
-    if(Deno.env.get('GITHUB_ACTION')){
-      it('req.ip & req.ips is being parsed properly', async () => {
-        const { fetch } = initAppAndTest(
-          (req, res) => {
-            res.json({
-              ip: req.ip,
-              ips: req.ips,
-            })
-          },
-          '/',
-          {},
-          'get',
-        )
-  
-        const res = await fetch('/')
-  
-        res.expectStatus(200).expectBody({
-          ip: '1',
-          ips: ['::1'],
-        })
+    it('req.ip & req.ips is being parsed properly', async () => {
+      const { fetch } = initAppAndTest(
+        (req, res) => {
+          res.json({
+            ip: req.ip,
+            ips: req.ips,
+          })
+        },
+        '/',
+        {},
+        'get',
+      )
+
+      const res = await fetch('/')
+
+      res.expectStatus(200).expectBody({
+        ip: '1',
+        ips: ['::1'],
       })
-    }
+    })
     it('req.protocol is http by default', async () => {
       const { fetch } = initAppAndTest(
         (req, res) => {

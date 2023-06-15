@@ -56,7 +56,7 @@ export class App<
   engines: Record<string, TemplateFunc<RenderOptions>> = {}
   onError: (err: unknown, req?: Request) => Response | Promise<Response>
   notFound: Handler<Req, Res>
-  attach: (req: Req, res: Res, next: NextFunction) => void
+  attach: (req: Req, res: Res, next: NextFunction) => void;
 
   // this symbol tells if a custom error handler has been set
   [hasSetCustomErrorHandler]: boolean
@@ -202,7 +202,9 @@ export class App<
         ...m,
         pattern: new URLPattern({
           pathname: m.type === 'mw'
-            ? m.path === '/' ? `${pathJoin(true, true,this.mountpath, urlPath)}([^\/]*)?` : '*'
+            ? m.path === '/'
+              ? `${pathJoin(true, true, this.mountpath, urlPath)}([^\/]*)?`
+              : '*'
             : pathJoin(true, urlPath === '/', this.mountpath, urlPath),
         }),
       }
@@ -299,7 +301,7 @@ export class App<
       _body: undefined,
       locals: {},
     }
-    
+
     let err
     try {
       await this.#prepare(req, res)
