@@ -22,6 +22,12 @@ import type {
  */
 const lead = (x: string) => (x.charCodeAt(0) === 47 ? x : '/' + x)
 
+/**
+ * Add trailing slash if not present (e.g. path -> path/, path/ -> path/)
+ * @param x
+ */
+const trail = (x: string) => (x.charCodeAt(x.length - 1) === 47 ? x : x + '/')
+
 const applyHandler =
   <Req extends THRequest = THRequest, Res extends THResponse = THResponse>(
     h: Handler<Req, Res>,
@@ -56,12 +62,17 @@ export class App<
   notFound: Handler<Req, Res>
   attach: (req: Req, res: Res, next: NextFunction) => void
 
+  // this symbol tells if a custom error handler has been set
+  // and thus, helps determine the error handling precedence
+  #hasSetCustomErrorHandler: boolean
+
   constructor(options: AppConstructor<Req, Res> = {}) {
     super()
     this.settings = options.settings || { xPoweredBy: true }
     this.middleware = []
     this.onError = options?.onError || onErrorHandler
     this.notFound = options?.noMatchHandler || notFound
+    this.#hasSetCustomErrorHandler = !!(options?.onError)
     this.attach = (req, res) => this.#prepare.bind(this, req, res)()
   }
   /**
@@ -139,6 +150,7 @@ export class App<
     }
 
     const path = typeof base === 'string' ? base : '/'
+
     for (const fn of fns) {
       if (fn instanceof App) {
         fn.mountpath = path
@@ -147,7 +159,6 @@ export class App<
         fn.parent = this as any
       }
     }
-
     const handlerPaths = []
     const handlerFunctions = []
     const handlerPathBase = path === '/' ? '' : lead(path)
@@ -157,7 +168,6 @@ export class App<
         for (const mw of fn.middleware) {
           handlerPaths.push(handlerPathBase + lead(mw.path!))
           handlerFunctions.push(fn)
-          mw.fullPath = handlerPathBase + (mw.path!) // hotfix
         }
       } else {
         handlerPaths.push('')
@@ -192,17 +202,20 @@ export class App<
   }
   #find(url: URL) {
     const result = this.middleware.map((m) => {
-      const path = m.fullPath! || m.path!
+      const urlPath = m.fullPath! || (m.path!)
+
+      const joinedPath = lead(
+        path.posix.join(
+          this.mountpath,
+          typeof urlPath !== 'string' ? '/' : urlPath,
+        ),
+      )
       return {
         ...m,
         pattern: new URLPattern({
           pathname: m.type === 'mw'
-            ? m.path === '/'
-              ? `${
-                path.endsWith('/') ? path.slice(0, path.length - 1) : path
-              }/([^\/]*)?`
-              : '*'
-            : path,
+            ? m.path === '/' ? `${trail(joinedPath)}([^\/]*)?` : '*'
+            : (urlPath === '/' ? trail(joinedPath) : joinedPath),
         }),
       }
     }).filter((m) => {
@@ -223,6 +236,7 @@ export class App<
     const matched = this.#find(req._urlObject).filter((x) =>
       req.method === 'HEAD' || (x.method ? x.method === req.method : true)
     )
+
     const mw: Middleware<Req, Res>[] = 'fresh' in req ? matched : [
       {
         handler: exts,
@@ -244,17 +258,14 @@ export class App<
       })
     }
     mw.push({ type: 'mw', handler: this.notFound, path: '/' })
-
     const handle =
       (mw: Middleware<Req, Res>) =>
       async (req: Req, res: Res, next: NextFunction) => {
         const { handler, type, pattern } = mw
-
         const params =
           type === 'route' && pattern?.exec(req.url)?.pathname.groups || {}
 
         req.params = params as Record<string, string>
-
         if (this.settings?.enableReqRoute) {
           req.route = getRouteFromApp(this.middleware as any, handler as any)
         }
@@ -268,17 +279,19 @@ export class App<
     }
     const loop = async () =>
       idx < mw.length
-        ? await handle(mw[idx++])(
-          req,
-          res as Res,
-          next,
-        )
+        ? await handle(mw[idx++])(req, res as Res, next)
         : undefined
 
     await loop()
 
-    if (err) throw err
+    if (err instanceof Response) throw err
+    else if (err) {
+      if (this.#hasSetCustomErrorHandler) throw await this.onError(err, req)
+      else throw err
+    }
+    throw new Response(res._body, res._init)
   }
+
   handler = async (_req: Request, connInfo?: ConnInfo) => {
     const req = _req.clone() as Req
     req.conn = connInfo!
@@ -297,12 +310,15 @@ export class App<
       _body: undefined,
       locals: {},
     }
+
+    let err
     try {
       await this.#prepare(req, res)
-    } catch (e) {
-      return await this.onError(e, req)
+    } catch (error) {
+      err = error
     }
-    return new Response(res._body, res._init)
+    if (err instanceof Response) return err
+    return await this.onError(err, req)
   }
   /**
    * Creates HTTP server and dispatches middleware
