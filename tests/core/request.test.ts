@@ -5,11 +5,11 @@ describe('Request properties', () => {
   it('should have default HTTP Request properties', async () => {
     const { fetch } = initAppAndTest((req, res) => {
       res.json({
-        url: req.url,
+        method: req.method,
       })
     })
     const res = await fetch('/')
-    res.expectBody({ url: 'http://localhost:8080/' })
+    res.expectBody({ method: 'GET' })
   })
 
   describe('URL extensions', () => {

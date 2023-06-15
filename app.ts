@@ -15,7 +15,6 @@ import type {
   TemplateEngineOptions,
   TemplateFunc,
 } from './types.ts'
-import { hasSetCustomErrorHandler } from './symbols.ts'
 
 /**
  * Add leading slash if not present (e.g. path -> /path, /path -> /path)
@@ -61,10 +60,10 @@ export class App<
   engines: Record<string, TemplateFunc<RenderOptions>> = {}
   onError: (err: unknown, req?: Request) => Response | Promise<Response>
   notFound: Handler<Req, Res>
-  attach: (req: Req, res: Res, next: NextFunction) => void;
+  attach: (req: Req, res: Res, next: NextFunction) => void
 
   // this symbol tells if a custom error handler has been set
-  [hasSetCustomErrorHandler]: boolean
+  #hasSetCustomErrorHandler: boolean
 
   constructor(options: AppConstructor<Req, Res> = {}) {
     super()
@@ -72,7 +71,7 @@ export class App<
     this.middleware = []
     this.onError = options?.onError || onErrorHandler
     this.notFound = options?.noMatchHandler || notFound
-    this[hasSetCustomErrorHandler] = !!(options?.onError)
+    this.#hasSetCustomErrorHandler = !!(options?.onError)
     this.attach = (req, res) => this.#prepare.bind(this, req, res)()
   }
   /**
@@ -286,7 +285,7 @@ export class App<
 
     if (err instanceof Response) throw err
     else if (err) {
-      if (this[hasSetCustomErrorHandler]) throw await this.onError(err, req)
+      if (this.#hasSetCustomErrorHandler) throw await this.onError(err, req)
       else throw err
     }
     throw new Response(res._body, res._init)
