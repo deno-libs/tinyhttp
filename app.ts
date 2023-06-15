@@ -16,13 +16,18 @@ import type {
   TemplateFunc,
 } from './types.ts'
 import { hasSetCustomErrorHandler } from './symbols.ts'
-import { pathJoin } from './url.ts'
 
 /**
  * Add leading slash if not present (e.g. path -> /path, /path -> /path)
  * @param x
  */
 const lead = (x: string) => (x.charCodeAt(0) === 47 ? x : '/' + x)
+
+/**
+ * Add trailing slash if not present (e.g. path -> /path, /path -> /path)
+ * @param x
+ */
+const trail = (x: string) => (x.charCodeAt(x.length - 1) === 47 ? x : x + '/')
 
 const applyHandler =
   <Req extends THRequest = THRequest, Res extends THResponse = THResponse>(
@@ -198,14 +203,19 @@ export class App<
   #find(url: URL) {
     const result = this.middleware.map((m) => {
       const urlPath = m.fullPath! || (m.path!)
+
+      const joinedPath = lead(
+        path.posix.join(
+          this.mountpath,
+          typeof urlPath !== 'string' ? '/' : urlPath,
+        ),
+      )
       return {
         ...m,
         pattern: new URLPattern({
           pathname: m.type === 'mw'
-            ? m.path === '/'
-              ? `${pathJoin(true, true, this.mountpath, urlPath)}([^\/]*)?`
-              : '*'
-            : pathJoin(true, urlPath === '/', this.mountpath, urlPath),
+            ? m.path === '/' ? `${trail(joinedPath)}([^\/]*)?` : '*'
+            : (urlPath === '/' ? trail(joinedPath) : joinedPath),
         }),
       }
     }).filter((m) => {
