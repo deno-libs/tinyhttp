@@ -228,6 +228,17 @@ export class Router<
 
     return this
   }
+
+  all(...args: UseMethodParams): this {
+    const handlers = args.slice(1).flat()
+    pushMiddleware(this.middleware)({
+      path: args[0] as Handler,
+      handler: handlers[0] as Handler,
+      handlers: handlers.slice(1) as Handler[],
+      type: 'route'
+    })
+    return this
+  }
   /**
    * Return the app's absolute pathname
    * based on the parent(s) that have
