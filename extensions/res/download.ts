@@ -18,19 +18,19 @@ export const download = <
 async (
   path: string,
   filename?: string | Callback,
-  options?: DownloadOptions | Callback, cb?: Callback,
+  options?: DownloadOptions | Callback,
+  cb?: Callback,
 ): Promise<Res> => {
-  let name: string | null = filename as string;
-  let done = cb; 
-  let opts: DownloadOptions = (options || null) as DownloadOptions;
-  if(typeof filename === 'function'){
-    done = filename;
-    name = null;
+  let name: string | null = filename as string
+  let done = cb
+  let opts: DownloadOptions = (options || null) as DownloadOptions
+  if (typeof filename === 'function') {
+    done = filename
+    name = null
+  } else if (typeof options === 'function') {
+    done = options
   }
-  else if (typeof options === 'function') {
-    done = options;
-  }
-  opts = opts || {};
+  opts = opts || {}
   // set Content-Disposition when file is sent
   const headers: Record<string, string> = {
     'Content-Disposition': contentDisposition(basename(name || path)),
@@ -46,10 +46,14 @@ async (
   }
   // merge user-provided options
   opts = { ...opts, headers }
-  
+
   // send file
 
-  return await sendFile<Req, Res>(req, res)(path, opts, done || (() => undefined))
+  return await sendFile<Req, Res>(req, res)(
+    path,
+    opts,
+    done || (() => undefined),
+  )
 }
 
 export const attachment =

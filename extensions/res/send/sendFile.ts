@@ -37,7 +37,6 @@ async (
   }
 
   const filePath = root ? _path.join(root, path) : path
-
   const stats = await Deno.stat(filePath)
 
   headers['Content-Encoding'] = encoding
@@ -77,9 +76,12 @@ async (
   res._init.status = status
 
   let file
-  await Deno.readFile(path, { signal }).then((f) => file = f).catch((e) =>
+  await Deno.readFile(filePath, { signal }).then((f) => file = f).catch((e) => {
     cb!(e)
+  }
+    
   )
+  
   await send(req, res)(file)
 
   return res

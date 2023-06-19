@@ -10,13 +10,10 @@ export const send = <
 async (body: unknown) => {
   let bodyToSend = body
   // in case of object - turn it to json
-  
-  
-  if(ArrayBuffer.isView(body)){
-    console.log(typeof body)
-    body = bodyToSend;
-  }
-  else if (typeof bodyToSend === 'object' && bodyToSend !== null) {
+
+  if (ArrayBuffer.isView(body)) {
+    body = bodyToSend
+  } else if (typeof bodyToSend === 'object' && bodyToSend !== null) {
     bodyToSend = JSON.stringify(body, null, 2)
     res._init.headers?.set('Content-Type', 'application/json')
   } else {
@@ -64,13 +61,12 @@ async (body: unknown) => {
       if (!res._init.headers?.get('Content-Type')) {
         res._init.headers.set('content-type', 'application/octet-stream')
       }
-
       return end(res)(bodyToSend)
     } else {
       return json(res)(bodyToSend)
     }
   } else {
-    if (typeof bodyToSend !== 'string') {
+    if (typeof bodyToSend !== 'string' && bodyToSend) {
       bodyToSend = (bodyToSend as string).toString()
     }
 
