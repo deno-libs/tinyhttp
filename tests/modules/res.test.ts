@@ -383,7 +383,7 @@ describe('Response extensions', () => {
           path.join(Deno.cwd(), 'tests/fixtures'),
           'some_file.png',
           (err) => {
-            expect((err as Error).message).toContain('Access is denied')
+            expect((err as Error).message).toContain('readfile')
           }
         )
         return new Response(res._body, res._init)
