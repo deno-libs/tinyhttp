@@ -118,17 +118,19 @@ describe('send(body)', () => {
       .expectHeader('Content-Type', null)
       .expectHeader('Transfer-Encoding', null)
   })
-  // it('should set Content-Type to application/octet-stream for buffers if the header hasn\'t been set before', async () => {
-  //   const app = runServer((req, res) =>
-  //     send(req, res)(Buffer.from('Hello World', 'utf-8')).end()
-  //   )
+  it.skip('should set Content-Type to application/octet-stream for buffers if the header hasn\'t been set before', async () => {
+    const app = runServer((req, res) =>
+      send(req, res)(
+        new TextEncoder().encode('Hello World'),
+      ) as unknown as Response
+    )
 
-  //   const res = await makeFetch(app)('/')
-  //   res.expectHeader(
-  //     'Content-Type',
-  //     'application/octet-stream',
-  //   )
-  // })
+    const res = await makeFetch(app)('/')
+    res.expectHeader(
+      'Content-Type',
+      'application/octet-stream',
+    )
+  })
   it('should set 304 status for fresh requests', async () => {
     const etag = 'abc'
 
