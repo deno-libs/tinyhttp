@@ -26,9 +26,12 @@ export const sendFile = <
   Req extends Request = Request,
   Res extends DummyResponse = DummyResponse,
 >(req: Req, res: Res) =>
-async (path: string, { signal, ...opts }: SendFileOptions = {}) => {
+async (
+  path: string,
+  { signal, ...opts }: SendFileOptions = {},
+  cb?: (err?: any) => void,
+) => {
   const { root, headers = {}, encoding = 'utf-8', ...options } = opts
-
   if (!_path.isAbsolute(path) && !root) {
     throw new TypeError('path must be absolute')
   }
@@ -48,7 +51,6 @@ async (path: string, { signal, ...opts }: SendFileOptions = {}) => {
 
   headers['Content-Security-Policy'] = 'default-src \'none\''
   headers['X-Content-Type-Options'] = 'nosniff'
-
   let status = 200
 
   if (req.headers.get('range')) {
@@ -74,8 +76,10 @@ async (path: string, { signal, ...opts }: SendFileOptions = {}) => {
 
   res._init.status = status
 
-  const file = await Deno.readFile(path, { signal })
-
+  let file
+  await Deno.readFile(path, { signal }).then((f) => file = f).catch((e) =>
+    cb!(e)
+  )
   await send(req, res)(file)
 
   return res

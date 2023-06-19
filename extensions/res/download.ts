@@ -9,21 +9,31 @@ export type DownloadOptions =
     headers: Record<string, unknown>
   }>
 
+type Callback = (err?: any) => void
+
 export const download = <
   Req extends Request = Request,
   Res extends DummyResponse = DummyResponse,
 >(req: Req, res: Res) =>
 async (
   path: string,
-  filename?: string,
-  options: DownloadOptions = {},
+  filename?: string | Callback,
+  options?: DownloadOptions | Callback, cb?: Callback,
 ): Promise<Res> => {
-  const name: string | null = filename as string
-  let opts: DownloadOptions = options
-
+  let name: string | null = filename as string;
+  let done = cb; 
+  let opts: DownloadOptions = (options || null) as DownloadOptions;
+  if(typeof filename === 'function'){
+    done = filename;
+    name = null;
+  }
+  else if (typeof options === 'function') {
+    done = options;
+  }
+  opts = opts || {};
   // set Content-Disposition when file is sent
   const headers: Record<string, string> = {
-    'Content-Disposition': contentDisposition(name || path),
+    'Content-Disposition': contentDisposition(basename(name || path)),
   }
 
   // merge user-provided headers
@@ -34,13 +44,12 @@ async (
       }
     }
   }
-
   // merge user-provided options
   opts = { ...opts, headers }
-
+  
   // send file
 
-  return await sendFile<Req, Res>(req, res)(path, opts)
+  return await sendFile<Req, Res>(req, res)(path, opts, done || (() => undefined))
 }
 
 export const attachment =

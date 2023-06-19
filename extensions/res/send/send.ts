@@ -9,9 +9,14 @@ export const send = <
 >(req: Req, res: Res) =>
 async (body: unknown) => {
   let bodyToSend = body
-
   // in case of object - turn it to json
-  if (typeof bodyToSend === 'object' && bodyToSend !== null) {
+  
+  
+  if(ArrayBuffer.isView(body)){
+    console.log(typeof body)
+    body = bodyToSend;
+  }
+  else if (typeof bodyToSend === 'object' && bodyToSend !== null) {
     bodyToSend = JSON.stringify(body, null, 2)
     res._init.headers?.set('Content-Type', 'application/json')
   } else {
