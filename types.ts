@@ -61,7 +61,7 @@ type TemplateFunc<O> = (
   path: string,
   locals: Record<string, unknown>,
   opts: TemplateEngineOptions<O>,
-) => Promise<string>
+) => string | Promise<string>
 
 export interface ConnInfo {
   /** The local address of the connection. */

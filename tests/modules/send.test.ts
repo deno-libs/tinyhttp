@@ -3,6 +3,8 @@ import { json, send, sendStatus, status } from '../../extensions/res/mod.ts'
 import { runServer } from '../util.test.ts'
 import { App } from '../../mod.ts'
 
+const te = new TextEncoder()
+
 describe('json(body)', () => {
   it('should send a JSON reply when an object is passed', async () => {
     const app = runServer((_, res) => {
@@ -118,12 +120,11 @@ describe('send(body)', () => {
       .expectHeader('Content-Type', null)
       .expectHeader('Transfer-Encoding', null)
   })
-  it.skip('should set Content-Type to application/octet-stream for buffers if the header hasn\'t been set before', async () => {
-    const app = runServer((req, res) =>
-      send(req, res)(
-        new TextEncoder().encode('Hello World'),
-      ) as unknown as Response
-    )
+  it('should set Content-Type to application/octet-stream for buffers if the header hasn\'t been set before', async () => {
+    const app = runServer(async (req, res) => {
+      const r = await send(req, res)(te.encode('Hello World'))
+      return new Response(r._body, r._init)
+    })
 
     const res = await makeFetch(app)('/')
     res.expectHeader(
