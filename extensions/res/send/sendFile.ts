@@ -78,10 +78,9 @@ async (
   let file
   await Deno.readFile(filePath, { signal }).then((f) => file = f).catch((e) => {
     cb!(e)
-  }
-    
-  )
-  
+    file = null
+  })
+
   await send(req, res)(file)
 
   return res
