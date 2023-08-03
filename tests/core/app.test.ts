@@ -745,11 +745,6 @@ describe('Subapps', () => {
       'Hello from /subapp',
     )
   })
-  //   it('sub-app gets mounted via `app.route`', async () => {
-  //     const app = new App()
-
-  //     app.route('/path').get((_, res) => res.send('Hello World'))
-  //   })
 
   it.skip('lets other wares handle the URL if subapp doesnt have that path', async () => {
     const app = new App()
