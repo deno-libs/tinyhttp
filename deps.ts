@@ -11,7 +11,7 @@ export {
   all,
   compile,
   proxyaddr,
-} from 'https://deno.land/x/proxy_addr@0.2.0/mod.ts'
+} from 'https://deno.land/x/proxy_addr@0.2.1/mod.ts'
 export { status } from 'https://deno.land/x/status@0.1.0/status.ts'
 export { isIP } from 'https://deno.land/x/isIP@1.0.0/mod.ts'
 export { escapeHtml } from 'https://deno.land/x/escape_html@1.0.0/mod.ts'
