@@ -8,13 +8,11 @@ import { pushMiddleware, Router, UseMethodParams } from './router.ts'
 import type {
   AppConstructor,
   AppSettings,
-  ConnInfo,
   Handler,
   Middleware,
   NextFunction,
-  TemplateEngineOptions,
-  TemplateFunc,
 } from './types.ts'
+import { TemplateEngineOptions, TemplateFunc } from './utils/template.ts'
 
 /**
  * Add leading slash if not present (e.g. path -> /path, /path -> /path)
@@ -55,7 +53,7 @@ export class App<
   Res extends THResponse<RenderOptions> = THResponse<RenderOptions>,
 > extends Router<App, Req, Res> {
   middleware: Middleware<Req, Res>[]
-  settings: AppSettings & Record<string, unknown>
+  settings: AppSettings & { views?: string } & Record<string, unknown>
   locals: Record<string, string> = {}
   engines: Record<string, TemplateFunc<RenderOptions>> = {}
   onError: (err: unknown, req?: Request) => Response | Promise<Response>
@@ -110,14 +108,16 @@ export class App<
    * @param file What to render
    * @param data data that is passed to a template
    * @param options Template engine options
+   * @param cb Callback that consumes error and html
    */
-  async render(
+  render(
     file: string,
     data: Record<string, unknown> = {},
+    cb?: (err: Error | null, html: string) => void,
     options: TemplateEngineOptions<RenderOptions> = {},
-  ) {
-    options.viewsFolder = options.viewsFolder ||
-      (this.settings.views as string) || `${Deno.cwd()}/views`
+  ): this {
+    options.viewsFolder = options.viewsFolder || this.settings.views ||
+      `${Deno.cwd()}/views`
     options.ext = options.ext || file.slice(file.lastIndexOf('.') + 1) || 'ejs'
 
     options._locals = options._locals || {}
@@ -132,11 +132,9 @@ export class App<
       ? path.join(options.viewsFolder, file)
       : file
 
-    return await this.engines[options.ext](
-      dest,
-      locals,
-      options.renderOptions || {},
-    )
+    this.engines[options.ext](dest, locals, options.renderOptions!, cb)
+
+    return this
   }
   use(...args: UseMethodParams<Req, Res, App>): this {
     const base = args[0]
@@ -292,9 +290,9 @@ export class App<
     throw new Response(res._body, res._init)
   }
 
-  handler = async (_req: Request, connInfo?: ConnInfo) => {
+  handler = async (_req: Request, conn: Deno.Conn) => {
     const req = _req.clone() as Req
-    req.conn = connInfo!
+    req.conn = conn
     const res: DummyResponse = {
       _init: {
         headers: new Headers(

@@ -6,12 +6,12 @@ import type { THResponse } from '../response.ts'
  */
 export type TemplateFunc<O> = (
   path: string,
-  locals: Record<string, any>,
-  opts: TemplateEngineOptions<O>,
-  cb: (err: Error | null, html: unknown) => void,
+  data: Record<string, any>,
+  opts?: TemplateEngineOptions<O>,
+  cb?: (err: Error | null, html: string) => void,
 ) => void
 
-export type TemplateEngineOptions<O = any> = Partial<{
+export type TemplateEngineOptions<O> = Partial<{
   cache: boolean
   ext: string
   renderOptions: Partial<O>
@@ -19,23 +19,20 @@ export type TemplateEngineOptions<O = any> = Partial<{
   _locals: Record<string, any>
 }>
 
-export const renderTemplate =
-  <O = any, Res extends THResponse = THResponse>(res: Res, app: App) =>
-  (
-    file: string,
-    data?: Record<string, any>,
-    options?: TemplateEngineOptions<O>,
-  ): THResponse => {
-    app.render(
-      file,
-      data,
-      (err: unknown, html: unknown) => {
-        if (err) throw err
-
-        res.send(html)
-      },
-      options,
-    )
-
-    return res
-  }
+export const renderTemplate = <O>(res: THResponse, app: App) =>
+(
+  file: string,
+  data?: Record<string, any>,
+  options?: TemplateEngineOptions<O>,
+): THResponse => {
+  app.render(
+    file,
+    data ? { ...data, ...res.locals } : res.locals,
+    (err: Error | null, html: string) => {
+      if (err) throw err
+      res.end(html)
+    },
+    options,
+  )
+  return res
+}

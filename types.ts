@@ -46,30 +46,6 @@ type Middleware<
   pattern?: URLPattern
 }
 
-type TemplateEngineOptions<O = any> = Partial<{
-  cache: boolean
-  ext: string
-  renderOptions: Partial<O>
-  viewsFolder: string
-  _locals: Record<string, unknown>
-}>
-
-/**
- * Function that processes the template
- */
-type TemplateFunc<O> = (
-  path: string,
-  locals: Record<string, unknown>,
-  opts: TemplateEngineOptions<O>,
-) => string | Promise<string>
-
-export interface ConnInfo {
-  /** The local address of the connection. */
-  readonly localAddr: Deno.Addr
-  /** The remote address of the connection. */
-  readonly remoteAddr: Deno.Addr
-}
-
 export type {
   AppConstructor,
   AppSettings,
@@ -78,6 +54,4 @@ export type {
   Middleware,
   NextFunction,
   Protocol,
-  TemplateEngineOptions,
-  TemplateFunc,
 }
