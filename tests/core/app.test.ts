@@ -891,7 +891,7 @@ describe('Subapps', () => {
         ),
     })
 
-    subApp.get('/route', async (req, res, next) => await next('you'))
+    subApp.get('/route', async (_req, _res, next) => await next('you'))
 
     app.use('/subapp', subApp)
     ;(await makeFetch(app.handler)('/subapp/route'))

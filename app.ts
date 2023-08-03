@@ -290,9 +290,12 @@ export class App<
     throw new Response(res._body, res._init)
   }
 
-  handler = async (_req: Request, conn: Deno.Conn) => {
+  handler = async (
+    _req: Request,
+    conn?: Deno.Conn,
+  ) => {
     const req = _req.clone() as Req
-    req.conn = conn
+    req.conn = conn! as unknown as Deno.Conn
     const res: DummyResponse = {
       _init: {
         headers: new Headers(
