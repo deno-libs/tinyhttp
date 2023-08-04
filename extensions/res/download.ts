@@ -9,7 +9,7 @@ export type DownloadOptions =
     headers: Record<string, unknown>
   }>
 
-type Callback = (err?: any) => void
+type Callback = (err?: unknown) => void
 
 export const download = <
   Req extends Request = Request,

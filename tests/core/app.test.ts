@@ -136,16 +136,13 @@ describe('Testing App routing', () => {
   })
   it('"*" should catch all undefined routes', async () => {
     const app = new App()
-
-    const server = app.handler
-
     app.get(
       '/route',
       async (_req, res) => void await res.send('A different route'),
     )
     app.all('*', async (_req, res) => void await res.send('Hello world'))
-    ;(await makeFetch(server)('/route')).expect('A different route')
-    ;(await makeFetch(server)('/test')).expect('Hello world')
+    ;(await makeFetch(app.handler)('/route')).expect('A different route')
+    ;(await makeFetch(app.handler)('/test')).expect('Hello world')
   })
   it('should throw 404 on no routes', async () => {
     const app = new App()
@@ -376,8 +373,7 @@ describe('HTTP methods', () => {
 
     app.head('/', (req, res) => void res.end(req.method))
 
-    const server = app.handler
-    const fetch = makeFetch(server)
+    const fetch = makeFetch(app.handler)
 
     const res = await fetch('/', { method: 'HEAD' })
     res.expect('HEAD', null)
@@ -513,8 +509,7 @@ describe('HTTP methods', () => {
 
     app.get('/', (_, res) => void res.end('It works'))
 
-    const server = app.handler
-    const fetch = makeFetch(server)
+    const fetch = makeFetch(app.handler)
 
     const res = await fetch('/hello', { method: 'HEAD' })
     res.expect(404)

@@ -29,7 +29,7 @@ export const sendFile = <
 async (
   path: string,
   { signal, ...opts }: SendFileOptions = {},
-  cb?: (err?: any) => void,
+  cb?: (err?: unknown) => void,
 ) => {
   const { root, headers = {}, encoding = 'utf-8', ...options } = opts
   if (!_path.isAbsolute(path) && !root) {
@@ -76,11 +76,12 @@ async (
   res._init.status = status
 
   let file
-  await Deno.readFile(filePath, { signal }).then((f) => file = f).catch((e) => {
-    cb!(e)
+  try {
+    file = await Deno.readFile(filePath, { signal })
+  } catch (error) {
+    cb!(error)
     file = null
-  })
-
+  }
   await send(req, res)(file)
 
   return res

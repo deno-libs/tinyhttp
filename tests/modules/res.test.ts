@@ -384,7 +384,7 @@ describe('Response extensions', () => {
           'some_file.png',
           (err) => {
             expect((err as Error).message).toContain('readfile')
-          }
+          },
         )
         return new Response(res._body, res._init)
       }

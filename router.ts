@@ -235,7 +235,7 @@ export class Router<
       path: args[0] as Handler,
       handler: handlers[0] as Handler,
       handlers: handlers.slice(1) as Handler[],
-      type: 'route'
+      type: 'route',
     })
     return this
   }
