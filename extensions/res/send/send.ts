@@ -5,7 +5,7 @@ import { end } from './end.ts'
 
 const isBuffer = (body: unknown) =>
   body instanceof Uint8Array || body instanceof Blob ||
-  body instanceof ArrayBuffer || body instanceof ReadableStream<Uint8Array>
+  body instanceof ArrayBuffer || body instanceof ReadableStream
 
 export const send = <
   Req extends Request & { fresh?: boolean } = Request & { fresh?: boolean },

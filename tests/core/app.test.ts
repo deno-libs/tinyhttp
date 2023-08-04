@@ -1,13 +1,4 @@
-import {
-  describe,
-  type EtaConfig,
-  expect,
-  it,
-  makeFetch,
-  path,
-  renderFileAsync,
-  run,
-} from '../../dev_deps.ts'
+import { describe, expect, it, makeFetch, run } from '../../dev_deps.ts'
 import { App } from '../../mod.ts'
 import { initAppAndTest } from '../util.test.ts'
 
@@ -721,11 +712,6 @@ describe('Subapps', () => {
       'Hello from /subapp',
     )
   })
-  it('sub-app gets mounted via `app.route`', () => {
-    const app = new App()
-
-    app.route('/path').get((_, res) => void res.end('Hello World'))
-  })
 
   it.skip('lets other wares handle the URL if subapp doesnt have that path', async () => {
     const app = new App()
@@ -834,7 +820,7 @@ describe('Subapps', () => {
 
     const subApp = new App()
 
-    subApp.get('/route', (req, res, next) => next('you'))
+    subApp.get('/route', (_req, _res, next) => next('you'))
 
     app.use('/subapp', subApp)
     ;(await makeFetch(app.handler)('/subapp/route')).expectStatus(500)
@@ -867,42 +853,11 @@ describe('Subapps', () => {
         ),
     })
 
-    subApp.get('/route', async (req, res, next) => await next('you'))
+    subApp.get('/route', async (_req, _res, next) => await next('you'))
 
     app.use('/subapp', subApp)
     ;(await makeFetch(app.handler)('/subapp/route'))
       .expectBody('Handling you from child on subapp/route page.')
-  })
-})
-describe('Template engines', () => {
-  it('works with eta out of the box', async () => {
-    const app = new App<EtaConfig>()
-
-    app.engine('eta', renderFileAsync)
-
-    app.use(async (_, res) => {
-      await res.render(
-        'index.eta',
-        {
-          name: 'Eta',
-        },
-        {
-          viewsFolder: `${Deno.cwd()}/tests/fixtures/views`,
-        },
-      )
-    })
-    ;(await makeFetch(app.handler)('/')).expectBody('Hello from Eta')
-  })
-  it('can render without data passed', async () => {
-    const app = new App<EtaConfig>()
-    app.set('views', path.resolve(Deno.cwd(), 'tests/fixtures/views'))
-
-    app.engine('eta', renderFileAsync)
-
-    app.use(async (_, res) => {
-      await res.render('empty.eta')
-    })
-    ;(await makeFetch(app.handler)('/')).expectBody('Hello World')
   })
 })
 

@@ -1,9 +1,9 @@
 import type { App } from './app.ts'
 import type { CookieMap, RangesSpecifier } from './deps.ts'
-import type { ConnInfo, Middleware, Protocol } from './types.ts'
+import type { Middleware, Protocol } from './types.ts'
 
 export interface ReqWithUrlAndConn extends Request {
-  conn: ConnInfo
+  conn: Deno.Conn
   _urlObject: URL
 }
 

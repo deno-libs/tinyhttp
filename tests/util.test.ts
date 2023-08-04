@@ -3,7 +3,6 @@ import type { THRequest } from '../request.ts'
 import type { DummyResponse, THResponse } from '../response.ts'
 import type { AppConstructor, Handler } from '../types.ts'
 import { makeFetch } from '../dev_deps.ts'
-import type { ConnInfo } from 'https://deno.land/x/superfetch@1.0.5/types.ts'
 export const supertest = (app: App) => {
   const fetch = makeFetch((req, conn) => app.handler(req, conn))
 
@@ -27,14 +26,14 @@ export const runServer = (
   fn: (
     req: Request,
     res: DummyResponse,
-    conn: ConnInfo,
+    conn: Deno.Conn,
   ) => Response | Promise<Response>,
 ) => {
   const res: DummyResponse = {
     _init: { headers: new Headers({}) },
     locals: {},
   }
-  return async (req: Request, conn: ConnInfo) => {
+  return async (req: Request, conn: Deno.Conn) => {
     return await fn(req, res, conn)
   }
 }

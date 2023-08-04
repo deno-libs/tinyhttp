@@ -1,5 +1,5 @@
-import { Eta } from 'https://deno.land/x/eta@v3.0.3/src/index.ts'
-import type { EtaConfig } from 'https://deno.land/x/eta@v3.0.3/src/config.ts'
+import { Eta } from 'https://deno.land/x/eta@v3.1.0/src/index.ts'
+import type { EtaConfig } from 'https://deno.land/x/eta@v3.1.0/src/config.ts'
 import { App } from '../../mod.ts'
 import { path } from '../../deps.ts'
 

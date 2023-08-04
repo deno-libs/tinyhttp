@@ -53,7 +53,7 @@ export type UseMethod<
 > = (
   path: RouterPathOrHandler<Req, Res> | App,
   handler?: RouterHandler<Req, Res> | App,
-  ...handlers: RouterHandler<Req, Res>[]
+  ...handlers: (RouterHandler<Req, Res> | App)[]
 ) => any
 
 export type UseMethodParams<

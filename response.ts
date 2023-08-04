@@ -3,23 +3,7 @@ import { SetCookieOptions } from './extensions/res/cookie.ts'
 import { DownloadOptions } from './extensions/res/download.ts'
 import { FormatProps } from './extensions/res/format.ts'
 import type { SendFileOptions } from './extensions/res/send/sendFile.ts'
-import type { TemplateEngineOptions } from './types.ts'
-
-export const renderTemplate =
-  <O, Res extends THResponse = THResponse>(res: Res, app: App) =>
-  async (
-    file: string,
-    data?: Record<string, unknown>,
-    options?: TemplateEngineOptions<O>,
-  ): Promise<THResponse> => {
-    const result = await app.render(
-      file,
-      data ? { ...data, ...res.locals } : res.locals,
-      options,
-    )
-    await res.send(result)
-    return res
-  }
+import { TemplateEngineOptions } from './utils/template.ts'
 
 export interface DummyResponse {
   _body?: BodyInit
@@ -34,9 +18,9 @@ export interface THResponse<O = any, B = unknown> extends DummyResponse {
   links(links: { [key: string]: string }): THResponse<O, B>
   render(
     file: string,
-    data?: Record<string, unknown>,
+    data?: Record<string, any>,
     options?: TemplateEngineOptions<O>,
-  ): Promise<THResponse<O, B>>
+  ): THResponse<O, B>
   vary(field: string): THResponse<O, B>
   format(obj: FormatProps): THResponse<O, B>
   redirect(url: string, status?: number): THResponse<O, B>

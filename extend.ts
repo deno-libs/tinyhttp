@@ -34,9 +34,10 @@ import {
   status,
 } from './extensions/res/mod.ts'
 import type { THRequest } from './request.ts'
-import { renderTemplate, THResponse } from './response.ts'
+import { THResponse } from './response.ts'
 import type { NextFunction } from './types.ts'
 import { CookieMap } from './deps.ts'
+import { renderTemplate } from './utils/template.ts'
 
 /**
  * Extends Request and Response objects with custom properties and methods
