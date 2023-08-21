@@ -125,7 +125,7 @@ describe('Testing App routing', () => {
     const res = await fetch('/route')
     res.expect('Hello world')
   })
-  it.skip('should match wares containing base path', async () => {
+  it('should match wares containing base path', async () => {
     const app = new App()
 
     app.use('/abc', (_req, res) => void res.end('Hello world'))
@@ -175,7 +175,7 @@ describe('Testing App routing', () => {
     const res = await fetch('/abc')
     res.expect('3')
   })
-  it.skip('should set url prefix for the application', async () => {
+  it('should set url prefix for the application', async () => {
     const app = new App()
 
     const route1 = new App()
@@ -746,7 +746,7 @@ describe('Subapps', () => {
     )
   })
 
-  it.skip('lets other wares handle the URL if subapp doesnt have that path', async () => {
+  it('lets other wares handle the URL if subapp doesnt have that path', async () => {
     const app = new App()
 
     const subApp = new App()
