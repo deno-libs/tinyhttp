@@ -134,19 +134,16 @@ describe('Testing App routing', () => {
     )
     ;(await makeFetch(app.handler)('/abcdef')).expect(404)
   })
-  // it('"*" should catch all undefined routes', async () => {
-  //   const app = new App()
-
-  //   const server = app.handler
-
-  //   app
-  //     .get('/route', (_req, res) => void res.send('A different route'))
-  //     .all('*', (_req, res) => void res.send('Hello world'))
-
-  //   await makeFetch(server)('/route').expect(200, 'A different route')
-
-  //   await makeFetch(server)('/test').expect(200, 'Hello world')
-  // })
+  it('"*" should catch all undefined routes', async () => {
+    const app = new App()
+    app.get(
+      '/route',
+      async (_req, res) => void await res.send('A different route'),
+    )
+    app.all('*', async (_req, res) => void await res.send('Hello world'))
+    ;(await makeFetch(app.handler)('/route')).expect('A different route')
+    ;(await makeFetch(app.handler)('/test')).expect('Hello world')
+  })
   it('should throw 404 on no routes', async () => {
     const app = new App()
     const fetch = makeFetch(app.handler)
@@ -371,166 +368,132 @@ describe('HTTP methods', () => {
     const res = await fetch('/', { method: 'PATCH' })
     res.expect('PATCH')
   })
-  // it('app.head handles head request', async () => {
-  //   const app = new App()
+  it('app.head handles head request', async () => {
+    const app = new App()
 
-  //   app.head('/', (req, res) => void res.end(req.method))
+    app.head('/', (req, res) => void res.end(req.method))
 
-  //   const server = app.handler
-  //   const fetch = makeFetch(server)
+    const fetch = makeFetch(app.handler)
 
-  //   await fetch('/', { method: 'HEAD' }).expect(200, '')
-  // })
-  // it('app.delete handles delete request', async () => {
-  //   const app = new App()
+    const res = await fetch('/', { method: 'HEAD' })
+    res.expect('HEAD', null)
+  })
+  it('app.delete handles delete request', async () => {
+    const app = new App()
 
-  //   app.delete('/', (req, res) => void res.end(req.method))
+    app.delete('/', (req, res) => void res.end(req.method))
+    ;(await makeFetch(app.handler)('/', { method: 'DELETE' })).expect(
+      'DELETE',
+    )
+  })
+  it('app.checkout handles checkout request', async () => {
+    const app = new App()
 
-  //   const server = app.handler
-  //   const fetch = makeFetch(server)
+    app.checkout('/', (req, res) => void res.end(req.method))
+    ;(await makeFetch(app.handler)('/', { method: 'CHECKOUT' })).expect(
+      'CHECKOUT',
+    )
+  })
+  it('app.copy handles copy request', async () => {
+    const app = new App()
 
-  //   await fetch('/', { method: 'DELETE' }).expect(200, 'DELETE')
-  // })
-  // it('app.checkout handles checkout request', async () => {
-  //   const app = new App()
+    app.copy('/', (req, res) => void res.end(req.method))
+    ;(await makeFetch(app.handler)('/', { method: 'COPY' })).expect('COPY')
+  })
+  it('app.lock handles lock request', async () => {
+    const app = new App()
 
-  //   app.checkout('/', (req, res) => void res.end(req.method))
+    app.lock('/', (req, res) => void res.end(req.method))
+    ;(await makeFetch(app.handler)('/', { method: 'LOCK' })).expect('LOCK')
+  })
+  it('app.merge handles merge request', async () => {
+    const app = new App()
 
-  //   const server = app.handler
-  //   const fetch = makeFetch(server)
+    app.merge('/', (req, res) => void res.end(req.method))
+    ;(await makeFetch(app.handler)('/', { method: 'MERGE' })).expect(
+      'MERGE',
+    )
+  })
+  it('app.mkactivity handles mkactivity request', async () => {
+    const app = new App()
 
-  //   await fetch('/', { method: 'CHECKOUT' }).expect(200, 'CHECKOUT')
-  // })
-  // it('app.copy handles copy request', async () => {
-  //   const app = new App()
+    app.mkactivity('/', (req, res) => void res.end(req.method))
+    ;(await makeFetch(app.handler)('/', { method: 'MKACTIVITY' })).expect(
+      'MKACTIVITY',
+    )
+  })
+  it('app.mkcol handles mkcol request', async () => {
+    const app = new App()
 
-  //   app.copy('/', (req, res) => void res.end(req.method))
+    app.mkcol('/', (req, res) => void res.end(req.method))
+    ;(await makeFetch(app.handler)('/', { method: 'MKCOL' })).expect(
+      'MKCOL',
+    )
+  })
+  it('app.move handles move request', async () => {
+    const app = new App()
 
-  //   const server = app.handler
-  //   const fetch = makeFetch(server)
+    app.move('/', (req, res) => void res.end(req.method))
+    ;(await makeFetch(app.handler)('/', { method: 'MOVE' })).expect('MOVE')
+  })
+  it('app.search handles search request', async () => {
+    const app = new App()
 
-  //   await fetch('/', { method: 'COPY' }).expect(200, 'COPY')
-  // })
-  // it('app.lock handles lock request', async () => {
-  //   const app = new App()
+    app.search('/', (req, res) => void res.end(req.method))
+    ;(await makeFetch(app.handler)('/', { method: 'SEARCH' })).expect(
+      'SEARCH',
+    )
+  })
+  it('app.notify handles notify request', async () => {
+    const app = new App()
 
-  //   app.lock('/', (req, res) => void res.end(req.method))
+    app.notify('/', (req, res) => void res.end(req.method))
+    ;(await makeFetch(app.handler)('/', { method: 'NOTIFY' })).expect(
+      'NOTIFY',
+    )
+  })
+  it('app.purge handles purge request', async () => {
+    const app = new App()
 
-  //   const server = app.handler
-  //   const fetch = makeFetch(server)
+    app.purge('/', (req, res) => void res.end(req.method))
+    ;(await makeFetch(app.handler)('/', { method: 'PURGE' })).expect(
+      'PURGE',
+    )
+  })
+  it('app.report handles report request', async () => {
+    const app = new App()
 
-  //   await fetch('/', { method: 'LOCK' }).expect(200, 'LOCK')
-  // })
-  // it('app.merge handles merge request', async () => {
-  //   const app = new App()
+    app.report('/', (req, res) => void res.end(req.method))
+    ;(await makeFetch(app.handler)('/', { method: 'REPORT' })).expect(
+      'REPORT',
+    )
+  })
+  it('app.subscribe handles subscribe request', async () => {
+    const app = new App()
 
-  //   app.merge('/', (req, res) => void res.end(req.method))
+    app.subscribe('/', (req, res) => void res.end(req.method))
+    ;(await makeFetch(app.handler)('/', { method: 'SUBSCRIBE' })).expect(
+      'SUBSCRIBE',
+    )
+  })
+  it('app.unsubscribe handles unsubscribe request', async () => {
+    const app = new App()
 
-  //   const server = app.handler
-  //   const fetch = makeFetch(server)
+    app.unsubscribe('/', (req, res) => void res.end(req.method))
+    ;(await makeFetch(app.handler)('/', { method: 'UNSUBSCRIBE' })).expect(
+      'UNSUBSCRIBE',
+    )
+  })
+  it.skip('app.trace handles trace request', async () => {
+    const app = new App()
 
-  //   await fetch('/', { method: 'MERGE' }).expect(200, 'MERGE')
-  // })
-  // it('app.mkactivity handles mkactivity request', async () => {
-  //   const app = new App()
-
-  //   app.mkactivity('/', (req, res) => void res.end(req.method))
-
-  //   const server = app.handler
-
-  //   const fetch = makeFetch(server)
-
-  //   await fetch('/', { method: 'MKACTIVITY' }).expect(200, 'MKACTIVITY')
-  // })
-  // it('app.mkcol handles mkcol request', async () => {
-  //   const app = new App()
-
-  //   app.mkcol('/', (req, res) => void res.end(req.method))
-
-  //   const server = app.handler
-  //   const fetch = makeFetch(server)
-
-  //   await fetch('/', { method: 'MKCOL' }).expect(200, 'MKCOL')
-  // })
-  // it('app.move handles move request', async () => {
-  //   const app = new App()
-
-  //   app.move('/', (req, res) => void res.end(req.method))
-
-  //   const server = app.handler
-  //   const fetch = makeFetch(server)
-
-  //   await fetch('/', { method: 'MOVE' }).expect(200, 'MOVE')
-  // })
-  // it('app.search handles search request', async () => {
-  //   const app = new App()
-
-  //   app.search('/', (req, res) => void res.end(req.method))
-
-  //   const server = app.handler
-  //   const fetch = makeFetch(server)
-
-  //   await fetch('/', { method: 'SEARCH' }).expect(200, 'SEARCH')
-  // })
-  // it('app.notify handles notify request', async () => {
-  //   const app = new App()
-
-  //   app.notify('/', (req, res) => void res.end(req.method))
-
-  //   const server = app.handler
-  //   const fetch = makeFetch(server)
-
-  //   await fetch('/', { method: 'NOTIFY' }).expect(200, 'NOTIFY')
-  // })
-  // it('app.purge handles purge request', async () => {
-  //   const app = new App()
-
-  //   app.purge('/', (req, res) => void res.end(req.method))
-
-  //   const server = app.handler
-  //   const fetch = makeFetch(server)
-
-  //   await fetch('/', { method: 'PURGE' }).expect(200, 'PURGE')
-  // })
-  // it('app.report handles report request', async () => {
-  //   const app = new App()
-
-  //   app.report('/', (req, res) => void res.end(req.method))
-
-  //   const fetch = makeFetch(app.handler)
-
-  //   await fetch('/', { method: 'REPORT' }).expect(200, 'REPORT')
-  // })
-  // it('app.subscribe handles subscribe request', async () => {
-  //   const app = new App()
-
-  //   app.subscribe('/', (req, res) => void res.end(req.method))
-
-  //   const server = app.handler
-  //   const fetch = makeFetch(server)
-
-  //   await fetch('/', { method: 'SUBSCRIBE' }).expect(200, 'SUBSCRIBE')
-  // })
-  // it('app.unsubscribe handles unsubscribe request', async () => {
-  //   const app = new App()
-
-  //   app.unsubscribe('/', (req, res) => void res.end(req.method))
-
-  //   const server = app.handler
-  //   const fetch = makeFetch(server)
-
-  //   await fetch('/', { method: 'UNSUBSCRIBE' }).expect(200, 'UNSUBSCRIBE')
-  // })
-  // it('app.trace handles trace request', async () => {
-  //   const app = new App()
-
-  //   app.trace('/', (req, res) => void res.end(req.method))
-
-  //   const server = app.handler
-  //   const fetch = makeFetch(server)
-
-  //   await fetch('/', { method: 'TRACE' }).expect(200, 'TRACE')
-  // })
+    app.trace('/', (req, res) => void res.end(req.method))
+    try {
+      await makeFetch(app.handler)('/', { method: 'TRACE' })
+    } catch (e) {
+      expect((e as Error).message).toBe('Method is forbidden.')
+    }
+  })
   it('HEAD request works when any of the method handlers are defined', async () => {
     const app = new App()
 
@@ -546,8 +509,7 @@ describe('HTTP methods', () => {
 
     app.get('/', (_, res) => void res.end('It works'))
 
-    const server = app.handler
-    const fetch = makeFetch(server)
+    const fetch = makeFetch(app.handler)
 
     const res = await fetch('/hello', { method: 'HEAD' })
     res.expect(404)
