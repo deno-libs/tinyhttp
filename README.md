@@ -1,6 +1,6 @@
 <div align="center">
   <img src="https://raw.githubusercontent.com/deno-libs/tinyhttp/master/logo.svg"  />
-  <h1 align="center">tinyhttp</h1>
+  <h1 align="center">DEPRECATED! Use <code>npm:@tinyhttp/app</code> directly</h1>
 
 [![nest badge][nest-badge]](https://nest.land/package/tinyhttp)
 [![GitHub Workflow Status][gh-actions-img]][github-actions]
