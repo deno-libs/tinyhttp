@@ -1,13 +1,13 @@
 import { base64 } from '../deps.ts'
 const encoder = new TextEncoder()
 
-const entityTag = async (entity: string): Promise<string> => {
-  if (entity.length === 0) {
+const entityTag = async (entity: string | Uint8Array): Promise<string> => {
+  if (entity.length === 0 && typeof entity != 'string') {
     // fast-path empty
     return '"0-2jmj7l5rSw0yVb/vlWAYkK/YBwk"'
   } else {
     // generate hash
-    const data = encoder.encode(entity)
+    const data = encoder.encode(entity as string)
     const buf = await crypto.subtle.digest('SHA-1', data)
     const hash = base64.encode(buf).slice(0, 27)
     const len = data.byteLength
@@ -30,8 +30,8 @@ export const eTag = async (
 
   // generate entity tag
 
-  const tag = typeof entity === 'string'
-    ? await entityTag(entity)
+  const tag = typeof entity === 'string' || ArrayBuffer.isView(entity)
+    ? await entityTag(entity as string)
     : statTag(entity)
 
   return weak ? 'W/' + tag : tag
